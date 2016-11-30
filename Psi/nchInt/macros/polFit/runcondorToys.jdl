@@ -1,0 +1,11 @@
+universe = vanilla
+Executable = runToyMCJob.sh
+getenv = True
+requirements = (OpSys == "LINUX")
+should_transfer_files = NO
+Requirements = TARGET.FileSystemDomain == "privnet"
+Output = /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchInt/macros/polFit/logs/simple_$(cluster)_$(process).stdout
+Error  = /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchInt/macros/polFit/logs/simple_$(cluster)_$(process).stderr
+Log    = /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchInt/macros/polFit/logs/simple_$(cluster)_$(process).condor
+
+Arguments = simple_$(cluster) $(process) 

@@ -1,0 +1,10 @@
+universe = vanilla
+Executable = runDataFitsJob.sh
+should_transfer_files = NO
+notification = never
+Output = /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchInt/macros/polFit/logs/simple_$(cluster)_$(process).stdout
+Error  = /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchInt/macros/polFit/logs/simple_$(cluster)_$(process).stderr
+Log    = /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchInt/macros/polFit/logs/simple_$(cluster)_$(process).condor
+
+Arguments = 50000 _ctauScen0_FracLSB-1_2016 /data/users/ferraioc/Polarization/JPsi/Data /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchInt/macros/polFit 0 2 12 4 2016Data  
+Queue 1

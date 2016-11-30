@@ -1,0 +1,9 @@
+universe = vanilla
+Executable = runDataFitsJob.sh
+should_transfer_files = NO
+notification = never
+Output = /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchBins/macros/polFit/logs/simple_$(cluster)_$(process).stdout
+Error  = /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchBins/macros/polFit/logs/simple_$(cluster)_$(process).stderr
+Log    = /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchBins/macros/polFit/logs/simple_$(cluster)_$(process).condor
+
+Arguments = 

@@ -64,6 +64,7 @@ int main(int argc, char** argv) {
 	bool useAmapApproach=false;
 	bool useBatch=false;
 	bool runCorrectionMap=false;
+	bool lambdaDiffs=false;
 
 
 	double n_sigmas_signal = 3.;
@@ -116,6 +117,8 @@ int main(int argc, char** argv) {
 	    if(std::string(argv[i]).find("scalePlots=true") != std::string::npos) {scalePlots=true; cout<<"run polGen.C"<<endl;}
 	    if(std::string(argv[i]).find("useAmapApproach=true") != std::string::npos) {useAmapApproach=true; cout<<"use new A-map approach to calculate dimuon efficiencies"<<endl;}
 	    if(std::string(argv[i]).find("runCorrectionMap=true") != std::string::npos) {runCorrectionMap=true; cout<<"Creating correction map for lambda diff"<<endl;}
+	    if(std::string(argv[i]).find("useBatch=1") != std::string::npos) {useBatch=true; cout<<"use batch submission system"<<endl;}
+	    if(std::string(argv[i]).find("lambdaDiffs=true") != std::string::npos) {lambdaDiffs=true; cout<<"Calculating lambda diffs"<<endl;}
 	    if(std::string(argv[i]).find("useBatch=1") != std::string::npos) {useBatch=true; cout<<"use batch submission system"<<endl;}
 
 	    if(std::string(argv[i]).find("JobID") != std::string::npos) {char* JobIDchar = argv[i]; char* JobIDchar2 = strtok (JobIDchar, "="); JobID = JobIDchar2; cout<<"JobID = "<<JobID<<endl;}
@@ -385,7 +388,7 @@ int main(int argc, char** argv) {
 
   	    if(gen)polGen(raplow,raphigh,ptlow,pthigh,cpmlow,cpmhigh,mass_signal_peak,mass_signal_sigma,n_sigmas_signal,n_events,f_BG,lambda_theta_sig_,lambda_phi_sig_,lambda_thetaphi_sig_,lambda_theta_bkg_,lambda_phi_bkg_,lambda_thetaphi_bkg_,frameSig,frameBkg,iGen,OutputDirectory);
 	    if(rec)polRec(raplow,raphigh,ptlow,pthigh,cpmlow,cpmhigh,mass_signal_peak,mass_signal_sigma,n_sigmas_signal,nRecEff,nRecDileptonEff,nRecRhoFactor,FidCuts,OutputDirectory, false, effDir, MCReceff, MCDileptonReceff, iRap, iPt,iCPM, useAmapApproach, nAmap, nDenominatorAmap);
-  		if(fit)polFit(nSample,FidCuts, nEff, nDileptonEff, nRhoFactor, OutputDirectory, realdatadir, TreeBinID, TreeBinID_dataFile, RealData, effDir, MCeff, MCDileptoneff, iRap, iPt, NewAccCalc, MPValgo, useAmapApproach, nAmap, nDenominatorAmap, runCorrectionMap);
+  		if(fit)polFit(nSample,FidCuts, nEff, nDileptonEff, nRhoFactor, OutputDirectory, realdatadir, TreeBinID, TreeBinID_dataFile, RealData, effDir, MCeff, MCDileptoneff, iRap, iPt, NewAccCalc, MPValgo, useAmapApproach, nAmap, nDenominatorAmap, runCorrectionMap, lambdaDiffs);
   		if(plot)polPlot(OutputDirectory, TreeBinID, RealData, MPValgo, scalePlots, 50, nState, cpmlow,cpmhigh,ptlow, pthigh, raplow, raphigh);
 
   		sprintf(dirstruct,"%s/Generation%d",rapptstruct,iGen+nSkipGen);

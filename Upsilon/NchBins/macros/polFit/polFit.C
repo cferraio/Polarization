@@ -218,7 +218,8 @@ void polFit(int n_sampledPoints=1,
 		bool useAmapApproach=false,
 		int nAmap=999,
 		int nDenominatorAmap=999,
-		bool runCorrectionMap=false
+		bool runCorrectionMap=false,
+		bool lambdaDiffs=false
 		){
 
   gROOT->Reset();
@@ -830,6 +831,8 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
 
     bool isEventAccepted = isMuonInAcceptance( FidCuts-1, lepP_pT, lepP_eta )
                          * isMuonInAcceptance( FidCuts-1, lepN_pT, lepN_eta );
+                         
+	if(lambdaDiffs) isEventAccepted = true;
 
     double epsilon = singleLeptonEfficiency( lepP_pT, lepP_eta, nEff, fInEff, hEvalEff, MCeff, TEff)
                    * singleLeptonEfficiency( lepN_pT, lepN_eta, nEff, fInEff, hEvalEff, MCeff, TEff);
@@ -877,7 +880,7 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
 	}
 
 
-	if(epsilon>1&&ForceEpsSmallerOne) {epsilon=1;}
+	if(epsilon>1&&ForceEpsSmallerOne&&!lambdaDiffs) {epsilon=1;}
 
     if ( isEventAccepted ) {
         if(!NewAccCalc) acceptance->Fill( pT, TMath::Abs(rap), mass );
@@ -894,7 +897,7 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
   // from after background subtraction
 //  TH2D* signal_costhphiPX  = (TH2D*)background_costhphiPX->Clone();
  
-  TH2D *signal_costhphiPX = new TH2D("","",64, -1, 1, 16, -180, 180);
+  TH2D *signal_costhphiPX = new TH2D("","",15, -1, 1, 15, -180, 180);
   signal_costhphiPX->SetName("signal_costhphiPX");
   signal_costhphiPX->Reset();
 
@@ -1095,14 +1098,16 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
 	}
 
 
-	if(epsilon>1&&ForceEpsSmallerOne) {epsilon=1;}
+	if(epsilon>1&&ForceEpsSmallerOne&&!lambdaDiffs) {epsilon=1;}
 
     // acceptance:
 
     bool isEventAccepted = isMuonInAcceptance( FidCuts-1, lepP_pT, lepP_eta )
                          * isMuonInAcceptance( FidCuts-1, lepN_pT, lepN_eta );
+                         
+	if(lambdaDiffs) isEventAccepted = true;
 
-    if ( epsilon > min_dileptonEff && isEventAccepted ) {
+    if (  (epsilon > min_dileptonEff && isEventAccepted) || lambdaDiffs ) {
 
       // fill histograms
       total_costhphiPX->Fill( costh_PX, phi_PX, 1. );
@@ -1406,6 +1411,7 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
     
     if(runCorrectionMap) {
     		signal_costhphiPX->Fill(costh_PX,phi_PX);
+    		continue;
 	}
 
     // efficiency:
@@ -1446,17 +1452,19 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
 	}
 
 
-	if(epsilon>1&&ForceEpsSmallerOne) {epsilon=1;}
+	if(epsilon>1&&ForceEpsSmallerOne&&!lambdaDiffs) {epsilon=1;}
 
     // acceptance:
 
     bool isEventAccepted = isMuonInAcceptance( FidCuts-1, lepP_pT, lepP_eta )
                          * isMuonInAcceptance( FidCuts-1, lepN_pT, lepN_eta );
+                         
+	if(lambdaDiffs) isEventAccepted = true;
 
 //    double additionalPtCut=0;
 //    if( lepP_pT < additionalPtCut || lepN_pT < additionalPtCut ) continue;
 
-    if ( epsilon > min_dileptonEff && isEventAccepted ) {
+    if ( (epsilon > min_dileptonEff && isEventAccepted) || lambdaDiffs) {
 
       ++i_signalEvent;
 
@@ -1483,9 +1491,12 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
 
       // fill pT, y and mass efficiency*acceptance-corrected histograms
 
-      int ibin_pT   = acceptance->GetXaxis()->FindBin( pT );
-      int ibin_rap  = acceptance->GetYaxis()->FindBin( TMath::Abs(rap) );
-      int ibin_mass = acceptance->GetZaxis()->FindBin( mass );
+      int 
+      ibin_pT   = acceptance->GetXaxis()->FindBin( pT );
+      int 
+      ibin_rap  = acceptance->GetYaxis()->FindBin( TMath::Abs(rap) );
+      int 
+      ibin_mass = acceptance->GetZaxis()->FindBin( mass );
 
       double acc  = acceptance->GetBinContent( ibin_pT, ibin_rap, ibin_mass );
 
@@ -1625,6 +1636,7 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
 
 
   ///////////////// cycle of MC events ////////////////////////
+  if(!runCorrectionMap){
   for(int i_MCevent = 1; i_MCevent <= n_MCevents_NORM; i_MCevent++){
 
 	    if (i_MCevent%n_step == 0) {cout << n_step_*20 <<" % "<<endl; n_step_++;}
@@ -1811,6 +1823,8 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
 
     bool isEventAccepted = isMuonInAcceptance( FidCuts-1, lepP_pT, lepP_eta )
                          * isMuonInAcceptance( FidCuts-1, lepN_pT, lepN_eta );
+                         
+	if(lambdaDiffs) isEventAccepted = true;
 
     double epsilon = singleLeptonEfficiency( lepP_pT, lepP_eta, nEff, fInEff, hEvalEff, MCeff, TEff)
                    * singleLeptonEfficiency( lepN_pT, lepN_eta, nEff, fInEff, hEvalEff, MCeff, TEff);
@@ -1845,9 +1859,9 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
 	}
 
 
-	if(epsilon>1&&ForceEpsSmallerOne) {epsilon=1;}
+	if(epsilon>1&&ForceEpsSmallerOne&&!lambdaDiffs) {epsilon=1;}
 
-    if ( epsilon > min_dileptonEff && isEventAccepted ) {
+    if ( (epsilon > min_dileptonEff && isEventAccepted) || lambdaDiffs ) {
 
         double temp;
 
@@ -1935,7 +1949,7 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
 
 
   } // end loop of MC integration
-
+  }
   cout << endl;
 
 

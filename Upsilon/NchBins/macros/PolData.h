@@ -529,7 +529,7 @@ void PolData::Init(TTree *tree)
 //   fChain->SetBranchAddress("muNegP_Gen", &muNeg);
 //   fChain->SetBranchAddress("muPosP_Gen", &muPos);
 
-   fChain->SetBranchAddress("muPosPglobalOK", &muPosPglobalOK, &b_muPosPglobalOK);
+/*   fChain->SetBranchAddress("muPosPglobalOK", &muPosPglobalOK, &b_muPosPglobalOK);
    fChain->SetBranchAddress("muNegPglobalOK", &muNegPglobalOK, &b_muNegPglobalOK);
 
    fChain->SetBranchAddress("muPosPglobalchi2", &muPosPglobalchi2         , &b_muPosPglobalchi2         );
@@ -541,7 +541,7 @@ void PolData::Init(TTree *tree)
    fChain->SetBranchAddress("ismuPosTMOneStationTight", &ismuPosTMOneStationTight , &b_ismuPosTMOneStationTight );
    fChain->SetBranchAddress("ismuNegTMOneStationTight", &ismuNegTMOneStationTight , &b_ismuNegTMOneStationTight );
 
-
+*/
 
 
 
@@ -554,7 +554,7 @@ void PolData::Init(TTree *tree)
    fChain->SetBranchAddress("runNb", &runNb, &b_runNb);
    fChain->SetBranchAddress("lumiBlock", &lumiBlock, &b_lumiBlock);
    fChain->SetBranchAddress("nPriVtx", &nPriVtx, &b_nPriVtx);
-   fChain->SetBranchAddress("JpsiType", &JpsiType, &b_JpsiType);
+//   fChain->SetBranchAddress("JpsiType", &JpsiType, &b_JpsiType);
    /* fChain->SetBranchAddress("fUniqueID", &fUniqueID, &b_JpsiP_fUniqueID); */
    /* fChain->SetBranchAddress("fBits", &fBits, &b_JpsiP_fBits); */
    /* fChain->SetBranchAddress("fP.fUniqueID", &fP_fUniqueID, &b_JpsiP_fP_fUniqueID); */
@@ -563,7 +563,7 @@ void PolData::Init(TTree *tree)
    /* fChain->SetBranchAddress("fP.fY", &fP_fY, &b_JpsiP_fP_fY); */
    /* fChain->SetBranchAddress("fP.fZ", &fP_fZ, &b_JpsiP_fP_fZ); */
    /* fChain->SetBranchAddress("fE", &fE, &b_JpsiP_fE); */
-   fChain->SetBranchAddress("JpsiCharge", &JpsiCharge, &b_JpsiCharge);
+//   fChain->SetBranchAddress("JpsiCharge", &JpsiCharge, &b_JpsiCharge);
    fChain->SetBranchAddress("Jpsict", &Jpsict, &b_Jpsict);
    fChain->SetBranchAddress("countTksOfPV", &countTksOfPV, &b_countTksOfPV);   
    fChain->SetBranchAddress("vertexWeight", &vertexWeight, &b_vertexWeight);   
@@ -591,23 +591,23 @@ void PolData::Init(TTree *tree)
    /* fChain->SetBranchAddress("fP.fY", &fP_fY, &b_muNegP_fP_fY); */
    /* fChain->SetBranchAddress("fP.fZ", &fP_fZ, &b_muNegP_fP_fZ); */
    /* fChain->SetBranchAddress("fE", &fE, &b_muNegP_fE); */
-   fChain->SetBranchAddress("HLT_DoubleMu3_Jpsi_v1", &HLT_DoubleMu3_Jpsi_v1, &b_HLT_DoubleMu3_Jpsi_v1);
-   fChain->SetBranchAddress("HLT_DoubleMu3_Jpsi_v1_PreScale", &HLT_DoubleMu3_Jpsi_v1_PreScale, &b_HLT_DoubleMu3_Jpsi_v1_PreScale);
-   fChain->SetBranchAddress("HLT_DoubleMu3_Jpsi_v2", &HLT_DoubleMu3_Jpsi_v2, &b_HLT_DoubleMu3_Jpsi_v2);
-   fChain->SetBranchAddress("HLT_DoubleMu3_Jpsi_v2_PreScale", &HLT_DoubleMu3_Jpsi_v2_PreScale, &b_HLT_DoubleMu3_Jpsi_v2_PreScale);
-   fChain->SetBranchAddress("HLT_Dimuon6p5_Jpsi_v1", &HLT_Dimuon6p5_Jpsi_v1, &b_HLT_Dimuon6p5_Jpsi_v1);
-   fChain->SetBranchAddress("HLT_Dimuon6p5_Jpsi_v1_PreScale", &HLT_Dimuon6p5_Jpsi_v1_PreScale, &b_HLT_Dimuon6p5_Jpsi_v1_PreScale);
-   fChain->SetBranchAddress("HLT_Dimuon6p5_Jpsi_Displaced_v1", &HLT_Dimuon6p5_Jpsi_Displaced_v1, &b_HLT_Dimuon6p5_Jpsi_Displaced_v1);
-   fChain->SetBranchAddress("HLT_Dimuon6p5_Jpsi_Displaced_v1_PreScale", &HLT_Dimuon6p5_Jpsi_Displaced_v1_PreScale, &b_HLT_Dimuon6p5_Jpsi_Displaced_v1_PreScale);
-   fChain->SetBranchAddress("HLT_Dimuon6p5_Barrel_Jpsi_v1", &HLT_Dimuon6p5_Barrel_Jpsi_v1, &b_HLT_Dimuon6p5_Barrel_Jpsi_v1);
-   fChain->SetBranchAddress("HLT_Dimuon6p5_Barrel_Jpsi_v1_PreScale", &HLT_Dimuon6p5_Barrel_Jpsi_v1_PreScale, &b_HLT_Dimuon6p5_Barrel_Jpsi_v1_PreScale);
-   fChain->SetBranchAddress("HLT_DoubleMu3_Quarkonium_v1", &HLT_DoubleMu3_Quarkonium_v1, &b_HLT_DoubleMu3_Quarkonium_v1);
-   fChain->SetBranchAddress("HLT_DoubleMu3_Quarkonium_v1_PreScale", &HLT_DoubleMu3_Quarkonium_v1_PreScale, &b_HLT_DoubleMu3_Quarkonium_v1_PreScale);
-   fChain->SetBranchAddress("HLT_DoubleMu3_Quarkonium_v2", &HLT_DoubleMu3_Quarkonium_v2, &b_HLT_DoubleMu3_Quarkonium_v2);
-   fChain->SetBranchAddress("HLT_DoubleMu3_Quarkonium_v2_PreScale", &HLT_DoubleMu3_Quarkonium_v2_PreScale, &b_HLT_DoubleMu3_Quarkonium_v2_PreScale);
-   fChain->SetBranchAddress("HLT_Dimuon6p5_Barrel_PsiPrime_v1", &HLT_Dimuon6p5_Barrel_PsiPrime_v1, &b_HLT_Dimuon6p5_Barrel_PsiPrime_v1);
-   fChain->SetBranchAddress("HLT_Dimuon6p5_Barrel_PsiPrime_v1_PreScale", &HLT_Dimuon6p5_Barrel_PsiPrime_v1_PreScale, &b_HLT_Dimuon6p5_Barrel_PsiPrime_v1_PreScale);
-   fChain->SetBranchAddress("HLT_DoubleMu3_Upsilon_v1", &HLT_DoubleMu3_Upsilon_v1, &b_HLT_DoubleMu3_Upsilon_v1);
+//   fChain->SetBranchAddress("HLT_DoubleMu3_Jpsi_v1", &HLT_DoubleMu3_Jpsi_v1, &b_HLT_DoubleMu3_Jpsi_v1);
+//   fChain->SetBranchAddress("HLT_DoubleMu3_Jpsi_v1_PreScale", &HLT_DoubleMu3_Jpsi_v1_PreScale, &b_HLT_DoubleMu3_Jpsi_v1_PreScale);
+//   fChain->SetBranchAddress("HLT_DoubleMu3_Jpsi_v2", &HLT_DoubleMu3_Jpsi_v2, &b_HLT_DoubleMu3_Jpsi_v2);
+//   fChain->SetBranchAddress("HLT_DoubleMu3_Jpsi_v2_PreScale", &HLT_DoubleMu3_Jpsi_v2_PreScale, &b_HLT_DoubleMu3_Jpsi_v2_PreScale);
+//   fChain->SetBranchAddress("HLT_Dimuon6p5_Jpsi_v1", &HLT_Dimuon6p5_Jpsi_v1, &b_HLT_Dimuon6p5_Jpsi_v1);
+//   fChain->SetBranchAddress("HLT_Dimuon6p5_Jpsi_v1_PreScale", &HLT_Dimuon6p5_Jpsi_v1_PreScale, &b_HLT_Dimuon6p5_Jpsi_v1_PreScale);
+//   fChain->SetBranchAddress("HLT_Dimuon6p5_Jpsi_Displaced_v1", &HLT_Dimuon6p5_Jpsi_Displaced_v1, &b_HLT_Dimuon6p5_Jpsi_Displaced_v1);
+//   fChain->SetBranchAddress("HLT_Dimuon6p5_Jpsi_Displaced_v1_PreScale", &HLT_Dimuon6p5_Jpsi_Displaced_v1_PreScale, &b_HLT_Dimuon6p5_Jpsi_Displaced_v1_PreScale);
+//   fChain->SetBranchAddress("HLT_Dimuon6p5_Barrel_Jpsi_v1", &HLT_Dimuon6p5_Barrel_Jpsi_v1, &b_HLT_Dimuon6p5_Barrel_Jpsi_v1);
+//   fChain->SetBranchAddress("HLT_Dimuon6p5_Barrel_Jpsi_v1_PreScale", &HLT_Dimuon6p5_Barrel_Jpsi_v1_PreScale, &b_HLT_Dimuon6p5_Barrel_Jpsi_v1_PreScale);
+//   fChain->SetBranchAddress("HLT_DoubleMu3_Quarkonium_v1", &HLT_DoubleMu3_Quarkonium_v1, &b_HLT_DoubleMu3_Quarkonium_v1);
+//   fChain->SetBranchAddress("HLT_DoubleMu3_Quarkonium_v1_PreScale", &HLT_DoubleMu3_Quarkonium_v1_PreScale, &b_HLT_DoubleMu3_Quarkonium_v1_PreScale);
+//   fChain->SetBranchAddress("HLT_DoubleMu3_Quarkonium_v2", &HLT_DoubleMu3_Quarkonium_v2, &b_HLT_DoubleMu3_Quarkonium_v2);
+//   fChain->SetBranchAddress("HLT_DoubleMu3_Quarkonium_v2_PreScale", &HLT_DoubleMu3_Quarkonium_v2_PreScale, &b_HLT_DoubleMu3_Quarkonium_v2_PreScale);
+//   fChain->SetBranchAddress("HLT_Dimuon6p5_Barrel_PsiPrime_v1", &HLT_Dimuon6p5_Barrel_PsiPrime_v1, &b_HLT_Dimuon6p5_Barrel_PsiPrime_v1);
+//   fChain->SetBranchAddress("HLT_Dimuon6p5_Barrel_PsiPrime_v1_PreScale", &HLT_Dimuon6p5_Barrel_PsiPrime_v1_PreScale, &b_HLT_Dimuon6p5_Barrel_PsiPrime_v1_PreScale);
+//   fChain->SetBranchAddress("HLT_DoubleMu3_Upsilon_v1", &HLT_DoubleMu3_Upsilon_v1, &b_HLT_DoubleMu3_Upsilon_v1);
    fChain->SetBranchAddress("HLT_DoubleMu3_Upsilon_v1_PreScale", &HLT_DoubleMu3_Upsilon_v1_PreScale, &b_HLT_DoubleMu3_Upsilon_v1_PreScale);
    fChain->SetBranchAddress("HLT_Dimuon0_Barrel_Upsilon_v1", &HLT_Dimuon0_Barrel_Upsilon_v1, &b_HLT_Dimuon0_Barrel_Upsilon_v1);
    fChain->SetBranchAddress("HLT_Dimuon0_Barrel_Upsilon_v1_PreScale", &HLT_Dimuon0_Barrel_Upsilon_v1_PreScale, &b_HLT_Dimuon0_Barrel_Upsilon_v1_PreScale);

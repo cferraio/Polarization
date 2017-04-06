@@ -42,7 +42,7 @@ StatVarRho=0               #apply statistical fluctuations on rho factor
 #JobID=Psi$[nState-3]S_ctauScen0_FracLSB-1_16Mar2013
 #JobID=Psi$[nState-3]S_ctauScen0_FracLSB-1_16Mar2013_scaleFracBg
 #JobID=Psi$[nState-3]S_ctauScen0_FracLSB-1_19Mar2013_${StatVarTotBGfraction}FracBg_${StatVarTotBGmodel}BgModel_${StatVarRho}Rho
-JobID=2015PbPb
+JobID=PbPb2015_Run4Dec
 
 rapBinMin=1
 rapBinMax=1
@@ -79,7 +79,7 @@ nSkipGen=0
 #DataID=_ctauScen0_FracLSB-1_25Feb2013_Bin5_8_8 ##with correct PR region definition
 #DataID=_ctauScen0_FracLSB-1_26Feb2013_BgNoRebin ##with correct PR region definition
 #DataID=_ctauScen0_FracLSB-1_newMLfit_4Mar2013
-DataID=_ctauScen0_FracLSB-1_2016
+DataID=_ctauScen0_FracLSB-1_PbPb2015_Run4Dec
 #DataID=_ctauScen0_FracLSB-1_newMLfit_4Mar2013_scaleFracBg
 
 MPValgo=3 		#1...mean,2...gauss,3...gauss-loop with chi2<2

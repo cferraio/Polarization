@@ -9,7 +9,7 @@ using namespace std;
 #include "TH2.h"
 
 enum{L,R};
-Char_t *bgLabel[2] = {"L", "R"};
+Char_t const *bgLabel[2] = {"L", "R"};
 TH2F *hCosThetaPhi[onia::kNbRapForPTBins+1][onia::kNbPTMaxBins+1][onia::NXBINS+1][onia::kNbFrames][2];
 void LoadHistos(Int_t iRapBin, Int_t iPTBin, Int_t iCPMBin);
 void PlotHistos(Int_t iRapBin, Int_t iPTBin, Int_t iCPMBin, Int_t iFrame, Int_t iWindow);
@@ -18,15 +18,22 @@ int main(){
 
 	gStyle->SetPalette(1);
 
-  for(int iRap = 0; iRap <= onia::kNbRapForPTBins; iRap++){
+	
+
+  for(int iRap = 1; iRap <= onia::kNbRapForPTBins; iRap++){
     Int_t max = onia::kNbPTBins[iRap]+1;
-    for(int iPT = 0; iPT < max; iPT++){
-      for(int iCPM = 0; iCPM < onia::NXBINS+1; iCPM++){
+    for(int iPT = 1; iPT < max; iPT++){
+      for(int iCPM = 1; iCPM < onia::NXBINS+1; iCPM++){
+
       LoadHistos(iRap, iPT, iCPM);
+
         for(int iFrame = 0; iFrame < onia::kNbFrames; iFrame++){
+
 	  PlotHistos(iRap, iPT, iCPM, iFrame, L);
+
 	  	  		cout<<"L irap = "<<iRap<<" ipt = "<<iPT<<" icpm = "<<iCPM<<endl;
 	  PlotHistos(iRap, iPT, iCPM, iFrame, R);
+
 	  			cout<<"R irap = "<<iRap<<" ipt = "<<iPT<<" icpm = "<<iCPM<<endl;
 	    }
       }

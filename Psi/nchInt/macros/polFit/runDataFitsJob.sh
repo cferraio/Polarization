@@ -1,7 +1,7 @@
 #!/bin/sh
 export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch #comment out for non-condor
 . $VO_CMS_SW_DIR/cmsset_default.sh #comment out for non-condor
-cd /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchInt/macros/polFit #comment out for non-condor
+cd /home/ferraioc/PolNew/CMSSW_5_3_20/src/Psi/nchInt/macros/polFit #comment out for non-condor
 eval `scramv1 runtime -sh` #comment out for non-condor
 
 source /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/5.34.05/x86_64-slc5-gcc43-opt/root/bin/thisroot.sh                                     
@@ -49,7 +49,7 @@ datadir_Start=${basedir}/macros/DataFiles
 ########## INPUTS ##########
 
 #Batch submission system: 0/1
-useBatch=1
+useBatch=0 #usually set to 1
 
 fracL=50 #in percent #MC closure: 25 for data sigmas, 50 for MC sigmas
 nSigma=3.00 #needed in 2 decimal accuracy (x.yz)
@@ -81,7 +81,7 @@ nDenominatorAmap=1		    	#the number here corresponds to the same notation as nE
 
 nSample=$1
 
-nFits=1
+nFits=20 ###usually set to 1
 nSkipGen=$settotalfits
 
 DataID=$DATAID

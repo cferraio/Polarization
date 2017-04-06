@@ -13,7 +13,7 @@ const Double_t massPDG2S = 10.023;
 const Double_t massPDG3S = 10.355;
 
 Int_t const kNbSpecies = 3;
-Char_t *specName[kNbSpecies] = {"1S", "2S", "3S"};
+Char_t const *specName[kNbSpecies] = {"1S", "2S", "3S"};
 enum {UPS1S, UPS2S, UPS3S, BG};
 Int_t colour[kNbSpecies+1] = {kRed-9,kGreen-3,kBlue-8,kGray};
 TH1F *hMass;
@@ -153,7 +153,9 @@ void DrawFit(Double_t nSigma, Int_t iRapBin, Int_t iPTBin, Int_t iCPMBin){
 
   sprintf(name, "Figures/massFit_rap%d_pT%d_cpm%d.pdf", iRapBin, iPTBin, iCPMBin);
 //  gPad->SetLogy(kTRUE);
-  gPad->Print(name);
+  if(iRapBin == 0 && iPTBin == 0) gPad->Print(name);
+  else if(iRapBin > 0 && iPTBin > 0) gPad->Print(name);
+  
 
 
 
@@ -258,8 +260,8 @@ void DrawFit(Double_t nSigma, Int_t iRapBin, Int_t iPTBin, Int_t iCPMBin){
 		plotLegend->Draw();
 
   	  sprintf(name,"Figures/pedagogical_rap%d_pT%d_cpm%d.pdf",iRapBin,iPTBin, iCPMBin);
-  	  SystCanvas->SaveAs(name);
-
+  	  if(iRapBin == 0 && iPTBin == 0) SystCanvas->SaveAs(name);
+	  else if(iRapBin > 0 && iPTBin > 0) SystCanvas->SaveAs(name);
 
   }
 
@@ -379,7 +381,7 @@ void FitSignalBG(Double_t nSigma, Int_t iRapBin, Int_t iPTBin, Int_t iCPMBin){
   printf("=========================================\n");
 
   TF1 *CB[kNbSpecies];
-  Double_t intCBFit[kNbSpecies]; //integral values of a CB with N=Nfit and fixed alpha, n, sigma, width
+//  Double_t intCBFit[kNbSpecies]; //integral values of a CB with N=Nfit and fixed alpha, n, sigma, width
 
   for(int iUps = 0; iUps < kNbSpecies; iUps++){
     sprintf(name, "CB_%d", iUps);
@@ -517,7 +519,7 @@ void FitSignalBG(Double_t nSigma, Int_t iRapBin, Int_t iPTBin, Int_t iCPMBin){
     // printf("nUps = %1.3f\n", nUps[iSpecies]);
     // printf("nBG = %1.3f\n", nBG[iSpecies]);
     printf("%s: fraction of BG in a +- %1.1f sigma window is %1.3f (not correct)\n",specName[iSpecies], nSigma, fracBG[iSpecies]);
-    printf("%s: Number of BG events in a +- %1.1f sigma window is %1.3f, number of signal events is %1.3f\n",nSigma, nBG[iSpecies], nUps[iSpecies]);
+    printf("Number of BG events in a +- %1.1f sigma window is %1.3f, number of signal events is %1.3f\n",nSigma, nBG[iSpecies], nUps[iSpecies]);
 
     fprintf(fInfo, "integral of the fitted CB for the %s is (norm factor= %1.3e): %7.0f\n", specName[iSpecies], intCB[iSpecies], nY[iSpecies]);
   }

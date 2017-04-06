@@ -7,9 +7,9 @@ using namespace RooFit;
 using namespace onia;
 
 double calcuFracL(RooWorkspace *ws, double mean, double sigma);
-void PlotMassPar(int  nState=4);
-void PlotLifePar(int  nState=4);
-void PlotBFrac_1S(int  nState=4);
+void PlotMassPar(int  nState=4, bool PbPb2015 = false);
+void PlotLifePar(int  nState=4, bool PbPb2015 = false);
+void PlotBFrac_1S(int  nState=4, bool PbPb2015 = false);
 void PlotBFrac_2S(int  nState=5);
 
 // evaluate Ctau cut to define PR and NP regions
@@ -19,8 +19,8 @@ double legendsize=0.035;
 vector<double> getSigma(RooWorkspace *ws, RooDataSet *dataJpsictErr, int rapBin, int ptBin);
 void evaluate(double nSigma=2.5, int nState=4, int type=0, bool doCtauUncer=false); 
 // type=0: PR(-ctau,ctau); type=1: NP(ctau,+infinity)
-void plotEval(double nSigma=2.5, int nState=4, int type=0); 
-void evaluateCtauCut(double nSigma=2.5, int nState=4, int type=0, bool doCtauUncer=false);
+void plotEval(double nSigma=2.5, int nState=4, int type=0, bool PbPb2015=false); 
+void evaluateCtauCut(double nSigma=2.5, int nState=4, int type=0, bool doCtauUncer=false, bool PbPb2015=false);
 vector<double> calculateInte(RooWorkspace *ws, RooDataSet *dataJpsictErr, double ctCutMin, double ctCutMax);
 
 //========================================================
@@ -66,19 +66,20 @@ void fromSplit(const std::string& key, const std::string &arg, std::string &out)
 int main(int argc, char* argv[]){
 	// set default values
 	int nState = 999;
-	bool doCtauUncer = false;
+	bool doCtauUncer = false, PbPb2015;
 
 	// Loop over argument list                                                                                                                                                       
 	for (int i=1; i < argc; i++){
 		std::string arg = argv[i];
 		fromSplit("nState", arg, nState);
 		fromSplit("doCtauUncer", arg, doCtauUncer);
+		fromSplit("PbPb2015", arg, PbPb2015);
 	}
-
-	PlotMassPar(nState);
-	PlotLifePar(nState);
+cout<<PbPb2015<<" PbPb2015 is "<<endl;
+	PlotMassPar(nState, PbPb2015);
+	PlotLifePar(nState, PbPb2015);
 	if(nState==4)
-		PlotBFrac_1S(nState);
+		PlotBFrac_1S(nState, PbPb2015);
 	if(nState==5)
 		PlotBFrac_2S(nState);
 
@@ -86,15 +87,15 @@ int main(int argc, char* argv[]){
 	if(nState==4) nSigma=3.0; //2.5
 	if(nState==5) nSigma=3.0; //2.0
 	//nSigma = -1;
-	evaluateCtauCut(nSigma, nState, 0, doCtauUncer);
-	//evaluateCtauCut(nSigma, nState, 1, doCtauUncer);
+	evaluateCtauCut(nSigma, nState, 0, doCtauUncer, PbPb2015);
+	evaluateCtauCut(nSigma, nState, 1, doCtauUncer, PbPb2015);
 
 	return 0;
 }
 
 
 //=============================================
-void PlotMassPar(int  nState){
+void PlotMassPar(int  nState, bool PbPb2015){
 	int RapBins = onia::kNbRapForPTBins,
 			PtBins  = onia::kNbPTMaxBins;
 
@@ -197,24 +198,42 @@ void PlotMassPar(int  nState){
 			RooRealVar *CBn=(RooRealVar *)ws->var("CBn");
 			RooRealVar *bkgLambda=(RooRealVar *)ws->var("bkgLambda");
 			RooRealVar *fracCB1_=(RooRealVar *)ws->var("fracCB1");
+
 			RooRealVar *fracBkg_=(RooRealVar *)ws->var("fracBkg");
 
+
 			double Mean = CBmass->getVal();
+
 			double MeanErr = CBmass->getError();
+
 			double Sigma = CBsigma->getVal();
+
 			double SigmaErr = CBsigma->getError();
+
 			double Sigma2 = CBsigma2->getVal();
+
 			double Sigma2Err = CBsigma2->getError();
+
 			double Alpha = CBalpha->getVal();
+
 			double AlphaErr = CBalpha->getError();
+
 			double cbN = CBn->getVal();
+
 			double cbNErr = CBn->getError();
+
 			double lambda = bkgLambda->getVal();
+
 			double lambdaErr = bkgLambda->getError();
+
 			double fracCB1 = fracCB1_->getVal();
+
 			double fracCB1Err = fracCB1_->getError();
+
 			double fracBkg = fracBkg_->getVal();
+
 			double fracBkgErr = fracBkg_->getError();
+
 			double SigmaWei = sqrt(pow(Sigma,2)*fracCB1+pow(Sigma2,2)*(1-fracCB1));
 			double SigmaWeiErr =  (1./(2*SigmaWei))*
 				sqrt(pow((pow(Sigma,2)-pow(Sigma2,2))*fracCB1Err,2) + pow(2*fracCB1*Sigma*SigmaErr,2) + pow(2*(1-fracCB1)*Sigma2*Sigma2Err,2) );
@@ -431,7 +450,7 @@ void PlotMassPar(int  nState){
 	legend->SetTextSize(legendsize);
 	legend->SetBorderSize(0.);
 	legend->AddEntry(graph_mean[0],"|y| < 0.6","lp");
-	legend->AddEntry(graph_mean[1],"0.6 < |y| < 1.2","lp");
+	if(!PbPb2015) legend->AddEntry(graph_mean[1],"0.6 < |y| < 1.2","lp");
 	if(nState==5)
 		legend->AddEntry(graph_mean[2],"1.2 < |y| < 1.5","lp");
 
@@ -442,8 +461,10 @@ void PlotMassPar(int  nState){
 	legendFull->SetBorderSize(0.);
 	legendFull->AddEntry(graph_sigma1[0],"|y| < 0.6 #sigma_{1}","lp");
 	legendFull->AddEntry(graph_sigma2[0],"|y| < 0.6 #sigma_{2}","lp");
+	if(!PbPb2015){
 	legendFull->AddEntry(graph_sigma1[1],"0.6 < |y| < 1.2 #sigma_{1}","lp");
 	legendFull->AddEntry(graph_sigma2[1],"0.6 < |y| < 1.2 #sigma_{2}","lp");
+	}
 	if(nState==5){
 		legendFull->AddEntry(graph_sigma1[2],"1.2 < |y| < 1.5 #sigma_{1}","lp");
 		legendFull->AddEntry(graph_sigma2[2],"1.2 < |y| < 1.5 #sigma_{2}","lp");
@@ -460,7 +481,7 @@ void PlotMassPar(int  nState){
 	legendRight->SetTextSize(legendsize);
 	legendRight->SetBorderSize(0.);
 	legendRight->AddEntry(graph_mean[0],"|y| < 0.6","lp");
-	legendRight->AddEntry(graph_mean[1],"0.6 < |y| < 1.2","lp");
+	if(!PbPb2015) legendRight->AddEntry(graph_mean[1],"0.6 < |y| < 1.2","lp");
 	if(nState==5)
 		legendRight->AddEntry(graph_mean[2],"1.2 < |y| < 1.5","lp");
 
@@ -474,8 +495,10 @@ void PlotMassPar(int  nState){
 	legendRightFull->SetBorderSize(0.);
 	legendRightFull->AddEntry(graph_sigma1[0],"|y| < 0.6 #sigma_{1}","lp");
 	legendRightFull->AddEntry(graph_sigma2[0],"|y| < 0.6 #sigma_{2}","lp");
+	if(!PbPb2015){
 	legendRightFull->AddEntry(graph_sigma1[1],"0.6 < |y| < 1.2 #sigma_{1}","lp");
 	legendRightFull->AddEntry(graph_sigma2[1],"0.6 < |y| < 1.2 #sigma_{2}","lp");
+	}
 	if(nState==5){
 		legendRightFull->AddEntry(graph_sigma1[2],"1.2 < |y| < 1.5 #sigma_{1}","lp");
 		legendRightFull->AddEntry(graph_sigma2[2],"1.2 < |y| < 1.5 #sigma_{2}","lp");
@@ -488,8 +511,11 @@ void PlotMassPar(int  nState){
 	legendSigConRightFull->SetBorderSize(0.);
 	legendSigConRightFull->AddEntry(graph_fracSigInLSB[0],"|y| < 0.6 LSB","lp");
 	legendSigConRightFull->AddEntry(graph_fracSigInRSB[0],"|y| < 0.6 RSB","lp");
+	if(!PbPb2015){
+	cout<<"what about this one?"<<endl;
 	legendSigConRightFull->AddEntry(graph_fracSigInLSB[1],"0.6 < |y| < 1.2 LSB","lp");
 	legendSigConRightFull->AddEntry(graph_fracSigInRSB[1],"0.6 < |y| < 1.2 RSB","lp");
+	}
 	if(nState==5){
 		legendSigConRightFull->AddEntry(graph_fracSigInLSB[2],"1.2 < |y| < 1.5 LSB","lp");
 		legendSigConRightFull->AddEntry(graph_fracSigInRSB[2],"1.2 < |y| < 1.5 RSB","lp");
@@ -533,11 +559,13 @@ void PlotMassPar(int  nState){
 	graph_mean[0]->SetTitle("");
 	graph_mean[0]->GetXaxis()->SetTitle("p_{T} (GeV)");
 	graph_mean[0]->GetYaxis()->SetTitle("mean (GeV)");
+
 	graph_mean[0]->GetXaxis()->SetLimits(Xmin, Xmax);
 	graph_mean[0]->GetYaxis()->SetRangeUser(Ymin, Ymax);
 	graph_mean[0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_mean[0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_mean[0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_mean[1]->SetTitle("");
 	graph_mean[1]->GetXaxis()->SetTitle("p_{T} (GeV)");
 	graph_mean[1]->GetYaxis()->SetTitle("mean (GeV)");
@@ -546,6 +574,7 @@ void PlotMassPar(int  nState){
 	graph_mean[1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_mean[1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_mean[1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_mean[2]->SetTitle("");
 		graph_mean[2]->GetXaxis()->SetTitle("p_{T} (GeV)");
@@ -567,6 +596,7 @@ void PlotMassPar(int  nState){
 	graph_sigmaWei[0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_sigmaWei[0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_sigmaWei[0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015){
 	graph_sigmaWei[1]->SetTitle("");
 	graph_sigmaWei[1]->GetXaxis()->SetTitle("p_{T} (GeV)");
 	graph_sigmaWei[1]->GetYaxis()->SetTitle("effective #sigma (MeV)");
@@ -575,6 +605,7 @@ void PlotMassPar(int  nState){
 	graph_sigmaWei[1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_sigmaWei[1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_sigmaWei[1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_sigmaWei[2]->SetTitle("");
 		graph_sigmaWei[2]->GetXaxis()->SetTitle("p_{T} (GeV)");
@@ -594,6 +625,7 @@ void PlotMassPar(int  nState){
 	graph_sigma1[0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_sigma1[0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_sigma1[0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015){
 	graph_sigma1[1]->SetTitle("");
 	graph_sigma1[1]->GetXaxis()->SetTitle("p_{T} (GeV)");
 	graph_sigma1[1]->GetYaxis()->SetTitle("#sigma_{1} (MeV)");
@@ -602,6 +634,7 @@ void PlotMassPar(int  nState){
 	graph_sigma1[1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_sigma1[1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_sigma1[1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_sigma1[2]->SetTitle("");
 		graph_sigma1[2]->GetXaxis()->SetTitle("p_{T} (GeV)");
@@ -623,6 +656,7 @@ void PlotMassPar(int  nState){
 	graph_sigma2[0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_sigma2[0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_sigma2[0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015){
 	graph_sigma2[1]->SetTitle("");
 	graph_sigma2[1]->GetXaxis()->SetTitle("p_{T} (GeV)");
 	graph_sigma2[1]->GetYaxis()->SetTitle("#sigma_{2} (MeV)");
@@ -631,6 +665,7 @@ void PlotMassPar(int  nState){
 	graph_sigma2[1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_sigma2[1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_sigma2[1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_sigma2[2]->SetTitle("");
 		graph_sigma2[2]->GetXaxis()->SetTitle("p_{T} (GeV)");
@@ -653,6 +688,7 @@ void PlotMassPar(int  nState){
 	graph_bkgRatio3Sig[0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_bkgRatio3Sig[0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_bkgRatio3Sig[0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015){
 	graph_bkgRatio3Sig[1]->SetTitle("");
 	graph_bkgRatio3Sig[1]->GetXaxis()->SetTitle("p_{T} (GeV)");
 	graph_bkgRatio3Sig[1]->GetYaxis()->SetTitle("Bg fraction(#pm3#sigma)");
@@ -661,6 +697,7 @@ void PlotMassPar(int  nState){
 	graph_bkgRatio3Sig[1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_bkgRatio3Sig[1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_bkgRatio3Sig[1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_bkgRatio3Sig[2]->SetTitle("");
 		graph_bkgRatio3Sig[2]->GetXaxis()->SetTitle("p_{T} (GeV)");
@@ -687,6 +724,7 @@ void PlotMassPar(int  nState){
 	graph_evtBkgSB[0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_evtBkgSB[0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_evtBkgSB[0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015){
 	graph_evtBkgSB[1]->SetTitle("");
 	graph_evtBkgSB[1]->GetXaxis()->SetTitle("p_{T} (GeV)");
 	graph_evtBkgSB[1]->GetYaxis()->SetTitle("number of events in SB");
@@ -695,6 +733,7 @@ void PlotMassPar(int  nState){
 	graph_evtBkgSB[1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_evtBkgSB[1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_evtBkgSB[1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_evtBkgSB[2]->SetTitle("");
 		graph_evtBkgSB[2]->GetXaxis()->SetTitle("p_{T} (GeV)");
@@ -715,6 +754,7 @@ void PlotMassPar(int  nState){
 	graph_fracLSB[0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_fracLSB[0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_fracLSB[0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_fracLSB[1]->SetTitle("");
 	graph_fracLSB[1]->GetXaxis()->SetTitle("p_{T} (GeV)");
 	graph_fracLSB[1]->GetYaxis()->SetTitle("frac_{LSB}");
@@ -723,6 +763,7 @@ void PlotMassPar(int  nState){
 	graph_fracLSB[1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_fracLSB[1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracLSB[1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_fracLSB[2]->SetTitle("");
 		graph_fracLSB[2]->GetXaxis()->SetTitle("p_{T} (GeV)");
@@ -743,6 +784,7 @@ void PlotMassPar(int  nState){
 	graph_alphaCB[0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_alphaCB[0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_alphaCB[0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_alphaCB[1]->SetTitle("");
 	graph_alphaCB[1]->GetXaxis()->SetTitle("p_{T} (GeV)");
 	graph_alphaCB[1]->GetYaxis()->SetTitle("#alpha_{CB}");
@@ -751,6 +793,7 @@ void PlotMassPar(int  nState){
 	graph_alphaCB[1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_alphaCB[1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_alphaCB[1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_alphaCB[2]->SetTitle("");
 		graph_alphaCB[2]->GetXaxis()->SetTitle("p_{T} (GeV)");
@@ -771,6 +814,7 @@ void PlotMassPar(int  nState){
 	graph_lambdaBG[0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_lambdaBG[0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_lambdaBG[0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015){
 	graph_lambdaBG[1]->SetTitle("");
 	graph_lambdaBG[1]->GetXaxis()->SetTitle("p_{T} (GeV)");
 	graph_lambdaBG[1]->GetYaxis()->SetTitle("#lambda_{BG}");
@@ -779,6 +823,7 @@ void PlotMassPar(int  nState){
 	graph_lambdaBG[1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_lambdaBG[1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_lambdaBG[1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_lambdaBG[2]->SetTitle("");
 		graph_lambdaBG[2]->GetXaxis()->SetTitle("p_{T} (GeV)");
@@ -799,6 +844,7 @@ void PlotMassPar(int  nState){
 	graph_fracSigInLSB[0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_fracSigInLSB[0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_fracSigInLSB[0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015){
 	graph_fracSigInLSB[1]->SetTitle("");
 	graph_fracSigInLSB[1]->GetXaxis()->SetTitle("p_{T} (GeV)");
 	graph_fracSigInLSB[1]->GetYaxis()->SetTitle("signal contamination in LSB");
@@ -807,6 +853,7 @@ void PlotMassPar(int  nState){
 	graph_fracSigInLSB[1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_fracSigInLSB[1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracSigInLSB[1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_fracSigInLSB[2]->SetTitle("");
 		graph_fracSigInLSB[2]->GetXaxis()->SetTitle("p_{T} (GeV)");
@@ -827,6 +874,7 @@ void PlotMassPar(int  nState){
 	graph_fracSigInRSB[0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_fracSigInRSB[0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_fracSigInRSB[0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015){
 	graph_fracSigInRSB[1]->SetTitle("");
 	graph_fracSigInRSB[1]->GetXaxis()->SetTitle("p_{T} (GeV)");
 	graph_fracSigInRSB[1]->GetYaxis()->SetTitle("signal contamination in RSB");
@@ -835,6 +883,7 @@ void PlotMassPar(int  nState){
 	graph_fracSigInRSB[1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_fracSigInRSB[1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracSigInRSB[1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_fracSigInRSB[2]->SetTitle("");
 		graph_fracSigInRSB[2]->GetXaxis()->SetTitle("p_{T} (GeV)");
@@ -855,6 +904,7 @@ void PlotMassPar(int  nState){
 	graph_evtInLSB[0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_evtInLSB[0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_evtInLSB[0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015){
 	graph_evtInLSB[1]->SetTitle("");
 	graph_evtInLSB[1]->GetXaxis()->SetTitle("p_{T} (GeV)");
 	graph_evtInLSB[1]->GetYaxis()->SetTitle("number of events in LSB");
@@ -863,6 +913,7 @@ void PlotMassPar(int  nState){
 	graph_evtInLSB[1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_evtInLSB[1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_evtInLSB[1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_evtInLSB[2]->SetTitle("");
 		graph_evtInLSB[2]->GetXaxis()->SetTitle("p_{T} (GeV)");
@@ -883,6 +934,7 @@ void PlotMassPar(int  nState){
 	graph_fracBkgInLSB[0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_fracBkgInLSB[0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_fracBkgInLSB[0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015){
 	graph_fracBkgInLSB[1]->SetTitle("");
 	graph_fracBkgInLSB[1]->GetXaxis()->SetTitle("p_{T} (GeV)");
 	graph_fracBkgInLSB[1]->GetYaxis()->SetTitle("Bg fraction in LSB");
@@ -891,6 +943,7 @@ void PlotMassPar(int  nState){
 	graph_fracBkgInLSB[1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_fracBkgInLSB[1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracBkgInLSB[1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_fracBkgInLSB[2]->SetTitle("");
 		graph_fracBkgInLSB[2]->GetXaxis()->SetTitle("p_{T} (GeV)");
@@ -911,6 +964,7 @@ void PlotMassPar(int  nState){
 	graph_fracBkgInRSB[0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_fracBkgInRSB[0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_fracBkgInRSB[0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015){
 	graph_fracBkgInRSB[1]->SetTitle("");
 	graph_fracBkgInRSB[1]->GetXaxis()->SetTitle("p_{T} (GeV)");
 	graph_fracBkgInRSB[1]->GetYaxis()->SetTitle("Bg fraction in RSB");
@@ -919,6 +973,7 @@ void PlotMassPar(int  nState){
 	graph_fracBkgInRSB[1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_fracBkgInRSB[1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracBkgInRSB[1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_fracBkgInRSB[2]->SetTitle("");
 		graph_fracBkgInRSB[2]->GetXaxis()->SetTitle("p_{T} (GeV)");
@@ -941,7 +996,7 @@ void PlotMassPar(int  nState){
 	double step=textSize*1.3;
 	///////////////////
 	graph_mean[0]->Draw("AP");
-	graph_mean[1]->Draw("P");
+	if(!PbPb2015) graph_mean[1]->Draw("P");
 	if(nState==5)
 		graph_mean[2]->Draw("P");
 	legendRight->Draw();
@@ -952,7 +1007,7 @@ void PlotMassPar(int  nState){
 	c1->SaveAs(Form("%s/mean.pdf",savePath.str().c_str()));
 
 	graph_sigmaWei[0]->Draw("AP");
-	graph_sigmaWei[1]->Draw("P");
+	if(!PbPb2015) graph_sigmaWei[1]->Draw("P");
 	if(nState==5){
 		graph_sigmaWei[2]->Draw("P");
 		legendRight->Draw();
@@ -965,21 +1020,21 @@ void PlotMassPar(int  nState){
 	c1->SaveAs(Form("%s/sigmaEffective.pdf",savePath.str().c_str()));
 
 	graph_sigma1[0]->Draw("AP");
-	graph_sigma1[1]->Draw("P");
+	if(!PbPb2015) graph_sigma1[1]->Draw("P");
 	if(nState==5)
 		graph_sigma1[2]->Draw("P");
 	legend->Draw();
 	c1->SaveAs(Form("%s/sigma1.pdf",savePath.str().c_str()));
 
 	graph_sigma2[0]->Draw("AP");
-	graph_sigma2[1]->Draw("P");
+	if(!PbPb2015) graph_sigma2[1]->Draw("P");
 	if(nState==5)
 		graph_sigma2[2]->Draw("P");
 	legend->Draw();
 	c1->SaveAs(Form("%s/sigma2.pdf",savePath.str().c_str()));
 
 	graph_bkgRatio3Sig[0]->Draw("AP");
-	graph_bkgRatio3Sig[1]->Draw("P");
+	if(!PbPb2015) graph_bkgRatio3Sig[1]->Draw("P");
 	if(nState==5)
 		graph_bkgRatio3Sig[2]->Draw("P");
 	legend->Draw();
@@ -987,7 +1042,7 @@ void PlotMassPar(int  nState){
 
 	c1->SetLogy();
 	graph_evtBkgSB[0]->Draw("AP");
-	graph_evtBkgSB[1]->Draw("P");
+	if(!PbPb2015) graph_evtBkgSB[1]->Draw("P");
 	if(nState==5)
 		graph_evtBkgSB[2]->Draw("P");
 	legendRight->Draw();
@@ -999,7 +1054,7 @@ void PlotMassPar(int  nState){
 	c1->SetLogy(0);
 
 	graph_fracLSB[0]->Draw("AP");
-	graph_fracLSB[1]->Draw("P");
+	if(!PbPb2015) graph_fracLSB[1]->Draw("P");
 	if(nState==5)
 		graph_fracLSB[2]->Draw("P");
 	legendRight->Draw();
@@ -1010,7 +1065,7 @@ void PlotMassPar(int  nState){
 	c1->SaveAs(Form("%s/fracLSB.pdf",savePath.str().c_str()));
 
 	graph_alphaCB[0]->Draw("AP");
-	graph_alphaCB[1]->Draw("P");
+	if(!PbPb2015) graph_alphaCB[1]->Draw("P");
 	if(nState==5)
 		graph_alphaCB[2]->Draw("P");
 	legendRight->Draw();
@@ -1021,7 +1076,7 @@ void PlotMassPar(int  nState){
 	c1->SaveAs(Form("%s/alphaCB.pdf",savePath.str().c_str()));
 
 	graph_lambdaBG[0]->Draw("AP");
-	graph_lambdaBG[1]->Draw("P");
+	if(!PbPb2015) graph_lambdaBG[1]->Draw("P");
 	if(nState==5)
 		graph_lambdaBG[2]->Draw("P");
 	legendRight->Draw();
@@ -1032,7 +1087,7 @@ void PlotMassPar(int  nState){
 	c1->SaveAs(Form("%s/lambdaBG.pdf",savePath.str().c_str()));
 
 	graph_fracSigInLSB[0]->Draw("AP");
-	graph_fracSigInLSB[1]->Draw("P");
+	if(!PbPb2015) graph_fracSigInLSB[1]->Draw("P");
 	if(nState==5)
 		graph_fracSigInLSB[2]->Draw("P");
 	legendRight->Draw();
@@ -1043,7 +1098,7 @@ void PlotMassPar(int  nState){
 	c1->SaveAs(Form("%s/fracSigInLSB.pdf",savePath.str().c_str()));
 
 	graph_fracSigInRSB[0]->Draw("AP");
-	graph_fracSigInRSB[1]->Draw("P");
+	if(!PbPb2015) graph_fracSigInRSB[1]->Draw("P");
 	if(nState==5)
 		graph_fracSigInRSB[2]->Draw("P");
 	legendRight->Draw();
@@ -1055,7 +1110,7 @@ void PlotMassPar(int  nState){
 
 	c1->SetLogy();
 	graph_evtInLSB[0]->Draw("AP");
-	graph_evtInLSB[1]->Draw("P");
+	if(!PbPb2015) graph_evtInLSB[1]->Draw("P");
 	if(nState==5)
 		graph_evtInLSB[2]->Draw("P");
 	legendRight->Draw();
@@ -1067,7 +1122,7 @@ void PlotMassPar(int  nState){
 	c1->SetLogy(0);
 
 	graph_fracBkgInLSB[0]->Draw("AP");
-	graph_fracBkgInLSB[1]->Draw("P");
+	if(!PbPb2015) graph_fracBkgInLSB[1]->Draw("P");
 	if(nState==5)
 		graph_fracBkgInLSB[2]->Draw("P");
 	legendRight->Draw();
@@ -1078,7 +1133,7 @@ void PlotMassPar(int  nState){
 	c1->SaveAs(Form("%s/fracBkgInLSB.pdf",savePath.str().c_str()));
 
 	graph_fracBkgInRSB[0]->Draw("AP");
-	graph_fracBkgInRSB[1]->Draw("P");
+	if(!PbPb2015) graph_fracBkgInRSB[1]->Draw("P");
 	if(nState==5)
 		graph_fracBkgInRSB[2]->Draw("P");
 	legendRight->Draw();
@@ -1091,12 +1146,12 @@ void PlotMassPar(int  nState){
 
 	//ploting signal contamination in one single frame
 	graph_fracSigInLSB[0]->SetMarkerStyle(20);
-	graph_fracSigInLSB[1]->SetMarkerStyle(21);
+	if(!PbPb2015) graph_fracSigInLSB[1]->SetMarkerStyle(21);
 	graph_fracSigInRSB[0]->SetMarkerStyle(24);
-	graph_fracSigInRSB[1]->SetMarkerStyle(25);
+	if(!PbPb2015) graph_fracSigInRSB[1]->SetMarkerStyle(25);
 
 	graph_fracSigInRSB[0]->SetMarkerSize(1.2);
-	graph_fracSigInRSB[1]->SetMarkerSize(1.2);
+	if(!PbPb2015) graph_fracSigInRSB[1]->SetMarkerSize(1.2);
 	if(nState==5){
 		graph_fracSigInLSB[2]->SetMarkerStyle(22);
 		graph_fracSigInRSB[2]->SetMarkerStyle(26);
@@ -1104,9 +1159,9 @@ void PlotMassPar(int  nState){
 	}
 	graph_fracSigInLSB[0]->GetYaxis()->SetTitle("signal contamination in L(R)SB");
 	graph_fracSigInLSB[0]->Draw("AP");
-	graph_fracSigInLSB[1]->Draw("P");
+	if(!PbPb2015) graph_fracSigInLSB[1]->Draw("P");
 	graph_fracSigInRSB[0]->Draw("P");
-	graph_fracSigInRSB[1]->Draw("P");
+	if(!PbPb2015) graph_fracSigInRSB[1]->Draw("P");
 	if(nState==5){
 		graph_fracSigInLSB[2]->Draw("P");
 		graph_fracSigInRSB[2]->Draw("P");
@@ -1123,12 +1178,12 @@ void PlotMassPar(int  nState){
 
 	////
 	graph_sigma1[0]->SetMarkerStyle(20);
-	graph_sigma1[1]->SetMarkerStyle(21);
+	if(!PbPb2015) graph_sigma1[1]->SetMarkerStyle(21);
 	graph_sigma2[0]->SetMarkerStyle(24);
-	graph_sigma2[1]->SetMarkerStyle(25);
+	if(!PbPb2015) graph_sigma2[1]->SetMarkerStyle(25);
 
 	graph_sigma2[0]->SetMarkerSize(1.2);
-	graph_sigma2[1]->SetMarkerSize(1.2);
+	if(!PbPb2015) graph_sigma2[1]->SetMarkerSize(1.2);
 	if(nState==5){
 		graph_sigma1[2]->SetMarkerStyle(22);
 		graph_sigma2[2]->SetMarkerStyle(26);
@@ -1137,9 +1192,9 @@ void PlotMassPar(int  nState){
 
 	graph_sigma2[0]->GetYaxis()->SetTitle("#sigma_{1,2} (MeV)");
 	graph_sigma2[0]->Draw("AP");
-	graph_sigma2[1]->Draw("P");
+	if(!PbPb2015) graph_sigma2[1]->Draw("P");
 	graph_sigma1[0]->Draw("P");
-	graph_sigma1[1]->Draw("P");
+	if(!PbPb2015) graph_sigma1[1]->Draw("P");
 	if(nState==5){
 		graph_sigma2[2]->Draw("P");
 		graph_sigma1[2]->Draw("P");
@@ -1224,7 +1279,7 @@ double calcuFracL(RooWorkspace *ws, double mean, double sigma){
 }
 
 //==============================================
-void PlotLifePar(int  nState) {
+void PlotLifePar(int  nState, bool PbPb2015) {
 	int RapBins = onia::kNbRapForPTBins,
 			PtBins  = onia::kNbPTMaxBins;
 	int LR=2;
@@ -1900,7 +1955,7 @@ void PlotLifePar(int  nState) {
 	LifetimeLegendLR_2rap->SetTextSize(legendsize);
 	LifetimeLegendLR_2rap->SetBorderSize(0.);
 	LifetimeLegendLR_2rap->AddEntry(graph_bkgTauSSDL[0][0],"|y| < 0.6 L(R)SB","lp");
-	LifetimeLegendLR_2rap->AddEntry(graph_bkgTauSSDL[0][1],"0.6 < |y| < 1.2 L(R)SB","lp");
+	if(!PbPb2015) LifetimeLegendLR_2rap->AddEntry(graph_bkgTauSSDL[0][1],"0.6 < |y| < 1.2 L(R)SB","lp");
 	if(nState==5)
 		LifetimeLegendLR_2rap->AddEntry(graph_bkgTauSSDL[0][2],"1.2 < |y| < 1.5 L(R)SB","lp");
 
@@ -1911,8 +1966,8 @@ void PlotLifePar(int  nState) {
 	LifetimeLegend_2rap->SetBorderSize(0.);
 	LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[0][0],"|y| < 0.6 LSB","lp");
 	LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[1][0],"|y| < 0.6 RSB","lp");
-	LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[0][1],"0.6 < |y| < 1.2 LSB","lp");
-	LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[1][1],"0.6 < |y| < 1.2 RSB","lp");
+	if(!PbPb2015) LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[0][1],"0.6 < |y| < 1.2 LSB","lp");
+	if(!PbPb2015) LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[1][1],"0.6 < |y| < 1.2 RSB","lp");
 	if(nState==5){
 		LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[0][2],"1.2 < |y| < 1.5 LSB","lp");
 		LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[1][2],"1.2 < |y| < 1.5 RSB","lp");
@@ -1924,7 +1979,7 @@ void PlotLifePar(int  nState) {
 	LifetimeLegend_SR_2rap->SetTextSize(legendsize);
 	LifetimeLegend_SR_2rap->SetBorderSize(0.);
 	LifetimeLegend_SR_2rap->AddEntry(graph_fracGauss2[0][0],"|y| < 0.6","lp");
-	LifetimeLegend_SR_2rap->AddEntry(graph_fracGauss2[0][1],"0.6 < |y| < 1.2","lp");
+	if(!PbPb2015) LifetimeLegend_SR_2rap->AddEntry(graph_fracGauss2[0][1],"0.6 < |y| < 1.2","lp");
 	if(nState==5)
 		LifetimeLegend_SR_2rap->AddEntry(graph_fracGauss2[0][2],"1.2 < |y| < 1.5","lp");
 
@@ -1933,16 +1988,18 @@ void PlotLifePar(int  nState) {
 	graph_fracGauss2[0][0]->SetMarkerStyle(21);
 	graph_fracGauss2[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_fracGauss2[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_fracGauss2[0][1]->SetMarkerStyle(20);
 	graph_fracGauss2[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracGauss2[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_fracGauss2[0][2]->SetMarkerStyle(22);
 		graph_fracGauss2[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_fracGauss2[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
 	graph_fracGauss2[0][0]->Draw("AP");
-	graph_fracGauss2[0][1]->Draw("P");
+	if(!PbPb2015) graph_fracGauss2[0][1]->Draw("P");
 	if(nState==5)
 		graph_fracGauss2[0][2]->Draw("P");
 	LifetimeLegend_SR_2rap->Draw();
@@ -1951,15 +2008,19 @@ void PlotLifePar(int  nState) {
 	graph_bkgTauSSDR[0][0]->SetMarkerStyle(21);
 	graph_bkgTauSSDR[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_bkgTauSSDR[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_bkgTauSSDR[0][1]->SetMarkerStyle(20);
 	graph_bkgTauSSDR[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_bkgTauSSDR[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	graph_bkgTauSSDR[1][0]->SetMarkerStyle(25);
 	graph_bkgTauSSDR[1][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_bkgTauSSDR[1][0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_bkgTauSSDR[1][1]->SetMarkerStyle(24);
 	graph_bkgTauSSDR[1][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_bkgTauSSDR[1][1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_bkgTauSSDR[0][2]->SetMarkerStyle(22);
 		graph_bkgTauSSDR[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
@@ -1970,9 +2031,9 @@ void PlotLifePar(int  nState) {
 	}
 
 	graph_bkgTauSSDR[0][0]->Draw("AP");
-	graph_bkgTauSSDR[0][1]->Draw("P");
+	if(!PbPb2015) graph_bkgTauSSDR[0][1]->Draw("P");
 	graph_bkgTauSSDR[1][0]->Draw("P");
-	graph_bkgTauSSDR[1][1]->Draw("P");
+	if(!PbPb2015) graph_bkgTauSSDR[1][1]->Draw("P");
 	if(nState==5){
 		graph_bkgTauSSDR[0][2]->Draw("P");
 		graph_bkgTauSSDR[1][2]->Draw("P");
@@ -1985,16 +2046,18 @@ void PlotLifePar(int  nState) {
 	graph_bkgTauSSDL[0][0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_bkgTauSSDL[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_bkgTauSSDL[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_bkgTauSSDL[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_bkgTauSSDL[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_bkgTauSSDL[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_bkgTauSSDL[0][2]->SetMarkerStyle(onia::marker_rapForPTBins[4]);
 		graph_bkgTauSSDL[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_bkgTauSSDL[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
 	graph_bkgTauSSDL[0][0]->Draw("AP");
-	graph_bkgTauSSDL[0][1]->Draw("P");
+	if(!PbPb2015) graph_bkgTauSSDL[0][1]->Draw("P");
 	if(nState==5)
 		graph_bkgTauSSDL[0][2]->Draw("P");
 	LifetimeLegendLR_2rap->Draw();
@@ -2003,16 +2066,18 @@ void PlotLifePar(int  nState) {
 	graph_bkgTauDSD[0][0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_bkgTauDSD[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_bkgTauDSD[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_bkgTauDSD[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_bkgTauDSD[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_bkgTauDSD[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_bkgTauDSD[0][2]->SetMarkerStyle(onia::marker_rapForPTBins[4]);
 		graph_bkgTauDSD[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_bkgTauDSD[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
 	graph_bkgTauDSD[0][0]->Draw("AP");
-	graph_bkgTauDSD[0][1]->Draw("P");
+	if(!PbPb2015) graph_bkgTauDSD[0][1]->Draw("P");
 	if(nState==5)
 		graph_bkgTauDSD[0][2]->Draw("P");
 	LifetimeLegendLR_2rap->Draw();
@@ -2021,15 +2086,19 @@ void PlotLifePar(int  nState) {
 	graph_fracBkgSSDL_SBL[0][0]->SetMarkerStyle(21);
 	graph_fracBkgSSDL_SBL[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_fracBkgSSDL_SBL[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_fracBkgSSDL_SBL[0][1]->SetMarkerStyle(20);
 	graph_fracBkgSSDL_SBL[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracBkgSSDL_SBL[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	graph_fracBkgSSDL_SBR[0][0]->SetMarkerStyle(25);
 	graph_fracBkgSSDL_SBR[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_fracBkgSSDL_SBR[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_fracBkgSSDL_SBR[0][1]->SetMarkerStyle(24);
 	graph_fracBkgSSDL_SBR[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracBkgSSDL_SBR[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_fracBkgSSDL_SBL[0][2]->SetMarkerStyle(22);
 		graph_fracBkgSSDL_SBL[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
@@ -2039,11 +2108,11 @@ void PlotLifePar(int  nState) {
 		graph_fracBkgSSDL_SBR[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
 	graph_fracBkgSSDL_SBL[0][0]->Draw("AP");
-	graph_fracBkgSSDL_SBL[0][1]->Draw("P");
+	if(!PbPb2015) graph_fracBkgSSDL_SBL[0][1]->Draw("P");
 	graph_fracBkgSSDL_SBL[0][0]->Draw("AP");
-	graph_fracBkgSSDL_SBL[0][1]->Draw("P");
+	if(!PbPb2015) graph_fracBkgSSDL_SBL[0][1]->Draw("P");
 	graph_fracBkgSSDL_SBR[0][0]->Draw("P");
-	graph_fracBkgSSDL_SBR[0][1]->Draw("P");
+	if(!PbPb2015) graph_fracBkgSSDL_SBR[0][1]->Draw("P");
 	if(nState==5){
 		graph_fracBkgSSDL_SBL[0][2]->Draw("P");
 		graph_fracBkgSSDL_SBR[0][2]->Draw("P");
@@ -2054,15 +2123,19 @@ void PlotLifePar(int  nState) {
 	graph_fracBkgSSDR_SBL[0][0]->SetMarkerStyle(21);
 	graph_fracBkgSSDR_SBL[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_fracBkgSSDR_SBL[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_fracBkgSSDR_SBL[0][1]->SetMarkerStyle(20);
 	graph_fracBkgSSDR_SBL[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracBkgSSDR_SBL[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	graph_fracBkgSSDR_SBR[0][0]->SetMarkerStyle(25);
 	graph_fracBkgSSDR_SBR[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_fracBkgSSDR_SBR[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_fracBkgSSDR_SBR[0][1]->SetMarkerStyle(24);
 	graph_fracBkgSSDR_SBR[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracBkgSSDR_SBR[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_fracBkgSSDR_SBL[0][2]->SetMarkerStyle(22);
 		graph_fracBkgSSDR_SBL[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
@@ -2072,9 +2145,9 @@ void PlotLifePar(int  nState) {
 		graph_fracBkgSSDR_SBR[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
 	graph_fracBkgSSDR_SBL[0][0]->Draw("AP");
-	graph_fracBkgSSDR_SBL[0][1]->Draw("P");
+	if(!PbPb2015) graph_fracBkgSSDR_SBL[0][1]->Draw("P");
 	graph_fracBkgSSDR_SBR[0][0]->Draw("P");
-	graph_fracBkgSSDR_SBR[0][1]->Draw("P");
+	if(!PbPb2015) graph_fracBkgSSDR_SBR[0][1]->Draw("P");
 	if(nState==5){
 		graph_fracBkgSSDR_SBL[0][2]->Draw("P");
 		graph_fracBkgSSDR_SBR[0][2]->Draw("P");
@@ -2085,15 +2158,19 @@ void PlotLifePar(int  nState) {
 	graph_fracBkgDSD_SBL[0][0]->SetMarkerStyle(21);
 	graph_fracBkgDSD_SBL[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_fracBkgDSD_SBL[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_fracBkgDSD_SBL[0][1]->SetMarkerStyle(20);
 	graph_fracBkgDSD_SBL[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracBkgDSD_SBL[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	graph_fracBkgDSD_SBR[0][0]->SetMarkerStyle(25);
 	graph_fracBkgDSD_SBR[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_fracBkgDSD_SBR[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_fracBkgDSD_SBR[0][1]->SetMarkerStyle(24);
 	graph_fracBkgDSD_SBR[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracBkgDSD_SBR[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	if(nState==5){
 		graph_fracBkgDSD_SBL[0][2]->SetMarkerStyle(22);
 		graph_fracBkgDSD_SBL[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
@@ -2103,9 +2180,9 @@ void PlotLifePar(int  nState) {
 		graph_fracBkgDSD_SBR[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
 	graph_fracBkgDSD_SBL[0][0]->Draw("AP");
-	graph_fracBkgDSD_SBL[0][1]->Draw("P");
+	if(!PbPb2015) graph_fracBkgDSD_SBL[0][1]->Draw("P");
 	graph_fracBkgDSD_SBR[0][0]->Draw("P");
-	graph_fracBkgDSD_SBR[0][1]->Draw("P");
+	if(!PbPb2015) graph_fracBkgDSD_SBR[0][1]->Draw("P");
 	if(nState==5){
 		graph_fracBkgDSD_SBL[0][2]->Draw("P");
 		graph_fracBkgDSD_SBR[0][2]->Draw("P");
@@ -2116,7 +2193,7 @@ void PlotLifePar(int  nState) {
 
 
 //==================================
-void PlotBFrac_1S(int nState){
+void PlotBFrac_1S(int nState, bool PbPb2015){
 	int RapBins = onia::kNbRapForPTBins,
 			PtBins  = onia::kNbPTMaxBins;
 
@@ -2259,7 +2336,7 @@ void PlotBFrac_1S(int nState){
 	LifetimeLegend->SetTextSize(legendsize);
 	LifetimeLegend->SetBorderSize(0.);
 	LifetimeLegend->AddEntry(graph_BFrac[0][0],"|y| < 0.6","lp");
-	LifetimeLegend->AddEntry(graph_BFrac[0][1],"0.6 < |y| < 1.2","lp");
+	if(!PbPb2015) LifetimeLegend->AddEntry(graph_BFrac[0][1],"0.6 < |y| < 1.2","lp");
 
 	TLegend* LifetimeLegend2Steps=new TLegend(blX,blY,trX,trY);
 	LifetimeLegend2Steps->SetFillColor(kWhite);
@@ -2267,7 +2344,7 @@ void PlotBFrac_1S(int nState){
 	LifetimeLegend2Steps->SetTextSize(legendsize);
 	LifetimeLegend2Steps->SetBorderSize(0.);
 	LifetimeLegend2Steps->AddEntry(graph_BFrac[0][0],"|y| < 0.6","lp");
-	LifetimeLegend2Steps->AddEntry(graph_BFrac[0][1],"0.6 < |y| < 1.2","lp");
+	if(!PbPb2015) LifetimeLegend2Steps->AddEntry(graph_BFrac[0][1],"0.6 < |y| < 1.2","lp");
 
 	gStyle->SetPadBottomMargin(0.11); //0.12
 	gStyle->SetPadLeftMargin(0.08); //0.12
@@ -2324,6 +2401,7 @@ void PlotBFrac_1S(int nState){
 	graph_BFrac[0][0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_BFrac[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_BFrac[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_BFrac[0][1]->SetTitle("");
 	graph_BFrac[0][1]->GetXaxis()->SetTitle("p_{T} (GeV)");
 	graph_BFrac[0][1]->GetYaxis()->SetTitle("B fraction");
@@ -2332,9 +2410,10 @@ void PlotBFrac_1S(int nState){
 	graph_BFrac[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_BFrac[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_BFrac[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 
 	graph_BFrac[0][0]->Draw("AP");
-	graph_BFrac[0][1]->Draw("P");
+	if(!PbPb2015) graph_BFrac[0][1]->Draw("P");
 	LifetimeLegend2Steps->Draw();
 	left=lvalue; top=tvalue;
 	latex->DrawLatex(left,top,"J/#psi");
@@ -2353,6 +2432,7 @@ void PlotBFrac_1S(int nState){
 	graph_FracNonPrompt[0][0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_FracNonPrompt[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_FracNonPrompt[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_FracNonPrompt[0][1]->SetTitle("");
 	graph_FracNonPrompt[0][1]->GetXaxis()->SetTitle("p_{T} (GeV)");
 	graph_FracNonPrompt[0][1]->GetYaxis()->SetTitle("NP fraction");
@@ -2362,9 +2442,9 @@ void PlotBFrac_1S(int nState){
 	graph_FracNonPrompt[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_FracNonPrompt[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_FracNonPrompt[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-
+	}
 	graph_FracNonPrompt[0][0]->Draw("AP");
-	graph_FracNonPrompt[0][1]->Draw("P");
+	if(!PbPb2015) graph_FracNonPrompt[0][1]->Draw("P");
 	LifetimeLegend2Steps->Draw();
 	left=lvalue; top=tvalue;
 	latex->DrawLatex(left,top,"J/#psi");
@@ -2382,6 +2462,7 @@ void PlotBFrac_1S(int nState){
 	graph_FracBkg[0][0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_FracBkg[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_FracBkg[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_FracBkg[0][1]->SetTitle("");
 	graph_FracBkg[0][1]->GetXaxis()->SetTitle("p_{T} (GeV)");
 	graph_FracBkg[0][1]->GetYaxis()->SetTitle("Bg fraction");
@@ -2391,9 +2472,9 @@ void PlotBFrac_1S(int nState){
 	graph_FracBkg[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 
 	graph_FracBkg[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-
+	}
 	graph_FracBkg[0][0]->Draw("AP");
-	graph_FracBkg[0][1]->Draw("P");
+	if(!PbPb2015) graph_FracBkg[0][1]->Draw("P");
 	LifetimeLegend2Steps->Draw();
 	left=lvalue; top=tvalue;
 	latex->DrawLatex(left,top,"J/#psi");
@@ -2473,7 +2554,7 @@ void PlotBFrac_1S(int nState){
 	LifetimeLegendCrossSection2Steps->SetTextSize(legendsize);
 	LifetimeLegendCrossSection2Steps->SetBorderSize(0.);
 	LifetimeLegendCrossSection2Steps->AddEntry(graph_BFrac[0][0],"|y| < 0.6","lp");
-	LifetimeLegendCrossSection2Steps->AddEntry(graph_BFrac[0][1],"0.6 < |y| < 1.2","lp");
+	if(!PbPb2015) LifetimeLegendCrossSection2Steps->AddEntry(graph_BFrac[0][1],"0.6 < |y| < 1.2","lp");
 	LifetimeLegendCrossSection2Steps->AddEntry(graph_BFracRap1,"|y| < 0.9 (BPH-10-014)","lp");
 	LifetimeLegendCrossSection2Steps->AddEntry(graph_BFracRap2,"0.9 < |y| < 1.2 (BPH-10-014)","lp");
 
@@ -2491,7 +2572,7 @@ void PlotBFrac_1S(int nState){
 	LifetimeLegendCrossSection2Steps_rap2->SetTextFont(42);
 	LifetimeLegendCrossSection2Steps_rap2->SetTextSize(legendsize);
 	LifetimeLegendCrossSection2Steps_rap2->SetBorderSize(0.);
-	LifetimeLegendCrossSection2Steps_rap2->AddEntry(graph_BFrac[0][1],"0.6 < |y| < 1.2","lp");
+	if(!PbPb2015) LifetimeLegendCrossSection2Steps_rap2->AddEntry(graph_BFrac[0][1],"0.6 < |y| < 1.2","lp");
 	LifetimeLegendCrossSection2Steps_rap2->AddEntry(graph_BFracRap2,"0.9 < |y| < 1.2 (BPH-10-014)","lp");
 
 	graph_BFracRap1->Draw("AP");
@@ -2508,9 +2589,11 @@ void PlotBFrac_1S(int nState){
 	graph_BFrac[0][0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_BFrac[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_BFrac[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_BFrac[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_BFrac[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_BFrac[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
+	}
 	graph_BFracRap1->SetMarkerStyle(onia::marker_rapForPTBins[4]);
 	graph_BFracRap1->SetMarkerColor(onia::colour_rapForPTBins[4]);
 	graph_BFracRap1->SetLineColor(onia::colour_rapForPTBins[4]);
@@ -2519,7 +2602,7 @@ void PlotBFrac_1S(int nState){
 	graph_BFracRap2->SetLineColor(onia::colour_rapForPTBins[5]);
 
 	graph_BFrac[0][0]->Draw("AP");
-	graph_BFrac[0][1]->Draw("P");
+	if(!PbPb2015) graph_BFrac[0][1]->Draw("P");
 	graph_BFracRap1->Draw("P");
 	graph_BFracRap2->Draw("P");
 	LifetimeLegendCrossSection2Steps->Draw();
@@ -2534,9 +2617,11 @@ void PlotBFrac_1S(int nState){
 	graph_BFrac[0][0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_BFrac[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_BFrac[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
+	if(!PbPb2015) {
 	graph_BFrac[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 	graph_BFrac[0][1]->SetMarkerColor(onia::colour_rapForPTBins[2]);
 	graph_BFrac[0][1]->SetLineColor(onia::colour_rapForPTBins[2]);
+	}
 	graph_BFracRap1->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_BFracRap1->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_BFracRap1->SetLineColor(onia::colour_rapForPTBins[3]);
@@ -2556,7 +2641,7 @@ void PlotBFrac_1S(int nState){
 	latex->DrawLatex(left,top,"pp  #sqrt{s} = 7 TeV");
 	c1->SaveAs(Form("%s/BFrac_BPH-10-014_compare_rap1.pdf",savePath.str().c_str()));
 
-	graph_BFrac[0][1]->Draw("AP");
+	if(!PbPb2015) graph_BFrac[0][1]->Draw("AP");
 	graph_BFracRap2->Draw("P");
 	LifetimeLegendCrossSection2Steps_rap2->Draw();
 	left=lvalue; top=tvalue;
@@ -2571,20 +2656,20 @@ void PlotBFrac_1S(int nState){
 	TFile *outfile  = new TFile(Form("%s/BFrac_%dS.root",savePath.str().c_str(),nState-3),"RECREATE");
 
 	graph_BFrac[0][0]->SetName("graph_BFrac_rap1");
-	graph_BFrac[0][1]->SetName("graph_BFrac_rap2");
+	if(!PbPb2015) graph_BFrac[0][1]->SetName("graph_BFrac_rap2");
 	graph_FracBkg[0][0]->SetName("graph_FracBkg_rap1");
-	graph_FracBkg[0][1]->SetName("graph_FracBkg_rap2");
+	if(!PbPb2015) graph_FracBkg[0][1]->SetName("graph_FracBkg_rap2");
 	graph_FracNonPrompt[0][0]->SetName("graph_FracNonPrompt_rap1");
-	graph_FracNonPrompt[0][1]->SetName("graph_FracNonPrompt_rap2");
+	if(!PbPb2015) graph_FracNonPrompt[0][1]->SetName("graph_FracNonPrompt_rap2");
 	graph_BFracRap1->SetName("graph_BPH_10_014_BFrac_rap1");
 	graph_BFracRap2->SetName("graph_BPH_10_014_BFrac_rap2");
 
 	graph_BFrac[0][0]->Write();
-	graph_BFrac[0][1]->Write();
+	if(!PbPb2015) graph_BFrac[0][1]->Write();
 	graph_FracBkg[0][0]->Write();
-	graph_FracBkg[0][1]->Write();
+	if(!PbPb2015) graph_FracBkg[0][1]->Write();
 	graph_FracNonPrompt[0][0]->Write();
-	graph_FracNonPrompt[0][1]->Write();
+	if(!PbPb2015) graph_FracNonPrompt[0][1]->Write();
 	graph_BFracRap1->Write();
 	graph_BFracRap2->Write();
 	outfile->Close();
@@ -3158,9 +3243,9 @@ void PlotBFrac_2S(int nState){
 }
 
 //===============================================
-void evaluateCtauCut(double nSigma, int nState, int type, bool doCtauUncer){ // type=0: PR(-ctau,ctau); type=1: NP(ctau,+infinity)
+void evaluateCtauCut(double nSigma, int nState, int type, bool doCtauUncer, bool PbPb2015){ // type=0: PR(-ctau,ctau); type=1: NP(ctau,+infinity)
 	evaluate(nSigma, nState, type, doCtauUncer); 
-	plotEval(nSigma, nState, type);
+	plotEval(nSigma, nState, type, PbPb2015);
 }
 
 //===============================================
@@ -3863,7 +3948,7 @@ void evaluate(double nSigma, int nState, int type, bool doCtauUncer){ // type=0:
 
 
 //========================================
-void plotEval(double nSigma, int nState, int type){ 
+void plotEval(double nSigma, int nState, int type, bool PbPb2015){ 
 	cout<<"nSigma: "<<nSigma<<endl;
 	cout<<"Psi: "<<nState<<"S"<<endl;
 	cout<<"type: "<<type<<endl;
@@ -4058,6 +4143,7 @@ void plotEval(double nSigma, int nState, int type){
 	latex->DrawLatex(left,top, "|y| < 0.6");
 	c1->SaveAs(Form("%s/fractionRelativeErr_rap1.pdf",savePath.str().c_str()));
 
+    if(!PbPb2015) {
 	graph_FracPR[1]->Draw("AP");
 	graph_FracNP[1]->Draw("P");
 	graph_FracBG[1]->Draw("P");
@@ -4069,6 +4155,7 @@ void plotEval(double nSigma, int nState, int type){
 	top -= stepLatex;
 	latex->DrawLatex(left,top, "0.6 < |y| < 1.2");
 	c1->SaveAs(Form("%s/fraction_rap2.pdf",savePath.str().c_str()));
+	
 
 	graph_FracPRErr[1]->Draw("AP");
 	graph_FracNPErr[1]->Draw("P");
@@ -4091,7 +4178,8 @@ void plotEval(double nSigma, int nState, int type){
 	top -= stepLatex;
 	latex->DrawLatex(left,top, "0.6 < |y| < 1.2");
 	c1->SaveAs(Form("%s/fractionRelativeErr_rap2.pdf",savePath.str().c_str()));
-
+	}
+	
 	if(nState==5){
 		graph_FracPR[2]->Draw("AP");
 		graph_FracNP[2]->Draw("P");
@@ -4130,7 +4218,7 @@ void plotEval(double nSigma, int nState, int type){
 	legend_ctauCut->SetTextSize(legendsize);
 	legend_ctauCut->SetBorderSize(0.);
 	legend_ctauCut->AddEntry(graph_CtauCut[0],"|y| < 0.6","lp");
-	legend_ctauCut->AddEntry(graph_CtauCut[1],"0.6 < |y| < 1.2","lp");
+	if(!PbPb2015) legend_ctauCut->AddEntry(graph_CtauCut[1],"0.6 < |y| < 1.2","lp");
 	if(nState==5)
 		legend_ctauCut->AddEntry(graph_CtauCut[2],"1.2 < |y| < 1.5","lp");
 
@@ -4140,7 +4228,7 @@ void plotEval(double nSigma, int nState, int type){
 	legend_promptProb->SetTextSize(legendsize);
 	legend_promptProb->SetBorderSize(0.);
 	legend_promptProb->AddEntry(graph_PRprob[0],"|y| < 0.6","lp");
-	legend_promptProb->AddEntry(graph_PRprob[1],"0.6 < |y| < 1.2","lp");
+	if(!PbPb2015) legend_promptProb->AddEntry(graph_PRprob[1],"0.6 < |y| < 1.2","lp");
 	if(nState==5)
 		legend_promptProb->AddEntry(graph_PRprob[2],"1.2 < |y| < 1.5","lp");
 
@@ -4150,12 +4238,12 @@ void plotEval(double nSigma, int nState, int type){
 	legend_evt->SetTextSize(legendsize);
 	legend_evt->SetBorderSize(0.);
 	legend_evt->AddEntry(graph_evtPR[0],"|y| < 0.6","lp");
-	legend_evt->AddEntry(graph_evtPR[1],"0.6 < |y| < 1.2","lp");
+	if(!PbPb2015) legend_evt->AddEntry(graph_evtPR[1],"0.6 < |y| < 1.2","lp");
 	if(nState==5)
 		legend_evt->AddEntry(graph_evtPR[2],"1.2 < |y| < 1.5","lp");
 
 	graph_CtauCut[0]->Draw("AP");
-	graph_CtauCut[1]->Draw("P");
+	if(!PbPb2015) graph_CtauCut[1]->Draw("P");
 	if(nState==5)
 		graph_CtauCut[2]->Draw("P");
 	legend_ctauCut->Draw();
@@ -4168,7 +4256,7 @@ void plotEval(double nSigma, int nState, int type){
 	c1->SaveAs(Form("%s/CtauCut.pdf",savePath.str().c_str()));
 
 	graph_PRprob[0]->Draw("AP");
-	graph_PRprob[1]->Draw("P");
+	if(!PbPb2015) graph_PRprob[1]->Draw("P");
 	if(nState==5)
 		graph_PRprob[2]->Draw("P");
 	legend_promptProb->Draw();
@@ -4180,7 +4268,7 @@ void plotEval(double nSigma, int nState, int type){
 
 	c1->SetLogy();
 	graph_evtPR[0]->Draw("AP");
-	graph_evtPR[1]->Draw("P");
+	if(!PbPb2015) graph_evtPR[1]->Draw("P");
 	if(nState==5)
 		graph_evtPR[2]->Draw("P");
 	legend_evt->Draw();
@@ -4190,7 +4278,7 @@ void plotEval(double nSigma, int nState, int type){
 	c1->SaveAs(Form("%s/evtP.pdf",savePath.str().c_str()));
 
 	graph_evtNP[0]->Draw("AP");
-	graph_evtNP[1]->Draw("P");
+	if(!PbPb2015) graph_evtNP[1]->Draw("P");
 	if(nState==5)
 		graph_evtNP[2]->Draw("P");
 	legend_evt->Draw();
@@ -4200,7 +4288,7 @@ void plotEval(double nSigma, int nState, int type){
 	c1->SaveAs(Form("%s/evtNP.pdf",savePath.str().c_str()));
 
 	graph_evtBG[0]->Draw("AP");
-	graph_evtBG[1]->Draw("P");
+	if(!PbPb2015) graph_evtBG[1]->Draw("P");
 	if(nState==5)
 		graph_evtBG[2]->Draw("P");
 	legend_evt->Draw();
@@ -4215,13 +4303,13 @@ void plotEval(double nSigma, int nState, int type){
 	legend_sigmaP->SetTextSize(legendsize);
 	legend_sigmaP->SetBorderSize(0.);
 	legend_sigmaP->AddEntry(graph_sigmaP[0],"|y| < 0.6","lp");
-	legend_sigmaP->AddEntry(graph_sigmaP[1],"0.6 < |y| < 1.2","lp");
+	if(!PbPb2015) legend_sigmaP->AddEntry(graph_sigmaP[1],"0.6 < |y| < 1.2","lp");
 	if(nState==5)
 		legend_sigmaP->AddEntry(graph_sigmaP[2],"1.2 < |y| < 1.5","lp");
 
 	c1->SetLogy(0);
 	graph_sigmaP[0]->Draw("AP");
-	graph_sigmaP[1]->Draw("P");
+	if(!PbPb2015) graph_sigmaP[1]->Draw("P");
 	if(nState==5)
 		graph_sigmaP[2]->Draw("P");
 	legend_sigmaP->Draw();
@@ -4231,7 +4319,7 @@ void plotEval(double nSigma, int nState, int type){
 	c1->SaveAs(Form("%s/rms.pdf",savePath.str().c_str()));
 
 	graph_sigmaP_L[0]->Draw("AP");
-	graph_sigmaP_L[1]->Draw("P");
+	if(!PbPb2015) graph_sigmaP_L[1]->Draw("P");
 	if(nState==5)
 		graph_sigmaP_L[2]->Draw("P");
 	legend_sigmaP->Draw();
@@ -4278,7 +4366,7 @@ void plotEval(double nSigma, int nState, int type){
 		for(int i=0; i<NumP; i++){
 			double x0,y0,x1,y1;
 			graph_sigmaP[0]->GetPoint(i,x0,y0);
-			graph_sigmaP[1]->GetPoint(i,x1,y1);
+			if(!PbPb2015) graph_sigmaP[1]->GetPoint(i,x1,y1);
 			double xNew = (x0+x1)/3.;
 			double yNew = (y0+y1)/3.;
 

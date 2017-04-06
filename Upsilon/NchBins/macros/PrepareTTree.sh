@@ -2,11 +2,11 @@
 
 ########## INPUTS ##########
 
-JobID=OddvsEven_Odd #MCclosure_Ups3S_Sept8 #July27_CowboyFix #MCclosure_Ups3S_July25 #MCclosure_Ups1S_July25 #May20Centrals #HighCtau3_BGratioTest #MCclosure #FinalData_CtauSig2 #_NoCtauCut #
+JobID=LambdaDiffs_2011 #MCclosure_Ups3S_Sept8 #July27_CowboyFix #MCclosure_Ups3S_July25 #MCclosure_Ups1S_July25 #May20Centrals #HighCtau3_BGratioTest #MCclosure #FinalData_CtauSig2 #_NoCtauCut #
 
 for FidCuts in 11;do 				#defines the set of cuts to be used, see macros/polFit/effsAndCuts.h
 
-for FracLSB in 46;do				#in percent; the left mass sideband will be weighted accordingly with respect to the right mass sideband
+for FracLSB in 72;do				#in percent; the left mass sideband will be weighted accordingly with respect to the right mass sideband
 for nSigma in 1.00;do				#needed in 2 decimal accuracy (x.yz); this value decides in which dimuon mass region the data is projected
 
 UpsMC=0
@@ -28,16 +28,16 @@ selectTIGHT=0
 selectMIXED=0
 selectNOTMIXED=0
 Even=0
-Odd=1
+Odd=0
 
 #following flags decide if the step is executed (1) or not (0):
-execute_runData=1					#This step only has to be executed once for each set of cuts (indep. of FracLSB and nSigma)
+execute_runData=0					#This step only has to be executed once for each set of cuts (indep. of FracLSB and nSigma)
 #execute_runMCData=0				#Run this ONLY when using the MC dataset in place of execute_runData
-execute_runMassFit=1				#This step only has to be executed once for each set of cuts (indep. of FracLSB and nSigma)
-execute_runCopyTreeEntries=1		#This step only has to be executed once for each set of cuts (indep. of FracLSB and nSigma)
-execute_PlotCosThetaPhiBG=1 	#This step only has to be executed once for each set of cuts (indep. of FracLSB and nSigma)
-execute_runTrimEventContent=1		#For each set of cuts, you can choose different values for FracLSB and nSigma
-execute_PlotCosThetaPhiDistribution=1	#For each set of cuts, you can choose different values for FracLSB and nSigma
+execute_runMassFit=0				#This step only has to be executed once for each set of cuts (indep. of FracLSB and nSigma)
+execute_runCopyTreeEntries=0		#This step only has to be executed once for each set of cuts (indep. of FracLSB and nSigma)
+execute_PlotCosThetaPhiBG=0 	#This step only has to be executed once for each set of cuts (indep. of FracLSB and nSigma)
+execute_runTrimEventContent=0		#For each set of cuts, you can choose different values for FracLSB and nSigma
+execute_PlotCosThetaPhiDistribution=0	#For each set of cuts, you can choose different values for FracLSB and nSigma
 execute_runMeanPt=1					#Optional; This macro calculates the mean pT for the plotting (one has to manually copy the contents of meanPt.txt to ToyMC.h, different mean-pT of the three Y states are not yet implemented)
 
 
@@ -100,7 +100,6 @@ cp runTrimEventContent.cc ${CutDir}/runTrimEventContent.cc
 cp TrimEventContent.C ${CutDir}/TrimEventContent.C
 
 
-cp runMeancpm.cc ${CutDir}/runMeancpm.cc
 cp calcMeancpm.C ${CutDir}/calcMeancpm.C
 
 cp runMeanPt.cc ${CutDir}/runMeanPt.cc

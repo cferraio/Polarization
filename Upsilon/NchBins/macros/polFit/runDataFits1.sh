@@ -22,7 +22,7 @@ nSigma=1.00 #needed in 2 decimal accuracy (x.yz)
 
 for nState in 1;do
 
-JobID=LambdaDiffs_2011_JPedits #Please define nSigma and fracL yourself in the JobID, if needed
+JobID=LambdaDiffs_2011_map #Please define nSigma and fracL yourself in the JobID, if needed
 
 rapBinMin=1
 rapBinMax=1
@@ -39,7 +39,7 @@ UseMCeff=false
 nDileptonEff=1
 UseMCDileptoneff=true
 
-nRhoFactor=331
+nRhoFactor=1 #316=HX #331=PX
 
 useAmapApproach=false
 nAmap=1                    #frame/state/sigma/ID ( ID= 2 digits )
@@ -47,14 +47,14 @@ nDenominatorAmap=1		    	#the number here corresponds to the same notation as nE
 
 nSample=25000
 
-nFits=1
+nFits=50
 nSkipGen=0
 
 DataID=_LambdaDiffs_2011
 
 MPValgo=3 		#1...mean,2...gauss,3...gauss-loop with chi2<2
 
-runCorrectionMap=false
+runCorrectionMap=true
 lambdaDiffs=true
 
 

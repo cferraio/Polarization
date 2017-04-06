@@ -60,7 +60,8 @@ int main(int argc, char* argv[]){
       ptMax = 999,
       nState = 999;
     bool
-      officialMC = false;
+      officialMC = false,
+      PbPb2015 = false;
 
     // Loop over argument list
     for (int i=1; i < argc; i++)
@@ -72,6 +73,7 @@ int main(int argc, char* argv[]){
         fromSplit("ptMax", arg, ptMax);
         fromSplit("nState", arg, nState);
         fromSplit("officialMC", arg, officialMC);
+        fromSplit("PbPb2015", arg, PbPb2015);
       }
 
     std::cout << "-----------------------\n"
@@ -88,7 +90,7 @@ int main(int argc, char* argv[]){
 	temp << "tmpFiles/fit_Psi" << nState-3 << "S_rap" << iRap << "_pt" << iPT <<".root";	
 	const std::string infilename = temp.str().c_str();
 
-	lifetimeFit(infilename.c_str(), iRap, iPT, nState, officialMC);
+	lifetimeFit(infilename.c_str(), iRap, iPT, nState, officialMC, PbPb2015);
 
       }
     }

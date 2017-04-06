@@ -19,16 +19,17 @@ NSigma=3.00 #needed in 2 decimal accuracy (x.yz)
 for nState in 4;do
 
 cp ../../interface/rootIncludes.inc               rootIncludes.inc
-cp ../../interface/commonVar_Psi$[nState-3]S.h    commonVar.h
+#cp ../../interface/commonVar_Psi$[nState-3]S.h    commonVar.h
+cp ../../interface/commonVar_Psi1S_PbPb.h commonVar.h
 cp ../../interface/ToyMC_Psi$[nState-3]S.h        ToyMC.h
 cp ../../interface/effsAndCuts_Psi$[nState-3]S.h  effsAndCuts.h
 touch polRapPtPlot.cc
 make
 
 #for JobID in Psi$[nState-3]S_${NSigma}Sigma_11Dec2012; do
-for JobID in 2015PbPb; do
+for JobID in PbPb2015_Run17Jan_ppref; do
 
-DataID=_ctauScen0_FracLSB-1_2016
+DataID=_ctauScen0_FracLSB-1_PbPb2015_Run17Jan_ppref
 
 FidCuts=11
 if [ $nState -eq 4 ]

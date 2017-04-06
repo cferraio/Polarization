@@ -42,7 +42,7 @@ void PolData::Loop(int nState, bool rejectCowboys, int FidCuts, bool MC, bool Re
 	treeOut->Branch("JpsiVprob", &jpsiVprob, "JpsiVprob/D");
 	treeOut->Branch("runNb", &runnb, "runNb/D");
    
-   //nentries=1000000;
+//   nentries=1000000;
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
    
    if(jentry % 100000 == 0) std::cout << "event " << jentry << " of " << nentries << std::endl;
@@ -61,7 +61,8 @@ void PolData::Loop(int nState, bool rejectCowboys, int FidCuts, bool MC, bool Re
 	  TLorentzVector *muNeg = (TLorentzVector *) Reco_QQ_mumi_4mom->At(iQQ);	  
 	  
 	  if(onia->Pt() > 990.) continue;
-	  if(JpsiVprob[iQQ] < 0.01) continue;
+	  if(Reco_QQ_VtxProb[iQQ] < 0.01) continue;
+	  
 	  
 	  Reco_StatEv->Fill(0.5);
 	  
@@ -177,7 +178,7 @@ void PolData::Loop(int nState, bool rejectCowboys, int FidCuts, bool MC, bool Re
 		jpsict = Jpsict[iQQ];
 		jpsictErr = JpsictErr[iQQ];
 		jpsiMassErr = JpsiMassErr;
-		jpsiVprob = JpsiVprob[iQQ];
+		jpsiVprob = Reco_QQ_VtxProb[iQQ];
 		treeOut->Fill();
 
 		//remaining of the events will be used for the analysis

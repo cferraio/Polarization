@@ -51,10 +51,10 @@ int main(int argc, char** argv){
 
 
 
-  for(int iRap = 0; iRap <= 1; iRap++){
+  for(int iRap = 1; iRap <= 1; iRap++){
     Int_t max = onia::kNbPTBins[iRap]+1;
-    for(int iPT = 0; iPT < max; iPT++){
-      for(int iCPM = 0; iCPM < onia::NXBINS+1; iCPM++){
+    for(int iPT = 1; iPT < max; iPT++){
+      for(int iCPM = 1; iCPM < onia::NXBINS+1; iCPM++){
         for(int iFrame = 0; iFrame < onia::kNbFrames; iFrame++){
         	CosThPhDist[iFrame][iRap][iPT][iCPM] = new TH2D("","",nBinsCT, onia::cosTMin, onia::cosTMax, nBinsPH, onia::phiPolMin, onia::phiPolMax);
         	CosThDist[iFrame][iRap][iPT][iCPM] = new TH1D("","",nBins1DCosth, onia::cosTMin, onia::cosTMax);
@@ -77,10 +77,10 @@ int main(int argc, char** argv){
 	  TFile* AngDistHistFile = new TFile(filename, "RECREATE", "AngDistHistFile");
 	  AngDistHistFile->cd();
 
-	  for(int iRap = 0; iRap <= 2; iRap++){
+	  for(int iRap = 1; iRap < 2; iRap++){
 	    Int_t max = onia::kNbPTBins[iRap]+1;
-	    for(int iPT = 0; iPT < max; iPT++){
-	      for(int iCPM = 0; iCPM < onia::NXBINS+1; iCPM++){
+	    for(int iPT = 1; iPT < max; iPT++){
+	      for(int iCPM = 1; iCPM < onia::NXBINS+1; iCPM++){
 
       char histName[200];
       for(int iFrame = 0; iFrame < 3; iFrame++){
@@ -136,9 +136,8 @@ void PlotHistos(Int_t iRapBin, Int_t iPTBin, Int_t iCPMBin, Int_t iFrame,int nSt
 //===========================
 void LoadHistos(Int_t iRapBin, Int_t iPTBin, Int_t iCPMBin, int nState, Char_t *DataPath){
 
-cout<<"test"<<endl;
   Char_t name[100];
-  sprintf(name, "%s/data_%dSUps_rap%d_pT%d_cpm%d.root", DataPath,nState, iRapBin, iPTBin, iCPMBin);
+  sprintf(name, "%s/data_%dSUps_rap%d_pT%d_cpm%d.root", DataPath, nState, iRapBin, iPTBin, iCPMBin);
 
   TFile *fIn = new TFile(name);
   TTree* selectedData = (TTree*)fIn->Get("selectedData");

@@ -681,7 +681,7 @@ if(vertexWeight > 30 && vertexWeight < 60) {runningsumforstddevIntNprivtx[3]+=ve
 	}
 	
 	if(rapIntegratedPTIndex >= 0 && rapForPTIndex >= 0){
-    Reco_Onia_mass[rapIntegratedPTIndex][rapForPTIndex][0]->Fill(onia_mass);
+//    Reco_Onia_mass[rapIntegratedPTIndex][rapForPTIndex][0]->Fill(onia_mass);
 	  if(rapForPTIndex >= 0 && cpmIndex >= 0){	
 	  Reco_Onia_mass[0][rapForPTIndex][cpmIndex]->Fill(onia_mass);
     	if(cpmIndex >= 0 && rapIntegratedPTIndex >= 0){

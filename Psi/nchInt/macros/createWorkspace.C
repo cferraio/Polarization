@@ -105,7 +105,7 @@ void createWorkspace(const std::string &infilename, int nState, bool correctCtau
 				Jpsict    ->setVal(lifetime);
 				JpsictErr ->setVal(lifetimeErr);
 			}
-
+cout<<"should add"<<endl;
 			fullData->add(dataVars);
 		}
 	}//ientries

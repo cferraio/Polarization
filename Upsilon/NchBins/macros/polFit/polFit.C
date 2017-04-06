@@ -254,11 +254,12 @@ void polFit(int n_sampledPoints=1,
   TFile *fInDileptonEff = new TFile(EffFile);
   TH1* hDileptonEff=(TH1*) fInDileptonEff->Get(EffType);
 
-  if(nRhoFactor<331){
+  if(nRhoFactor<331 && nRhoFactor!=316){
     EvaluateEffFileName(nRhoFactor,EffFileName,false);
     sprintf(EffFile,"%s/%s",effDir,EffFileName);
   }
 //	if(nRhoFactor==331) sprintf(EffFile,"%s/map.root",effDir);
+  if(nRhoFactor==316) sprintf(EffFile,"%s/results_1SUps_rap1_pT1_cpm2.root",effDir);
   if(nRhoFactor==331) sprintf(EffFile,"%s/results_1SUps_rap1_pT1_cpm2.root",effDir);
   if(nRhoFactor==332) sprintf(EffFile,"%s/results_1SUps_rap1_pT2_cpm2.root",effDir);
   TFile *fInRhoFactor = new TFile(EffFile);
@@ -511,6 +512,10 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
 
   TH1D* background_costhPX = background_costhphiPX->ProjectionX( "background_costhPX" );
   TH1D* background_phiPX   = background_costhphiPX->ProjectionY( "background_phiPX" );
+  
+  TH2D* background_costhphiHX  = (TH2D*)dataFile->Get("background_costhphiHX");
+  TH1D* background_costhHX = background_costhphiHX->ProjectionX( "background_costhHX" );
+  TH1D* background_phiHX   = background_costhphiHX->ProjectionY( "background_phiHX" );
 
   TH1D* background_pT      = background_pTrapMass->ProjectionX( "background_pT" );
   TH1D* background_rap     = background_pTrapMass->ProjectionY( "background_rap" );
@@ -521,6 +526,9 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
   background_costhphiPX->Sumw2();
   background_costhPX->Sumw2();
   background_phiPX->Sumw2();
+  background_costhphiHX->Sumw2();
+  background_costhHX->Sumw2();
+  background_phiHX->Sumw2();  
   background_pTrapMass->Sumw2();
   background_pT->Sumw2();
   background_rap->Sumw2();
@@ -897,9 +905,17 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
   // from after background subtraction
 //  TH2D* signal_costhphiPX  = (TH2D*)background_costhphiPX->Clone();
  
-  TH2D *signal_costhphiPX = new TH2D("","",15, -1, 1, 15, -180, 180);
+  TH2D *signal_costhphiPX = new TH2D("","",64, -1, 1, 32, -180, 180);
   signal_costhphiPX->SetName("signal_costhphiPX");
   signal_costhphiPX->Reset();
+
+  TH2D *signal_costhphiHX = new TH2D("","",64, -1, 1, 32, -180, 180);
+  signal_costhphiHX->SetName("signal_costhphiHX");
+  signal_costhphiHX->Reset();
+
+  TH2D *signal_costhphiCS = new TH2D("","",64, -1, 1, 32, -180, 180);
+  signal_costhphiCS->SetName("signal_costhphiCS");
+  signal_costhphiCS->Reset();
 
 
 
@@ -918,6 +934,18 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
   TH1D* total_phiPX    = (TH1D*)background_phiPX->Clone();
   total_phiPX->SetName("total_phiPX");
   total_phiPX->Reset();
+  
+  TH2D* total_costhphiHX  = (TH2D*)background_costhphiHX->Clone();
+  total_costhphiHX->SetName("total_costhphiHX");
+  total_costhphiHX->Reset();
+
+  TH1D* total_costhHX  = (TH1D*)background_costhHX->Clone();
+  total_costhHX->SetName("total_costhHX");
+  total_costhHX->Reset();
+
+  TH1D* total_phiHX    = (TH1D*)background_phiHX->Clone();
+  total_phiHX->SetName("total_phiHX");
+  total_phiHX->Reset();
 
   TH3D* total_pTrapMass = (TH3D*)background_pTrapMass->Clone();
   total_pTrapMass->SetName("total_pTrapMass");
@@ -1107,12 +1135,24 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
                          
 	if(lambdaDiffs) isEventAccepted = true;
 
-    if (  (epsilon > min_dileptonEff && isEventAccepted) || lambdaDiffs ) {
+    if (  (epsilon > min_dileptonEff && isEventAccepted) && !lambdaDiffs ) {
 
       // fill histograms
       total_costhphiPX->Fill( costh_PX, phi_PX, 1. );
       total_costhPX->Fill( costh_PX, 1. );
       total_phiPX->Fill( phi_PX, 1. );
+      total_pTrapMass->Fill( pT, TMath::Abs( rap ), mass, 1. );
+      total_pT->Fill( pT, 1. );
+      total_rap->Fill( TMath::Abs( rap ), 1. );
+      total_mass->Fill( mass, 1. );
+    }
+    
+    if(lambdaDiffs){
+
+      // fill histograms
+      total_costhphiHX->Fill( costh_HX, phi_HX, 1. );
+      total_costhHX->Fill( costh_HX, 1. );
+      total_phiHX->Fill( phi_HX, 1. );
       total_pTrapMass->Fill( pT, TMath::Abs( rap ), mass, 1. );
       total_pT->Fill( pT, 1. );
       total_rap->Fill( TMath::Abs( rap ), 1. );
@@ -1125,19 +1165,34 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
 
   // Normalize histograms
 
+  if(!lambdaDiffs){
   background_costhphiPX->Scale( f_background*n_events / background_costhphiPX->Integral() );
   background_costhPX->Scale( f_background*n_events / background_costhPX->Integral() );
   background_phiPX->Scale( f_background*n_events / background_phiPX->Integral() );
-
+  }
+  
+  if(lambdaDiffs){
+  background_costhphiHX->Scale( f_background*n_events / background_costhphiHX->Integral() );
+  background_costhHX->Scale( f_background*n_events / background_costhHX->Integral() );
+  background_phiHX->Scale( f_background*n_events / background_phiHX->Integral() );
+  }
+  
   background_pTrapMass->Scale( f_background*n_events / background_pTrapMass->Integral() );
   background_pT->Scale( f_background*n_events / background_pT->Integral() );
   background_rap->Scale( f_background*n_events / background_rap->Integral() );
   background_mass->Scale( f_background*n_events / background_mass->Integral() );
 
-
-  total_costhphiPX->Scale( n_events / total_costhphiPX->Integral() );
-  total_costhPX->Scale( n_events / total_costhPX->Integral() );
-  total_phiPX->Scale( n_events / total_phiPX->Integral() );
+  if(!lambdaDiffs){
+	total_costhphiPX->Scale( n_events / total_costhphiPX->Integral() );
+	total_costhPX->Scale( n_events / total_costhPX->Integral() );
+	total_phiPX->Scale( n_events / total_phiPX->Integral() );
+  }
+  
+  if(lambdaDiffs){
+	total_costhphiHX->Scale( n_events / total_costhphiHX->Integral() );
+	total_costhHX->Scale( n_events / total_costhHX->Integral() );
+	total_phiHX->Scale( n_events / total_phiHX->Integral() );
+  }
 
   total_pTrapMass->Scale( n_events / total_pTrapMass->Integral() );
   total_pT->Scale( n_events / total_pT->Integral() );
@@ -1239,6 +1294,14 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
   TH1D* background_phiPX_test    = (TH1D*)background_phiPX->Clone();
   background_phiPX_test->SetName("background_phiPX_test");
   background_phiPX_test->Reset();
+  
+  TH1D* background_costhHX_test  = (TH1D*)background_costhHX->Clone();
+  background_costhHX_test->SetName("background_costhHX_test");
+  background_costhHX_test->Reset();
+
+  TH1D* background_phiHX_test    = (TH1D*)background_phiHX->Clone();
+  background_phiHX_test->SetName("background_phiHX_test");
+  background_phiHX_test->Reset();
 
   TH1D* background_pT_test  = (TH1D*)background_pT->Clone();
   background_pT_test->SetName("background_pT_test");
@@ -1368,12 +1431,30 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
     if ( costh_PX < 0. ) phith_PX = phi_PX - 135.;
     if ( costh_PX > 0. ) phith_PX = phi_PX - 45.;
     if ( phith_PX < -180. ) phith_PX = 360. + phith_PX;
-
+    
+    if(lambdaDiffs){
+	  newZaxis = dilep_direction;
+	  newYaxis = Yaxis;
+	  newXaxis = newYaxis.Cross( newZaxis );
+  
+	  rotation.SetToIdentity();
+	  rotation.RotateAxes( newXaxis, newYaxis, newZaxis );
+	  rotation.Invert();
+	  lepton_DILEP_rotated = lepton_DILEP.Vect();
+	  lepton_DILEP_rotated.Transform(rotation);
+  
+	  double costh_HX = lepton_DILEP_rotated.CosTheta();
+	  double phi_HX   = lepton_DILEP_rotated.Phi() * 180. / gPI_;
+	  double phith_HX;
+	  if ( costh_HX < 0. ) phith_HX = phi_HX - 135.;
+	  if ( costh_HX > 0. ) phith_HX = phi_HX - 45.;
+	  if ( phith_HX < -180. ) phith_HX = 360. + phith_HX;
+    }
 
     // invariant polarization angle
 
     cosalpha = sqrt( 1. - pow(costh_PX, 2.) ) * sin( lepton_DILEP_rotated.Phi() );
-
+	if(lambdaDiffs) cosalpha = sqrt( 1. - pow(costh_HX, 2.) ) * sin( lepton_DILEP_rotated.Phi() );
 
 
     // background subtraction as a function of costh and phi: reject events having distributions
@@ -1384,26 +1465,59 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
     int ibin_pT      = background_pT->GetXaxis()->FindBin( pT );
     int ibin_rap     = background_rap->GetXaxis()->FindBin( TMath::Abs( rap ) );
     int ibin_mass    = background_mass->GetXaxis()->FindBin( mass );
+    
+//    if(lambdaDiffs){
+	  int ibin_costhHX = background_costhHX->GetXaxis()->FindBin( costh_HX );
+	  int ibin_phiHX   = background_phiHX->GetXaxis()->FindBin( phi_HX );
+//	  int ibin_pT      = background_pT->GetXaxis()->FindBin( pT );
+//	  int ibin_rap     = background_rap->GetXaxis()->FindBin( TMath::Abs( rap ) );
+//	  int ibin_mass    = background_mass->GetXaxis()->FindBin( mass );
+//	}
 
     // background likelihood
 
-    double likelihood_BG  = background_costhphiPX->GetBinContent( ibin_costhPX, ibin_phiPX )
+    double likelihood_BG;
+    
+    if(!lambdaDiffs) likelihood_BG = background_costhphiPX->GetBinContent( ibin_costhPX, ibin_phiPX )
                           * background_pTrapMass->GetBinContent( ibin_pT, ibin_rap, ibin_mass );
+
+	if(lambdaDiffs) likelihood_BG = background_costhphiHX->GetBinContent( ibin_costhHX, ibin_phiHX )
+                          * background_pTrapMass->GetBinContent( ibin_pT, ibin_rap, ibin_mass );
+
 
     // total likelihood
 
-    double likelihood_SpB = total_costhphiPX->GetBinContent( ibin_costhPX, ibin_phiPX )
+    double likelihood_SpB;
+    
+    if(!lambdaDiffs) likelihood_SpB = total_costhphiPX->GetBinContent( ibin_costhPX, ibin_phiPX )
                           * total_pTrapMass->GetBinContent( ibin_pT, ibin_rap, ibin_mass );
+
+    if(lambdaDiffs) likelihood_SpB = total_costhphiHX->GetBinContent( ibin_costhHX, ibin_phiHX )
+                          * total_pTrapMass->GetBinContent( ibin_pT, ibin_rap, ibin_mass );
+
 
     if (    likelihood_BG > likelihood_SpB * f_background
          || likelihood_BG > likelihood_SpB * gRandom->Uniform( f_background )  ) {
-
+		
+		if(!lambdaDiffs){
        ++n_background_subtracted;
        background_costhPX_test->Fill(costh_PX);
        background_phiPX_test->Fill(phi_PX);
        background_pT_test->Fill( pT );
        background_rap_test->Fill( TMath::Abs(rap) );
        background_mass_test->Fill( mass );
+       }
+       
+       if(lambdaDiffs){
+       ++n_background_subtracted;
+       background_costhHX_test->Fill(costh_HX);
+       background_phiHX_test->Fill(phi_HX);
+       background_pT_test->Fill( pT );
+       background_rap_test->Fill( TMath::Abs(rap) );
+       background_mass_test->Fill( mass );
+       }
+       
+       
        //if(subtractBG)
        continue;
     }
@@ -1411,6 +1525,8 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
     
     if(runCorrectionMap) {
     		signal_costhphiPX->Fill(costh_PX,phi_PX);
+    		signal_costhphiHX->Fill(costh_HX,phi_HX);
+    		signal_costhphiCS->Fill(costh_CS,phi_CS);
     		continue;
 	}
 
@@ -1532,12 +1648,18 @@ if(nDenominatorAmap==105 || nDenominatorAmap==106){
   background_costhPX_test->Divide(background_costhPX);
   background_phiPX_test->Divide(background_phiPX);
 
+  background_costhHX_test->Divide(background_costhHX);
+  background_phiHX_test->Divide(background_phiHX);
+
+
   background_mass_test->Divide(background_mass);
   background_pT_test->Divide(background_pT);
   background_rap_test->Divide(background_rap);
   
   if(runCorrectionMap){
 	signal_costhphiPX->Scale(1/signal_costhphiPX->GetMaximum());
+	signal_costhphiHX->Scale(1/signal_costhphiHX->GetMaximum());
+	signal_costhphiCS->Scale(1/signal_costhphiCS->GetMaximum());
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////

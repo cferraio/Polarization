@@ -40,12 +40,6 @@ namespace onia{
   Double_t rapForPTRange[kNbRapForPTBins+1] = {0., 1.2}; 
   Int_t const kNbRapBins = kNbRapForPTBins;
   Double_t rapRange[2*kNbRapBins+1] = {-1.2, -0., 1.2};
-
-//  Int_t const NXBINS = 4;
-//  Double_t cpmRange[NXBINS+1] = {0, 10, 20, 30, 60};
-
-  Int_t const NXBINS4bins = 4;
-  Double_t cpmRange4bins[NXBINS4bins+1] = {0, 10, 20, 30, 60};
   
   Int_t const NXBINS = 5;
   Double_t cpmRange[NXBINS+1] = {0, 10, 20, 30, 40, 60};
@@ -64,7 +58,7 @@ namespace onia{
 
   //number of reference frames
   Int_t const kNbFrames = 6;
-  Char_t *frameLabel[kNbFrames] = {"CS", "HX", "PHX", "sGJ", "GJ1", "GJ2"};
+  Char_t const *frameLabel[kNbFrames] = {"CS", "HX", "PHX", "sGJ", "GJ1", "GJ2"};
   enum {CS, HX, PHX, sGJ, GJ1, GJ2};
   //polarization variables
   Int_t const kNbPolVar = 2; //cosTheta, phi

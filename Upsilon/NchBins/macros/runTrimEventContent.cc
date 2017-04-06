@@ -104,7 +104,7 @@ int main(int argc, char** argv){
       for(int iPT = 0; iPT < max; iPT++){
         for(int iCPM = 0; iCPM < onia::NXBINS+1; iCPM++){
     	  fracLnS[iState][iRap][iPT][iCPM]=TrimEventContent(iRap, iPT, iCPM, fracL, nSigma, iState,UpsMC,f_BG_zero,ProjectLSBdata,ProjectRSBdata,CombineSignalPeaks,Y1Sto2S_SB,LeftSided,RightSided,MassScan,adjustOverlapBorders);
-     	  if(iRap>0&&iPT>0){
+     	  if(iRap>0&&iPT>0&&iCPM>0){
      	  if(iState==0)contamination2Sin1S_[iRap-1][iPT-1][iCPM-1]=contamination2Sin1S;
      	  if(iState==1)contamination1Sin2S_[iRap-1][iPT-1][iCPM-1]=contamination1Sin2S;
      	  if(iState==1)contamination3Sin2S_[iRap-1][iPT-1][iCPM-1]=contamination3Sin2S;
@@ -523,7 +523,7 @@ int main(int argc, char** argv){
   		char texTex[200];
   		if(iPT==1) sprintf(texTex,"10 < p_T < 15 [GeV]");
   		if(iPT==2) sprintf(texTex,"15 < p_T < 35 [GeV]");
-		 TLatex *text = new TLatex(5,0.055,texTex);
+		 TLatex *text = new TLatex(5,0.0055,texTex);
   		 text->SetTextSize(0.035);
   		 text->Draw( "same" );
 

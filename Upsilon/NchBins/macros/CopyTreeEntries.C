@@ -191,12 +191,14 @@ void CopyTreeEntries(Int_t iRapBin = 1,
 	  double SF_DM=1000;
 
 	    for(int iX=0;iX<dimumasspT2->GetNbinsX()+1;iX++){
-	        	int globalBin=dimumasspT2->GetBin(iX);
+//	        	int globalBin=dimumasspT2->GetBin(iX);
+	        	dimumasspT2->GetBin(iX);
 	        	dimumasspT2->SetBinError(iX,dimumasspT2->GetBinError(iX)/SF_DM);
 	        	dimumasspT2->SetBinContent(iX,dimumasspT2->GetBinContent(iX)/SF_DM);
 	        }
 	    for(int iX=0;iX<dimumasspT1->GetNbinsX()+1;iX++){
-	        	int globalBin=dimumasspT1->GetBin(iX);
+//	        	int globalBin=dimumasspT1->GetBin(iX);
+	        	dimumasspT1->GetBin(iX);
 	        	dimumasspT1->SetBinError(iX,dimumasspT1->GetBinError(iX)/SF_DM);
 	        	dimumasspT1->SetBinContent(iX,dimumasspT1->GetBinContent(iX)/SF_DM);
 	        }

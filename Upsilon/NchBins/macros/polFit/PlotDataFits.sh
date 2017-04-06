@@ -13,7 +13,7 @@ storagedir=`more storagedir`/Data #please define the directory storagedir in the
 #for JobID in Reanalysis_4cpmbins_Reanalysis_4cpmbins;do
 #for JobID in cutNPriVtx_at10_4cpmbins; do
 #for JobID in cutNPriVtx_smallerpT2_FinalSyst_Glob;do
-for JobID in LambdaDiffs_2011_actual;do
+for JobID in LambdaDiffs_2011_HXmap;do
 #                 cutNPriVtx_fLSB18/
 #cutNPriVtx_4cpmbins/        cutNPriVtx_fLSB2/
 #cutNPriVtx_4cpmbins_fLSB2/  cutNPriVtx_fLSB44/
@@ -29,8 +29,8 @@ for nState in 1;do
 
 ptBinMin=1
 ptBinMax=1
-cpmBinMin=2
-cpmBinMax=2
+cpmBinMin=1
+cpmBinMax=5
 
 MPValgo=3 		#1...mean,2...gauss,3...gauss-loop with chi2<2
 

@@ -71,7 +71,8 @@ public :
   Int_t Reco_QQ_NtrkDeltaR04[NMAX];
   Int_t Reco_QQ_NtrkDeltaR05[NMAX];
 
-  int JpsiVprob[NMAX];
+//  Float_t JpsiVprob[NMAX];
+  Float_t Reco_QQ_VtxProb[NMAX];
   TClonesArray *Reco_QQ_4mom = 0;
   TClonesArray *Reco_QQ_mupl_4mom = 0;
   TClonesArray *Reco_QQ_mumi_4mom = 0;
@@ -168,7 +169,8 @@ public :
    TBranch        *b_JpsictErr;   //!
    TBranch        *b_Reco_QQ_ctau3D;   //!
    TBranch        *b_Reco_QQ_ctauErr3D;   //!
-   TBranch        *b_JpsiVprob;   //!
+//   TBranch        *b_JpsiVprob;   //!
+   TBranch *b_Reco_QQ_VtxProb; //
    TBranch        *b_Reco_QQ_dca;   //!
    TBranch        *b_JpsiMassErr;   //!
    TBranch        *b_Reco_QQ_vtx;   //!
@@ -327,7 +329,8 @@ void PolData::Init(TTree *tree)
   fChain->SetBranchAddress("Reco_QQ_trig",  &Reco_QQ_trig, &b_Reco_QQ_trig);
   fChain->SetBranchAddress("Reco_QQ_type",  &Reco_QQ_type, &b_Reco_QQ_type);
   fChain->SetBranchAddress("Reco_QQ_sign",  &Reco_QQ_sign, &b_Reco_QQ_sign);
-  fChain->SetBranchAddress("Reco_QQ_VtxProb", &JpsiVprob, &b_JpsiVprob);
+//  fChain->SetBranchAddress("Reco_QQ_VtxProb", &JpsiVprob, &b_JpsiVprob);
+  fChain->SetBranchAddress("Reco_QQ_VtxProb",&Reco_QQ_VtxProb, &b_Reco_QQ_VtxProb);
   fChain->SetBranchAddress("Reco_QQ_4mom",      &Reco_QQ_4mom,      &b_Reco_QQ_4mom);
   fChain->SetBranchAddress("Reco_QQ_mupl_4mom", &Reco_QQ_mupl_4mom, &b_Reco_QQ_mupl_4mom);
   fChain->SetBranchAddress("Reco_QQ_mumi_4mom", &Reco_QQ_mumi_4mom, &b_Reco_QQ_mumi_4mom);

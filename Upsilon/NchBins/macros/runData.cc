@@ -20,10 +20,10 @@ int main(int argc, char** argv){
 	bool UpsMC=false;
 	bool RequestTrigger=false;
 
-	Char_t *inputTree1 = "Default";
-	Char_t *inputTree2 = "Default";
-	Char_t *inputTree3 = "Default";
-	Char_t *inputTree4 = "Default";
+	Char_t const *inputTree1 = "Default";
+	Char_t const *inputTree2 = "Default";
+	Char_t const *inputTree3 = "Default";
+	Char_t const *inputTree4 = "Default";
 	int FidCuts=999;	
 
 	int inputTrees=0;

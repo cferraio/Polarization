@@ -1,10 +1,10 @@
 #include "calculatePar.cc"
 
-void buildLifetimePDF(RooWorkspace *ws);
-void doFit(RooWorkspace *ws, int nState, double BkgRatio3Sig, double fracBkgInSBL, double fracBkgInSBR, int rapBin, int ptBin, bool officialMC);
+void buildLifetimePDF(RooWorkspace *ws, bool buildLifetimePDF);
+void doFit(RooWorkspace *ws, int nState, double BkgRatio3Sig, double fracBkgInSBL, double fracBkgInSBR, int rapBin, int ptBin, bool officialMC, bool PbPb2015);
 
 //=================================================================================
-void lifetimeFit(const std::string &infilename, int rapBin, int ptBin, int nState, bool officialMC){
+void lifetimeFit(const std::string &infilename, int rapBin, int ptBin, int nState, bool officialMC, bool PbPb2015){
 
 	TFile* infile = new TFile(infilename.c_str(), "UPDATE");
 	if(infile->IsZombie()){
@@ -64,7 +64,7 @@ void lifetimeFit(const std::string &infilename, int rapBin, int ptBin, int nStat
 	RooAbsData* dataSR, *dataSBL, *dataSBR; 
 	int events=0;
 
-	if(!officialMC){
+	if(!officialMC && !PbPb2015){
 	  if(nState == 4){
 		  cout<<"**** Using less statisticals for lifetime fit"<<endl;
 		  if(ptBin==1||ptBin==2)
@@ -100,7 +100,7 @@ void lifetimeFit(const std::string &infilename, int rapBin, int ptBin, int nStat
 	}
 	
 	
-	if(officialMC){
+	if(officialMC || PbPb2015){
 	  if(nState == 4){
 		  cout<<"**** Using less statisticals for lifetime fit"<<endl;
 		  events = data->numEntries();
@@ -204,11 +204,11 @@ void lifetimeFit(const std::string &infilename, int rapBin, int ptBin, int nStat
 	
 	// building lifetime pdf
 	std::cout << ">>>Building Mass and LifeTime PDF" << std::endl;
-	buildLifetimePDF(ws);
+	buildLifetimePDF(ws, buildLifetimePDF);
 
 	// fitting
 	std::cout << ">>>Fitting" << std::endl;
-	doFit(ws, nState, BkgRatio3Sig, fracBkgInSBL, fracBkgInSBR, rapBin, ptBin, officialMC);
+	doFit(ws, nState, BkgRatio3Sig, fracBkgInSBL, fracBkgInSBR, rapBin, ptBin, officialMC, PbPb2015);
 
 
 	std::cout << ">>>Writing results to root file" << std::endl;
@@ -218,7 +218,7 @@ void lifetimeFit(const std::string &infilename, int rapBin, int ptBin, int nStat
 
 //=================================================================================
 
-void buildLifetimePDF(RooWorkspace *ws){
+void buildLifetimePDF(RooWorkspace *ws, bool PbPb2015){
 
 	//----prompt
 	//resolution function
@@ -289,7 +289,7 @@ void buildLifetimePDF(RooWorkspace *ws){
 
 
 //=================================================================================
-void doFit(RooWorkspace *ws, int nState, double BkgRatio3Sig, double fracBkgInSBL, double fracBkgInSBR, int rapBin, int ptBin, bool officialMC){
+void doFit(RooWorkspace *ws, int nState, double BkgRatio3Sig, double fracBkgInSBL, double fracBkgInSBR, int rapBin, int ptBin, bool officialMC, bool PbPb2015){
 
 	RooRealVar JpsiMass(*ws->var("JpsiMass"));
 	RooRealVar Jpsict(*ws->var("Jpsict"));
@@ -577,7 +577,7 @@ if(nState==4){
 // 2015 numbers
 ///////////////////////
 
-if(nState==4){
+/*	if(nState==4){
 		ws->var("fBkgSSDR_SBL")->setVal(.7); //0.4
 		ws->var("fBkgSSDR_SBR")->setVal(.7); //0.4
 		ws->var("fBkgDSD_SBL")->setVal(.2);
@@ -682,7 +682,52 @@ if(nState==4){
 		ws->var("ctResolution2")->setConstant(kTRUE);
 		ws->var("fracGauss2")->setVal(0.01);
 	}
+*/
 
+if(nState==4 && PbPb2015){
+		ws->var("fBkgSSDR_SBL")->setVal(.5); //0.4
+		ws->var("fBkgSSDR_SBR")->setVal(.5); //0.4
+		ws->var("fBkgDSD_SBL")->setVal(.2);
+		ws->var("fBkgDSD_SBR")->setVal(.2);
+		
+		if(ptBin==3)
+		{
+		ws->var("fBkgSSDR_SBL")->setVal(.3); //0.4
+		ws->var("fBkgSSDR_SBR")->setVal(.3); //0.4
+
+		}
+		
+		ws->var("bkgTauSSD_SBL")->setVal(.4);
+		ws->var("bkgTauSSD_SBR")->setVal(.4);
+		ws->var("bkgTauFD")->setVal(.1);
+		ws->var("bkgTauDSD")->setVal(.01);
+
+		ws->var("fBkg")->setVal(BkgRatio3Sig);
+		ws->var("fPrompt")->setVal(.3);
+		ws->var("fBkgSBL")->setVal(fracBkgInSBL);
+		ws->var("fBkgSBR")->setVal(fracBkgInSBR);
+
+		ws->var("nonPromptTau")->setVal(.4);
+
+		//** set limit
+		ws->var("bkgTauSSD_SBL")->setMax(1.);
+		ws->var("bkgTauSSD_SBR")->setMax(1.);
+		ws->var("bkgTauFD")->setMax(0.3);
+		ws->var("nonPromptTau")->setMax(1.);
+
+		ws->var("promptMean")->setVal(0.);
+		ws->var("ctResolution")->setVal(.9);
+		ws->var("promptMean")->setConstant(kTRUE);
+		ws->var("ctResolution")->setConstant(kTRUE);
+
+		if(rapBin == 1)
+			ws->var("ctResolution2")->setVal(1.1);
+		else if(rapBin == 2)
+			ws->var("ctResolution2")->setVal(1.5);
+		ws->var("ctResolution2")->setConstant(kTRUE);
+		ws->var("fracGauss2")->setVal(0.2);
+		ws->var("fracGauss2")->setMin(0.04);
+	}
 ///////////////////////
 ///////////////////////
 ///////////////////////

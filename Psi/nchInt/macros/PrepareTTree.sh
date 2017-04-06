@@ -15,27 +15,27 @@ basedir=$PWD
 cd macros
 
 # input arguments
-for nState in 5;do    #1,2,3,Upsi(1S,2S,3S); 4,Jpsi 5,PsiPrime
+for nState in 4;do    #1,2,3,Upsi(1S,2S,3S); 4,Jpsi 5,PsiPrime
 for FidCuts in 11;do #defines the set of cuts to be used, see macros/polFit/effsAndCuts.h
 cd $Cdir
 
 
 rapMin=1     #takes bins, not actual values
-rapMax=2     #if you only want to process 1 y bin, rapMax = rapMin
+rapMax=1     #if you only want to process 1 y bin, rapMax = rapMin
 ptMin=1      #takes bins, not acutal values
-ptMax=12
+ptMax=5
 #if you only want to process 1 pt bin, ptMax = ptMin
 Plotting=2   #plotting macro: 1 = plot all, 2 = plot mass, 3 = plot lifetime sidebands, 4 = plot lifetime singal region, 
 	           # 5 = sidebands, separate pull and distribution, 6 = signal region, separate pull and distribution
 
-rejectCowboys=true
-RequestTrigger=true
+rejectCowboys=false
+RequestTrigger=false
 MC=false #for unofficial MC
 officialMC=false
 correctCtau=false   #correct pseudo-proper lifetime to l_new = l * MpsiPDG / Mpsi, with l = Lxy * Mpsi / pT
 drawRapPt2D=false  #draw Rap-Pt 2D map of Psi
 
-doCtauUncer=true
+doCtauUncer=false
 PolLSB=false       #measure polarization of the left sideband
 PolRSB=false       #measure polarization of the right sideband
 PolNP=false        #measure polarization of the non prompt events
@@ -49,18 +49,17 @@ fitMassPR=false
 fitMassNP=false
 
 #datasets
-pp2011=true
-PbPb2015=false
+pp2011=false
+PbPb2015=true
 
-DataID=Psi$[nState-3]S_ctauScen0_FracLSB-1_2011Run3
+
+DataID=Psi$[nState-3]S_ctauScen${ctauScen}_FracLSB${FracLSB}
 polDataPath=${basedir}/Psi/Data/${DataID}
 
+
 #Define JobID
-JobID=ctauScen${ctauScen}_FracLSB${FracLSB}_2011Run3
-#JobID=ctauScen${ctauScen}_FracLSB${FracLSB}_RapIntegrated
-#JobID=ctauScen${ctauScen}_FracLSB${FracLSB}_2012Run1withCowboys
-
-
+JobIDName=PbPb2015_Run17Jan_ppref #2012datarun #change job id name here, automatically updates below
+JobID=ctauScen${ctauScen}_FracLSB${FracLSB}_${JobIDName} #updates automatically
 
 # input files
 # In case of more input Files: define inputTreeX and adapt the line starting with inputTrees, at the moment up to 4 files implemented
@@ -89,10 +88,12 @@ fi
 if [ ${PbPb2015} = 'true' ]
 then
 #2015 PbPb2015:
-inputTree1=/data/users/ferraioc/Polarization/2015PbPb/OniaTree_HIOniaL1DoubleMu0B_HIRun2015-PromptReco-v1_Run_263322_263757.root
-inputTree2=/data/users/ferraioc/Polarization/2015PbPb/OniaTree_HIOniaL1DoubleMu0C_HIRun2015-PromptReco-v1_Run_263322_263757.root
-inputTree3=/data/users/ferraioc/Polarization/2015PbPb/OniaTree_HIOniaL1DoubleMu0D_HIRun2015-PromptReco-v1_Run_263322_263757.root
-inputTree4=/data/users/ferraioc/Polarization/2015PbPb/OniaTree_HIOniaL1DoubleMu0_HIRun2015-PromptReco-v1_Run_262620_263757.root
+inputTree1=/data/users/ferraioc/Polarization/2015PbPb/OniaTree_DoubleMu_Run2015E-PromptReco-v1_Run_262157_262328.root
+#inputTree1=/data/users/ferraioc/Polarization/2015PbPb/OniaTree_HIOniaL1DoubleMu0B_HIRun2015-PromptReco-v1_Run_263322_263757.root
+#inputTree2=/data/users/ferraioc/Polarization/2015PbPb/OniaTree_HIOniaL1DoubleMu0C_HIRun2015-PromptReco-v1_Run_263322_263757.root
+#inputTree3=/data/users/ferraioc/Polarization/2015PbPb/OniaTree_HIOniaL1DoubleMu0D_HIRun2015-PromptReco-v1_Run_263322_263757.root
+#inputTree4=/data/users/ferraioc/Polarization/2015PbPb/OniaTree_HIOniaL1DoubleMu0_HIRun2015-PromptReco-v1_Run_262620_263757.root
+#inputTree5=/data/users/ferraioc/Polarization/2015PbPb/OniaTree_HIOniaPeripheral30100_HIRun2015-PromptReco-v1_Run_262620_263757.root
 fi
 fi
 
@@ -114,15 +115,15 @@ fi
 
 #following flags decide if the step is executed (1) or not (0):
 #IMPORTANT: for MC set execute_runWorkspace, execute_MassFit and execute_runLifetimeFit to 0
-execute_runData=0			           #independent of rapMin, rapMax, ptMin, ptMax
-execute_runWorkspace=0			     #independent of rapMin, rapMax, ptMin, ptMax
-execute_runMassFit=0			       #can be executed for different pt and y bins
-execute_runLifetimeFit=0         #can be executed for different pt and y bins
+execute_runData=1			           #independent of rapMin, rapMax, ptMin, ptMax
+execute_runWorkspace=1			     #independent of rapMin, rapMax, ptMin, ptMax
+execute_runMassFit=1			       #can be executed for different pt and y bins
+execute_runLifetimeFit=1         #can be executed for different pt and y bins
 execute_runPlotMassLifetime=1    #can be executed for different pt and y bins
-execut_PlotFitPar=0              #independent of rapMin, rapMax, ptMin, ptMax
-execute_runBkgHistos=0           #can be executed for different pt and y bins
-execute_PlotCosThetaPhiBG=0 		 #This step only has to be executed once for each set of cuts (indep. of FracLSB and nSigma)
-execute_PlotCosThetaPhiDistribution=0 #This step only has to be executed once for each set of cuts (indep. of FracLSB and nSigma)
+execut_PlotFitPar=1              #independent of rapMin, rapMax, ptMin, ptMax
+execute_runBkgHistos=1           #can be executed for different pt and y bins
+execute_PlotCosThetaPhiBG=1 		 #This step only has to be executed once for each set of cuts (indep. of FracLSB and nSigma)
+execute_PlotCosThetaPhiDistribution=1 #This step only has to be executed once for each set of cuts (indep. of FracLSB and nSigma)
 
 #################################
 
@@ -133,6 +134,10 @@ WorkDir=${CutDir}/Psi$[nState-3]S
 mkdir -p ${CutDir}
 mkdir -p ${WorkDir}
 cp ../interface/commonVar_Psi$[nState-3]S.h ${WorkDir}/commonVar.h 
+if [ ${PbPb2015} = 'true' ]
+then
+cp ../interface/commonVar_Psi1S_PbPb.h ${WorkDir}/commonVar.h 
+fi
 
 mkdir -p DataFiles
 mkdir -p ${WorkDir}/tmpFiles/backupWorkSpace
@@ -195,10 +200,10 @@ cd ${WorkDir}
 
 make
 
-inputTrees="inputTree=${inputTree1} inputTree=${inputTree2} inputTree=${inputTree3} inputTree=${inputTree4} inputTree=${inputTree5} inputTree=${inputTree6} inputTree=${inputTree7} inputTree=${inputTree8}"
+inputTrees="inputTree=${inputTree1} inputTree=${inputTree2} inputTree=${inputTree3} inputTree=${inputTree4} inputTree=${inputTree5}"
 if [ ${execute_runData} -eq 1 ]
 then
-./runData ${inputTrees} rejectCowboys=${rejectCowboys} FidCuts=${FidCuts} nState=${nState} MC=${MC} RequestTrigger=${RequestTrigger} officialMC=${officialMC} PbPb2015=${PbPb2015}
+./runData ${inputTrees} rejectCowboys=${rejectCowboys} FidCuts=${FidCuts} nState=${nState} MC=${MC} RequestTrigger=${RequestTrigger} officialMC=${officialMC} PbPb2015=${PbPb2015} pp2011=${2011}
 fi
 
 if [ ${execute_runWorkspace} -eq 1 ]
@@ -218,7 +223,7 @@ fi
 if [ ${execute_runLifetimeFit} -eq 1 ]
 then
 cp runLifetimeFit runLifetimeFit_$[nState-3]S_rap${rapMin}_pt${ptMin}
-./runLifetimeFit_$[nState-3]S_rap${rapMin}_pt${ptMin} rapMin=${rapMin} rapMax=${rapMax} ptMin=${ptMin} ptMax=${ptMax} nState=${nState} officialMC=${officialMC}
+./runLifetimeFit_$[nState-3]S_rap${rapMin}_pt${ptMin} rapMin=${rapMin} rapMax=${rapMax} ptMin=${ptMin} ptMax=${ptMax} nState=${nState} officialMC=${officialMC} PbPb2015=${PbPb2015}
 rm runLifetimeFit_$[nState-3]S_rap${rapMin}_pt${ptMin}
 fi
 
@@ -233,7 +238,7 @@ fi
 
 if [ ${execut_PlotFitPar} -eq 1 ]
 then
-./PlotFitPar nState=${nState} doCtauUncer=${doCtauUncer}
+./PlotFitPar nState=${nState} doCtauUncer=${doCtauUncer} PbPb2015=${PbPb2015}
 #pdflatex Lifetime_fitParameter.tex
 pdflatex Mass_fitParameter.tex
 #pdflatex evaluateCtau.tex

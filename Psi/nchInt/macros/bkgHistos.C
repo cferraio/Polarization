@@ -976,7 +976,7 @@ if(!officialMC) cout<<"not official mc"<<endl;
 	// find 2^n closest to nBinsCosth, but above the actual number
 	nBinsCosth = findEvenNum((double)nBinsCosth);
 	// set maximum binning to 64
-	if(nBinsCosth > 64) nBinsCosth = 64;
+	if(nBinsCosth > 32) nBinsCosth = 32;
 
 	std::cout << "------------------------------------------------" << "\n"
 		<< "Starting binning algorithm" << "\n"

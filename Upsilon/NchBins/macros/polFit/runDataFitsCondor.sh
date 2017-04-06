@@ -32,12 +32,12 @@ echo "base dir is ${basedir}"
 #Batch submission system: 0/1
 useBatch=0
 
-fracL=46 #in percent #MC closure: 25 for data sigmas, 50 for MC sigmas
+fracL=72 #in percent #MC closure: 25 for data sigmas, 50 for MC sigmas
 nSigma=1.00 #needed in 2 decimal accuracy (x.yz)
 
-for nState in 2;do
+for nState in 1;do
 
-JobID=condortest #Please define nSigma and fracL yourself in the JobID, if needed
+JobID=LambdaDiffs_2011_HXmap #Please define nSigma and fracL yourself in the JobID, if needed
 
 rapBinMin=1
 rapBinMax=1
@@ -48,26 +48,29 @@ cpmBinMax=$setcpmbin
 
 FidCuts=11
 
-nEff=1030				#1101 MCtruthFineEta, 1080 MCTnPparam      #1030=soft-1060=tight-1070=mixed-111=soft-112=tight
+nEff=1				#1101 MCtruthFineEta, 1080 MCTnPparam      #1030=soft-1060=tight-1070=mixed-111=soft-112=tight
 UseMCeff=false
 
 nDileptonEff=1
 UseMCDileptoneff=true
 
-nRhoFactor=1
+nRhoFactor=316
 
 useAmapApproach=false
 nAmap=1                    #frame/state/sigma/ID ( ID= 2 digits )
 nDenominatorAmap=1		    	#the number here corresponds to the same notation as nEff
 
-nSample=30000
+nSample=50000
 
 nFits=25
 nSkipGen=0
 
-DataID=_OddvsEven_All
+DataID=_LambdaDiffs_2011
 
 MPValgo=3 		#1...mean,2...gauss,3...gauss-loop with chi2<2
+
+runCorrectionMap=false
+lambdaDiffs=true
 
 ########################################
 
@@ -159,7 +162,7 @@ fi
 fi
 
 cp ${storagedir}/${JobID}/polGenRecFitPlot ${storagedir}/${JobID}/polGenRecFitPlot_rap${rap_}_pt${pT_}_cpm${cpm_}
-./polGenRecFitPlot_rap${rap_}_pt${pT_}_cpm${cpm_} ${nGen_}ThisGen ${JobID}=JobID ${storagedir}=storagedir ${basedir}=basedir ${nGenerations}nGenerations ${polScenSig}polScenSig ${frameSig}frameSig ${polScenBkg}polScenBkg ${frameBkg}frameBkg ${rap_}rapBinMin ${rap_}rapBinMax ${pT_}ptBinMin ${pT_}ptBinMax ${cpm_}cpmBinMin ${cpm_}cpmBinMax ${nEff}nEff ${nDileptonEff}nDiEff ${FidCuts}FidCuts ${nSample}nSample ${ConstEvents}ConstEvents ${nSkipGen}nSkipGen UseConstEv=${UseConstEv} gen=${gen} rec=${rec} fit=${fit} plot=${plot} ${TreeID}=TreeID ${datadir}=realdatadir UseMCeff=${UseMCeff} UseMCDileptoneff=${UseMCDileptoneff} ${nRhoFactor}nRhoFactor ${MPValgo}MPValgo NewAccCalc=${NewAccCalc} useAmapApproach=${useAmapApproach} ${nAmap}nAmap ${nDenominatorAmap}nDenominatorAmap useBatch=${useBatch}
+./polGenRecFitPlot_rap${rap_}_pt${pT_}_cpm${cpm_} ${nGen_}ThisGen ${JobID}=JobID ${storagedir}=storagedir ${basedir}=basedir ${nGenerations}nGenerations ${polScenSig}polScenSig ${frameSig}frameSig ${polScenBkg}polScenBkg ${frameBkg}frameBkg ${rap_}rapBinMin ${rap_}rapBinMax ${pT_}ptBinMin ${pT_}ptBinMax ${cpm_}cpmBinMin ${cpm_}cpmBinMax ${nEff}nEff ${nDileptonEff}nDiEff ${FidCuts}FidCuts ${nSample}nSample ${ConstEvents}ConstEvents ${nSkipGen}nSkipGen UseConstEv=${UseConstEv} gen=${gen} rec=${rec} fit=${fit} plot=${plot} ${TreeID}=TreeID ${datadir}=realdatadir UseMCeff=${UseMCeff} UseMCDileptoneff=${UseMCDileptoneff} ${nRhoFactor}nRhoFactor ${MPValgo}MPValgo NewAccCalc=${NewAccCalc} useAmapApproach=${useAmapApproach} ${nAmap}nAmap ${nDenominatorAmap}nDenominatorAmap useBatch=${useBatch} runCorrectionMap=${runCorrectionMap} lambdaDiffs=${lambdaDiffs} 
 rm polGenRecFitPlot_rap${rap_}_pt${pT_}_cpm${cpm_}
 
 
@@ -195,8 +198,8 @@ then
 mv ${resultfilename} results_${nState}SUps_rap${rap_}_pT${pT_}_cpm${cpm_}.root
 
 cp ${storagedir}/${JobID}/polGenRecFitPlot ${storagedir}/${JobID}/polGenRecFitPlot_rap${rap_}_pt${pT_}_cpm${cpm_}
-./polGenRecFitPlot_rap${rap_}_pt${pT_}_cpm${cpm_} ${nGen_}ThisGen ${JobID}=JobID ${storagedir}=storagedir ${basedir}=basedir ${nGenerations}nGenerations ${polScenSig}polScenSig ${frameSig}frameSig ${polScenBkg}polScenBkg ${frameBkg}frameBkg ${rap_}rapBinMin ${rap_}rapBinMax ${pT_}ptBinMin ${pT_}ptBinMax ${cpm_}cpmBinMin ${cpm_}cpmBinMax ${nEff}nEff ${nDileptonEff}nDiEff ${FidCuts}FidCuts ${nSample}nSample ${ConstEvents}ConstEvents ${nSkipGen}nSkipGen UseConstEv=${UseConstEv} gen=false rec=false fit=false plot=true ${TreeID}=TreeID ${datadir}=realdatadir UseMCeff=${UseMCeff} UseMCDileptoneff=${UseMCDileptoneff} ${nRhoFactor}nRhoFactor ${MPValgo}MPValgo scalePlots=true NewAccCalc=${NewAccCalc} useAmapApproach=${useAmapApproach} ${nAmap}nAmap ${nDenominatorAmap}nDenominatorAmap
-rm polGenRecFitPlot_rap${rap_}_pt${pT_}_cpm${cpm_}
+./polGenRecFitPlot_rap${rap_}_pt${pT_}_cpm${cpm_} ${nGen_}ThisGen ${JobID}=JobID ${storagedir}=storagedir ${basedir}=basedir ${nGenerations}nGenerations ${polScenSig}polScenSig ${frameSig}frameSig ${polScenBkg}polScenBkg ${frameBkg}frameBkg ${rap_}rapBinMin ${rap_}rapBinMax ${pT_}ptBinMin ${pT_}ptBinMax ${cpm_}cpmBinMin ${cpm_}cpmBinMax ${nEff}nEff ${nDileptonEff}nDiEff ${FidCuts}FidCuts ${nSample}nSample ${ConstEvents}ConstEvents ${nSkipGen}nSkipGen UseConstEv=${UseConstEv} gen=false rec=false fit=false plot=true ${TreeID}=TreeID ${datadir}=realdatadir UseMCeff=${UseMCeff} UseMCDileptoneff=${UseMCDileptoneff} ${nRhoFactor}nRhoFactor ${MPValgo}MPValgo scalePlots=true NewAccCalc=${NewAccCalc} useAmapApproach=${useAmapApproach} ${nAmap}nAmap ${nDenominatorAmap}nDenominatorAmap runCorrectionMap=${runCorrectionMap} lambdaDiffs=${lambdaDiffs} 
+rm polGenRecFitPlot_rap${rap_}_pt${pT_}_cpm${cpm_} 
 
 fi
 

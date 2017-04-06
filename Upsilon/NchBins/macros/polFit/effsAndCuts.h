@@ -267,6 +267,16 @@ double EvaluateRhoFactor( double& costh, double& phi, int nEff, TFile* fInRhoFac
 	  eff = hEff->GetBinContent(binX, binY);
 	return eff;
 	}
+	
+	if(nEff==316) {
+	  char EffType[200];
+	  sprintf(EffType,"signal_costhphiHX");
+	  TH1* hEff=(TH1*) fInRhoFactor->Get(EffType);
+	  Int_t binX = hEff->GetXaxis()->FindBin(costh);
+	  Int_t binY = hEff->GetYaxis()->FindBin(phi);
+	  eff = hEff->GetBinContent(binX, binY);
+	return eff;
+	}
 
 	int pTbin;
 	int rapBin;

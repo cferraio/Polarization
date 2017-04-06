@@ -82,7 +82,8 @@ int main(int argc, char* argv[]){
 				removeEta0p2_0p3=false,
 				officialMC=false,
 				cutDeltaREllDpt=false,
-				PbPb2015 = false;
+				PbPb2015 = false,
+				pp2011 = false;
     std::vector<std::string> inputTrees;
     int
         FidCuts = 999,
@@ -102,6 +103,7 @@ int main(int argc, char* argv[]){
         fromSplit("FidCuts", arg, FidCuts);
         fromSplit("nState", arg, nState);
         fromSplit("PbPb2015", arg, PbPb2015);
+        fromSplit("pp2011", arg, pp2011);
 //        if(std::string(argv[i]).find("PbPb2015=1") != std::string::npos) {PbPb2015=true; cout<<"2015 PbPb Dataset"<<endl;}
         std::string str;
         fromSplit("inputTree", arg, str);
@@ -115,10 +117,13 @@ int main(int argc, char* argv[]){
   	"-----------------------------------" << std::endl;
 
   // get input files
-  TChain *chain = new TChain("data"); //2011 and 2012
-//  TChain *chain;
-//  if(!PbPb2015) chain = new TChain("rootuple/oniaTree");//2015 and 2016
-  if(PbPb2015) chain = new TChain("hionia/myTree");//2015 and 2016
+  
+  TChain *chain;
+  if(pp2011) chain = new TChain("data"); //2011 and 2012
+  if(PbPb2015) chain = new TChain("hionia/myTree");//PbPb
+  
+  //  if(!PbPb2015) chain = new TChain("rootuple/oniaTree");//2015 and 2016
+  
   for (int i = 0; i < inputTrees.size(); i++){
   	chain->Add(inputTrees[i].c_str());
   }	

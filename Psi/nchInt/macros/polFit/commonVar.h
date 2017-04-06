@@ -4,7 +4,7 @@
 namespace onia{
 
   // beam energy in GeV
-  const double pbeam = 3500.;
+  const double pbeam = 2.51;
   // masses
   const double Mprot = 0.9382720;
   const double muMass = 0.105658;
@@ -21,28 +21,22 @@ namespace onia{
   const double nSigBkgHigh = 3.5;
 	
   // Binning
-  const int kNbRapForPTBins = 2;
-  double rapForPTRange[kNbRapForPTBins+1] = {0., 1.2, 1.3};
+  const int kNbRapForPTBins = 1;
+  double rapForPTRange[kNbRapForPTBins+1] = {0., 1.6};
 //double rapForPTRange[kNbRapForPTBins+1] = {0., 0.6, 1.2};
   //study the negative and positive rapidity sides separately
 //  double rapRange[2*kNbRapForPTBins+1] = {-1.2, -0.6, -0., 0.6, 1.2};
-  double rapRange[2*kNbRapForPTBins+1] = {-1.3, -1.2, -0., 1.2, 1.3};
+  double rapRange[2*kNbRapForPTBins+1] = {-1.6, -0., 1.6};
   
   
   //Jpsi
-//  const int kNbPTMaxBins = 12;
   const int kNbPTMaxBins = 5;
-  const int kNbPTBins[kNbRapForPTBins+1] = {kNbPTMaxBins, kNbPTMaxBins, kNbPTMaxBins};//all y, y1 
-//  double pTRange[kNbRapForPTBins+1][kNbPTMaxBins+1] = {
-  //  {10., 12., 14., 16., 18., 20., 22., 25., 30., 35., 40., 50., 70.},//all rapidities
-//    {10., 12., 14., 16., 18., 20., 22., 25., 30., 35., 40., 50., 70.},//mid-rapidity
-//    {10., 12., 14., 16., 18., 20., 22., 25., 30., 35., 40., 50., 70.}};//forward rapidity
+  const int kNbPTBins[kNbRapForPTBins+1] = {kNbPTMaxBins, kNbPTMaxBins};//all y, y1 
 
 
   double pTRange[kNbRapForPTBins+1][kNbPTMaxBins+1] = {
-    {8., 13., 18., 25., 30., 50.},//all rapidities
-    {8., 13., 18., 25., 30., 50.},//mid-rapidity
-    {8., 13., 18., 25., 30., 50.}};//forward rapidity
+    {6.5, 9., 12., 15., 20., 30.},//mid-rapidity
+    {6.5, 9., 12., 15., 20., 30.}};//forward rapidity
     
 
 /*  double pTRange[kNbRapForPTBins+1][kNbPTMaxBins+1] = {
@@ -59,7 +53,7 @@ namespace onia{
   const int kNbPolVar = 2; //cosTheta, phi
   enum {cosThPol,phiPol};
   //cosTheta
-  const int kNbBinsCosT = 16;
+  const int kNbBinsCosT = 8;
   double cosTMin = -1., cosTMax = 1.;
   //phi for pol. 
   const int kNbBinsPhiPol = 16;
@@ -67,7 +61,7 @@ namespace onia{
 
 
   //phase space limiting cuts:
-  double rap = 1.5;
+  double rap = 2.4;
 
   //some make up to use the same colour and marker for each pT and rapidity bin
   //in every plotting macro:

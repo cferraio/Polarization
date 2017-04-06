@@ -1,12 +1,12 @@
 universe = vanilla
-Executable = runToyMCJob.sh
+Executable = runFrameworks.sh
 getenv = True
 requirements = (OpSys == "LINUX")
 should_transfer_files = NO
 Requirements = TARGET.FileSystemDomain == "privnet"
-Output = /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchBins/macros/polFit/logs/simple_$(cluster)_$(process).stdout
-Error  = /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchBins/macros/polFit/logs/simple_$(cluster)_$(process).stderr
-Log    = /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchBins/macros/polFit/logs/simple_$(cluster)_$(process).condor
+Output = /home/ferraioc/PolNew/CMSSW_5_3_20/src/Psi/NchBins/macros/polFit/ToyMClogs/simple_$(cluster)_$(process).stdout
+Error  = /home/ferraioc/PolNew/CMSSW_5_3_20/src/Psi/NchBins/macros/polFit/ToyMClogs/simple_$(cluster)_$(process).stderr
+Log    = /home/ferraioc/PolNew/CMSSW_5_3_20/src/Psi/NchBins/macros/polFit/ToyMClogs/simple_$(cluster)_$(process).condor
 
-Arguments = simple_$(cluster) $(process) /data/users/ferraioc/Polarization/JPsi/NchBins /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchBins/macros/polFit 1 7 2 1
+Arguments = 5 0 3 4 1 1 true 5 FrameworkIII_Psi2_ThirdResult_ForPreApproval
 Queue 1

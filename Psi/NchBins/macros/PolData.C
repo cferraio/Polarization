@@ -33,6 +33,9 @@ double runningsumforstddevIntNprivtx[onia::NchBins+1];
 double neventsnIntNprivtx[onia::NchBins+1];
 double avgintprivtx[onia::NchBins+1];
 double avgintprivtxerror[onia::NchBins+1];
+double lowrap;
+double midrap;
+double highrap;
 
 TTree *treeOut;
 TLorentzVector *lepP, *lepN, *jpsi;
@@ -115,7 +118,7 @@ void PolData::Loop(int nState, bool rejectCowboys, int FidCuts, bool MC, bool Re
 		if(JpsiVprob < 0.01) continue;
 		
 		double cut_nPriVtx=16; ////set primary vertex cut
-//		if(nPriVtx>cut_nPriVtx) continue; /////uncomment for primary vertex cut
+		if(nPriVtx>cut_nPriVtx) continue; /////uncomment for primary vertex cut
 
 		// count all events
 		Reco_StatEv->Fill(0.5);
@@ -245,11 +248,19 @@ void PolData::Loop(int nState, bool rejectCowboys, int FidCuts, bool MC, bool Re
 		double onia_phi = onia->Phi();
 		double onia_cpm = vertexWeight;
 		double onia_mT = sqrt(onia_mass*onia_mass + onia_pt*onia_pt);
+		
+		
+		
+		
 
 		// restrict to barrel for upsilon and jpsi
 		if(TMath::Abs(onia_rap) > onia::rap) continue;
 		// count events after cut in rapidity
 		Reco_StatEv->Fill(2.5); 
+		
+		if(TMath::Abs(onia_rap) < 0.6) lowrap++;
+		if(TMath::Abs(onia_rap) > 0.6 && TMath::Abs(onia_rap) < 1.2) midrap++;
+		if(TMath::Abs(onia_rap) > 1.2 && TMath::Abs(onia_rap) < 1.5) highrap++;
 
 		double etaMuPos = muPos->PseudoRapidity();
 		double etaMuNeg = muNeg->PseudoRapidity();
@@ -377,5 +388,8 @@ void PolData::Loop(int nState, bool rejectCowboys, int FidCuts, bool MC, bool Re
 	} // for loop over events
 
 	std::cout << "number of reconstructed events: " << count << " of a total of " << nentries << " events" << std::endl;
+	std::cout<< "Number of events y < |0.6|: " << lowrap << std::endl;
+	std::cout<< "Number of events |0.6| < y < |1.2|: " << midrap << std::endl;
+	std::cout<< "Number of events |1.2| < y < |1.5|: " << highrap << std::endl;
 
 } // void

@@ -137,22 +137,23 @@ int main(int argc, char* argv[]){
 
 
 		if(nState==4){
-			sprintf(framerap,"\\hline \\multicolumn{1}{|c|}{} & \\multicolumn{3}{|c|}{$15 < p_{T} < 25$ GeV} & \\multicolumn{3}{|c|}{$25 < p_{T} < 50$ GeV} & \\multicolumn{3}{|c|}{ } \\\\\n \\hline \n");
+			sprintf(framerap,"\\hline \\multicolumn{1}{|c|}{} & \\multicolumn{3}{|c|}{$14 < p_{T} < 18$ GeV} & \\multicolumn{3}{|c|}{$18 < p_{T} < 22$ GeV} & \\multicolumn{3}{|c|}{$22 < p_{T} < 50$ GeV } \\\\\n \\hline \n");
 			fprintf(NumFile,framerap);
 			fprintf(NumFile, "\\multicolumn{10}{|c|}{$\\Psi(1S)$} \\\\\n \\hline \n \\rule{0pt}{4mm} \n");
 			int pt=0;
 			int cpm=0;
 			for(int cpmBin = 1; cpmBin < onia::NchBins+1; cpmBin++) {			
-				fprintf(NumFile, "%1.0f--%1.0f   &  $%d  $  & $%1.1f $  &  $%1.1f $ &  $%d $ &  $%1.1f $ &  $%1.1f $ & -- & -- & -- \\\\\n", 
+				fprintf(NumFile, "%1.0f--%1.0f   &  $%d  $  & $%1.1f $  &  $%1.1f $ &  $%d $ &  $%1.1f $ &  $%1.1f $ & $%d $ &  $%1.1f $ &  $%1.1f $ \\\\\n", 
 						onia::cpmRange[cpmBin-1], onia::cpmRange[cpmBin],
 						evtPinPRSR[0][0][cpmBin-1], 100.*fracNPinPRSR[0][0][cpmBin-1], 100*fracBGinPRSR[0][0][cpmBin-1],
-						evtPinPRSR[0][1][cpmBin-1], 100.*fracNPinPRSR[0][1][cpmBin-1], 100*fracBGinPRSR[0][1][cpmBin-1]);
+						evtPinPRSR[0][1][cpmBin-1], 100.*fracNPinPRSR[0][1][cpmBin-1], 100*fracBGinPRSR[0][1][cpmBin-1],
+						evtPinPRSR[0][2][cpmBin-1], 100.*fracNPinPRSR[0][2][cpmBin-1], 100*fracBGinPRSR[0][2][cpmBin-1]);
 						cpm++;
 						}
 		}
 
 		if(nState==5){
-			sprintf(framerap,"\\hline \\multicolumn{1}{|c|}{} & \\multicolumn{3}{|c|}{$15 < p_{T} < 25$ GeV} & \\multicolumn{3}{|c|}{$25 < p_{T} < 50$ GeV} & \\multicolumn{3}{|c|}{ } \\\\\n \\hline \n");
+			sprintf(framerap,"\\hline \\multicolumn{1}{|c|}{} & \\multicolumn{3}{|c|}{$14 < p_{T} < 18$ GeV} & \\multicolumn{3}{|c|}{$18 < p_{T} < 35$ GeV} & \\multicolumn{3}{|c|}{ } \\\\\n \\hline \n");
 			fprintf(NumFile,framerap);
 			fprintf(NumFile, "\\multicolumn{10}{|c|}{$\\Psi(2S)$} \\\\\n \\hline \n \\rule{0pt}{4mm} \n");
 			int pt=0;
@@ -193,9 +194,26 @@ int main(int argc, char* argv[]){
 		fprintf(NumFile, "$N_{ch}$ & $\\hat{N_{ch}}$ & $\\hat{p_{T}}$ [GeV] & $\\hat{|y|}$ & $\\hat{N_{ch}}$ & $\\hat{p_{T}}$ [GeV] & $\\hat{|y|}$ & $\\hat{N_{ch}}$ & $\\hat{p_{T}}$ [GeV] & $\\hat{|y|}$ \\\\\n");
 
 		if(nState==4){
-			sprintf(framerap,"\\hline \\multicolumn{1}{|c|}{} & \\multicolumn{3}{|c|}{$%d < p_T < %d$ } & \\multicolumn{3}{|c|}{$%d < p_T < %d$ } & \\multicolumn{3}{|c|}{$%d < p_T < %d$ } \\\\\n \\hline \n",14, 25, 25, 50, 0, 0);
+			sprintf(framerap,"\\hline \\multicolumn{1}{|c|}{} & \\multicolumn{3}{|c|}{$%d < p_T < %d$ } & \\multicolumn{3}{|c|}{$%d < p_T < %d$ } & \\multicolumn{3}{|c|}{$%d < p_T < %d$ } \\\\\n \\hline \n",14, 18, 18, 22, 22, 50);
 			fprintf(NumFile,framerap);
 			fprintf(NumFile, "\\multicolumn{10}{|c|}{$\\Psi(1S)$} \\\\\n \\hline \n \\rule{0pt}{4mm} \n");
+			int pt=0;
+			int cpm=0;
+			for(int cpmBin = 1; cpmBin < onia::NchBins+1; cpmBin++) {
+
+				fprintf(NumFile, "%1.0f--%1.0f & $%1.3f$ & $%1.3f$ & $%1.3f$ & $%1.3f$ & $%1.3f$ & $%1.3f$ & $%1.3f$ & $%1.3f$ & $%1.3f$ \\\\\n", 
+						onia::cpmRange[cpmBin-1], onia::cpmRange[cpmBin],
+						MeanCpm[0][0][cpmBin-1],MeanPt[0][0][cpmBin-1], MeanRap[0][0][cpmBin-1],
+						MeanCpm[0][1][cpmBin-1],MeanPt[0][1][cpmBin-1], MeanRap[0][1][cpmBin-1],
+						MeanCpm[0][2][cpmBin-1],MeanPt[0][2][cpmBin-1], MeanRap[0][2][cpmBin-1]);
+				cpm++;
+				}
+		}
+
+		if(nState==5){
+			sprintf(framerap,"\\hline \\multicolumn{1}{|c|}{} & \\multicolumn{3}{|c|}{$%d < p_T < %d$ } & \\multicolumn{3}{|c|}{$%d < p_T < %d$ } & \\multicolumn{3}{|c|}{$%d < p_T < %d$ } \\\\\n \\hline \n",14, 18, 18, 30, 0, 0);
+			fprintf(NumFile,framerap);
+			fprintf(NumFile, "\\multicolumn{10}{|c|}{$\\Psi(2S)$} \\\\\n \\hline \n \\rule{0pt}{4mm} \n");
 			int pt=0;
 			int cpm=0;
 			for(int cpmBin = 1; cpmBin < onia::NchBins+1; cpmBin++) {
@@ -206,27 +224,6 @@ int main(int argc, char* argv[]){
 						MeanCpm[0][1][cpmBin-1],MeanPt[0][1][cpmBin-1], MeanRap[0][1][cpmBin-1]);
 				cpm++;
 				}
-		}
-
-		if(nState==5){
-			sprintf(framerap,"\\hline \\multicolumn{1}{|c|}{} & \\multicolumn{2}{|c|}{$%1.1f < |y| < %1.1f$ } & \\multicolumn{2}{|c|}{$%1.1f < |y| < %1.1f$} & \\multicolumn{2}{|c|}{$%1.1f < |y| < %1.1f$} \\\\\n \\hline \n",onia::rapForPTRange[0],onia::rapForPTRange[1], onia::rapForPTRange[1], onia::rapForPTRange[2], onia::rapForPTRange[2], onia::rapForPTRange[3]); 
-			fprintf(NumFile,framerap);
-			fprintf(NumFile, "\\multicolumn{7}{|c|}{$\\Psi(2S)$} \\\\\n \\hline \n \\rule{0pt}{4mm} \n");
-
-			int pt=0;
-			int cpm=0;
-			for(int ptBin = 1; ptBin < onia::kNbPTBins[1]+1; ptBin++) {
-			for(int cpmBin = 1; cpmBin < onia::NchBins+1; cpmBin++) {
-
-				fprintf(NumFile, "%1.0f--%1.0f & $%1.3f$ & $%1.3f$ & $%1.3f$ & $%1.3f$ & $%1.3f$ & $%1.3f$ \\\\\n", 
-						onia::pTRange[1][ptBin-1], onia::pTRange[1][ptBin],
-						MeanPt[0][ptBin-1][cpmBin+1], MeanRap[0][ptBin-1][cpmBin+1],
-						MeanPt[1][ptBin-1][cpmBin+1], MeanRap[1][ptBin-1][cpmBin+1],
-						MeanPt[2][ptBin-1][cpmBin+1], MeanRap[2][ptBin-1][cpmBin+1]);
-				cpm++;
-				}
-				pt++;
-			}
 		}
 
 		fprintf(NumFile, "\\hline\n");
@@ -243,6 +240,207 @@ int main(int argc, char* argv[]){
 	}
 	
 			if(nState==4){
+		   
+		   cout<<endl;
+	  	   cout<<endl;
+		   cout<<"double ptCentre[nRapBins][nPtBins][ncpmBins]={{";
+	   
+		   for(int iRap = 0; iRap < onia::kNbRapForPTBins; iRap++){
+			 Int_t max_pt = onia::kNbPTBins[iRap]-1;
+			 for(int iPT = 0; iPT <= max_pt; iPT++){
+			 Int_t max_cpm = onia::NchBins-1;
+			 for(int icpm = 0; icpm <= max_cpm; icpm++){      
+				 cout<<MeanPt[iRap][iPT][icpm];
+				 if(icpm<max_cpm) {cout<<", "; }
+				 else if(icpm==max_cpm && iPT < onia::kNbPTBins[iRap]-1) {cout<<"},{"; }
+				 else {cout<<"}};"; }
+			 }
+			 }
+		   }
+		 cout<<endl;
+		 cout<<endl;
+		 
+		 cout<<"double cpmCentre[nRapBins][nPtBins][ncpmBins]={{";
+	   
+		   for(int iRap = 0; iRap < onia::kNbRapForPTBins; iRap++){
+			 Int_t max_pt = onia::kNbPTBins[iRap]-1;
+			 for(int iPT = 0; iPT <= max_pt; iPT++){
+			 Int_t max_cpm = onia::NchBins-1;
+			 for(int icpm = 0; icpm <= max_cpm; icpm++){     
+				 cout<<MeanCpm[iRap][iPT][icpm];
+				 if(icpm<max_cpm) {cout<<", "; }
+				 else if(icpm==max_cpm && iPT < onia::kNbPTBins[iRap]-1) {cout<<"},{"; }
+				 else {cout<<"}};"; }
+			 }
+			 }
+		   }
+		 cout<<endl;
+		 cout<<endl;
+		 
+		 cout<<"double meanRap[nRapBins][nPtBins][ncpmBins]={{";
+	   
+		   for(int iRap = 0; iRap < onia::kNbRapForPTBins; iRap++){
+			 Int_t max_pt = onia::kNbPTBins[iRap]-1;
+			 for(int iPT = 0; iPT <= max_pt; iPT++){
+			 Int_t max_cpm = onia::NchBins-1;
+			 for(int icpm = 0; icpm <= max_cpm; icpm++){      
+				 cout<<MeanRap[iRap][iPT][icpm];
+				 if(icpm<max_cpm) {cout<<", "; }
+				 else if(icpm==max_cpm && iPT < onia::kNbPTBins[iRap]-1) {cout<<"},{"; }
+				 else {cout<<"}};"; }
+			 }
+			 }
+		   }
+		 cout<<endl;
+		 cout<<endl;
+		 
+		 
+		 cout<<"double fracBackground[nRapBins][nPtBins][ncpmBins]={{";
+	   
+		   for(int iRap = 0; iRap < onia::kNbRapForPTBins; iRap++){
+			 Int_t max_pt = onia::kNbPTBins[iRap]-1;
+			 for(int iPT = 0; iPT <= max_pt; iPT++){
+			 Int_t max_cpm = onia::NchBins-1;
+			 for(int icpm = 0; icpm <= max_cpm; icpm++){      
+				 cout<<fracBGinPRSR[iRap][iPT][icpm];
+				 if(icpm<max_cpm) {cout<<", "; }
+				 else if(icpm==max_cpm && iPT < onia::kNbPTBins[iRap]-1) {cout<<"},{"; }
+				 else {cout<<"}};"; }
+			 }
+			 }
+		   }
+		 cout<<endl;
+		 cout<<endl;
+		 
+		 cout<<"int numEvents[nRapBins][nPtBins][ncpmBins]={{";
+	   
+		   for(int iRap = 0; iRap < onia::kNbRapForPTBins; iRap++){
+			 Int_t max_pt = onia::kNbPTBins[iRap]-1;
+			 for(int iPT = 0; iPT <= max_pt; iPT++){
+			 Int_t max_cpm = onia::NchBins-1;
+			 for(int icpm = 0; icpm <= max_cpm; icpm++){      
+				 cout<<evtPinPRSR[iRap][iPT][icpm];
+				 if(icpm<max_cpm) {cout<<", "; }
+				 else if(icpm==max_cpm && iPT < onia::kNbPTBins[iRap]-1) {cout<<"},{"; }
+				 else {cout<<"}};"; }
+			 }
+			 }
+		   }
+		 cout<<endl;
+		 cout<<endl;
+		 
+		 
+		 cout<<"//CS int binCosth[nRapBins][nPtBins][ncpmBins]={{";
+	   
+		   for(int iRap = 0; iRap < onia::kNbRapForPTBins; iRap++){
+			 Int_t max_pt = onia::kNbPTBins[iRap]-1;
+			 for(int iPT = 0; iPT <= max_pt; iPT++){
+			 Int_t max_cpm = onia::NchBins-1;
+			 for(int icpm = 0; icpm <= max_cpm; icpm++){      
+				 cout<<nbincosthCS[iRap][iPT][icpm];
+				 if(icpm<max_cpm) {cout<<", "; }
+				 else if(icpm==max_cpm && iPT < onia::kNbPTBins[iRap]-1) {cout<<"},{"; }
+				 else {cout<<"}};"; }
+			 }
+			 }
+		   }
+		 cout<<endl;
+		 cout<<endl;
+		 
+		 		 
+		 cout<<"//CS int binPhi[nRapBins][nPtBins][ncpmBins]={{";
+	   
+		   for(int iRap = 0; iRap < onia::kNbRapForPTBins; iRap++){
+			 Int_t max_pt = onia::kNbPTBins[iRap]-1;
+			 for(int iPT = 0; iPT <= max_pt; iPT++){
+			 Int_t max_cpm = onia::NchBins-1;
+			 for(int icpm = 0; icpm <= max_cpm; icpm++){      
+				 cout<<nbinphiCS[iRap][iPT][icpm];
+				 if(icpm<max_cpm) {cout<<", "; }
+				 else if(icpm==max_cpm && iPT < onia::kNbPTBins[iRap]-1) {cout<<"},{"; }
+				 else {cout<<"}};"; }
+			 }
+			 }
+		   }
+		 cout<<endl;
+		 cout<<endl;
+		 
+		 cout<<"//HX int binCosth[nRapBins][nPtBins][ncpmBins]={{";
+	   
+		   for(int iRap = 0; iRap < onia::kNbRapForPTBins; iRap++){
+			 Int_t max_pt = onia::kNbPTBins[iRap]-1;
+			 for(int iPT = 0; iPT <= max_pt; iPT++){
+			 Int_t max_cpm = onia::NchBins-1;
+			 for(int icpm = 0; icpm <= max_cpm; icpm++){      
+				 cout<<nbincosthHX[iRap][iPT][icpm];
+				 if(icpm<max_cpm) {cout<<", "; }
+				 else if(icpm==max_cpm && iPT < onia::kNbPTBins[iRap]-1) {cout<<"},{"; }
+				 else {cout<<"}};"; }
+			 }
+			 }
+		   }
+		 cout<<endl;
+		 cout<<endl;
+		 
+		 cout<<"//HX int binPhi[nRapBins][nPtBins][ncpmBins]={{";
+	   
+		   for(int iRap = 0; iRap < onia::kNbRapForPTBins; iRap++){
+			 Int_t max_pt = onia::kNbPTBins[iRap]-1;
+			 for(int iPT = 0; iPT <= max_pt; iPT++){
+			 Int_t max_cpm = onia::NchBins-1;
+			 for(int icpm = 0; icpm <= max_cpm; icpm++){      
+				 cout<<nbinphiHX[iRap][iPT][icpm];
+				 if(icpm<max_cpm) {cout<<", "; }
+				 else if(icpm==max_cpm && iPT < onia::kNbPTBins[iRap]-1) {cout<<"},{"; }
+				 else {cout<<"}};"; }
+			 }
+			 }
+		   }
+		 cout<<endl;
+		 cout<<endl;
+		 
+		 cout<<"//PHX int binPhi[nRapBins][nPtBins][ncpmBins]={{";
+	   
+		   for(int iRap = 0; iRap < onia::kNbRapForPTBins; iRap++){
+			 Int_t max_pt = onia::kNbPTBins[iRap]-1;
+			 for(int iPT = 0; iPT <= max_pt; iPT++){
+			 Int_t max_cpm = onia::NchBins-1;
+			 for(int icpm = 0; icpm <= max_cpm; icpm++){      
+				 cout<<nbinphiPHX[iRap][iPT][icpm];
+				 if(icpm<max_cpm) {cout<<", "; }
+				 else if(icpm==max_cpm && iPT < onia::kNbPTBins[iRap]-1) {cout<<"},{"; }
+				 else {cout<<"}};"; }
+			 }
+			 }
+		   }
+		 cout<<endl;
+		 cout<<endl;
+		 
+		 cout<<"//PHX int binCosth[nRapBins][nPtBins][ncpmBins]={{";
+	   
+		   for(int iRap = 0; iRap < onia::kNbRapForPTBins; iRap++){
+			 Int_t max_pt = onia::kNbPTBins[iRap]-1;
+			 for(int iPT = 0; iPT <= max_pt; iPT++){
+			 Int_t max_cpm = onia::NchBins-1;
+			 for(int icpm = 0; icpm <= max_cpm; icpm++){      
+				 cout<<nbincosthPHX[iRap][iPT][icpm];
+				 if(icpm<max_cpm) {cout<<", "; }
+				 else if(icpm==max_cpm && iPT < onia::kNbPTBins[iRap]-1) {cout<<"},{"; }
+				 else {cout<<"}};"; }
+			 }
+			 }
+		   }
+		 cout<<endl;
+		 cout<<endl;
+		 
+	  
+//	  int nx = hTBG_cosThetaPhi[iFrame]->GetXaxis()->GetNbins();
+//		int ny = hTBG_cosThetaPhi[iFrame]->GetYaxis()->GetNbins();
+		
+		
+  		}
+  		
+  		if(nState==5){
 		   
 		   cout<<endl;
 	  	   cout<<endl;
@@ -479,14 +677,16 @@ void PlotHistos(Int_t iRapBin, Int_t iPTBin, Int_t iCPMBin, Int_t iFrame, Int_t 
 
 	hCosThetaPhi[iRapBin][iPTBin][iCPMBin][iFrame][iWindow]->Draw("colz");
 
-	if(iRapBin==0) 
-		latex->DrawLatex(left,top,Form("|y| < %.1f, %.1f < p_{T} < %.1f GeV",
+	if(iRapBin==0)
+		latex->DrawLatex(left,top,Form("|y| < %.1f, %.1f < p_{T} < %.1f GeV,\n %.1f < N_{ch} < %.1f",
 					onia::rapForPTRange[iRapBin+1],
-					onia::pTRange[iRapBin+1][iPTBin],onia::pTRange[iRapBin+1][iPTBin+1]));
+					onia::pTRange[iRapBin+1][iPTBin],onia::pTRange[iRapBin+1][iPTBin+1],
+					onia::cpmRange[iCPMBin],onia::cpmRange[iCPMBin+1]));
 	else
-		latex->DrawLatex(left,top,Form("%.1f < |y| < %.1f, %.1f < p_{T} < %.1f GeV",
+		latex->DrawLatex(left,top,Form("%.1f < |y| < %.1f, %.1f < p_{T} < %.1f GeV,\n %.1f < N_{ch} < %.1f",
 					onia::rapForPTRange[iRapBin],onia::rapForPTRange[iRapBin+1],
-					onia::pTRange[iRapBin+1][iPTBin],onia::pTRange[iRapBin+1][iPTBin+1]));
+					onia::pTRange[iRapBin+1][iPTBin],onia::pTRange[iRapBin+1][iPTBin+1],
+					onia::cpmRange[iCPMBin],onia::cpmRange[iCPMBin+1]));
 
 	sprintf(name, "Figures/cosThetaPhi_%s_rap%d_pT%d_cpm%d_%s.pdf", onia::frameLabel[iFrame], iRapBin+1, iPTBin+1, iCPMBin+1, bgLabel[iWindow]);
 	c1->Print(name);
@@ -497,14 +697,16 @@ void PlotHistos(Int_t iRapBin, Int_t iPTBin, Int_t iCPMBin, Int_t iFrame, Int_t 
 	hCosThetaPhiHighct[iRapBin][iPTBin][iCPMBin][iFrame][iWindow]->GetYaxis()->SetTitleOffset(yOffset);
 	hCosThetaPhiHighct[iRapBin][iPTBin][iCPMBin][iFrame][iWindow]->Draw("colz");
 
-	if(iRapBin==0) 
-		latex->DrawLatex(left,top,Form("|y| < %.1f, %.1f < p_{T} < %.1f GeV",
+	if(iRapBin==0)
+		latex->DrawLatex(left,top,Form("|y| < %.1f, %.1f < p_{T} < %.1f GeV,\n %.1f < N_{ch} < %.1f",
 					onia::rapForPTRange[iRapBin+1],
-					onia::pTRange[iRapBin+1][iPTBin],onia::pTRange[iRapBin+1][iPTBin+1]));
+					onia::pTRange[iRapBin+1][iPTBin],onia::pTRange[iRapBin+1][iPTBin+1],
+					onia::cpmRange[iCPMBin],onia::cpmRange[iCPMBin+1]));
 	else
-		latex->DrawLatex(left,top,Form("%.1f < |y| < %.1f, %.1f < p_{T} < %.1f GeV",
+		latex->DrawLatex(left,top,Form("%.1f < |y| < %.1f, %.1f < p_{T} < %.1f GeV,\n %.1f < N_{ch} < %.1f",
 					onia::rapForPTRange[iRapBin],onia::rapForPTRange[iRapBin+1],
-					onia::pTRange[iRapBin+1][iPTBin],onia::pTRange[iRapBin+1][iPTBin+1]));
+					onia::pTRange[iRapBin+1][iPTBin],onia::pTRange[iRapBin+1][iPTBin+1],
+					onia::cpmRange[iCPMBin],onia::cpmRange[iCPMBin+1]));
 
 	sprintf(name, "Figures/cosThetaPhi_%s_rap%d_pT%d_cpm%d_highct_%s.pdf", onia::frameLabel[iFrame], iRapBin+1, iPTBin+1, iCPMBin+1, bgLabel[iWindow]);
 	c1->Print(name);
@@ -516,14 +718,16 @@ void PlotHistos(Int_t iRapBin, Int_t iPTBin, Int_t iCPMBin, Int_t iFrame, Int_t 
 		hCosThetaPhiNPBG[iRapBin][iPTBin][iCPMBin][iFrame]->GetYaxis()->SetTitleOffset(yOffset);
 		hCosThetaPhiNPBG[iRapBin][iPTBin][iCPMBin][iFrame]->Draw("colz");
 
-		if(iRapBin==0) 
-			latex->DrawLatex(left,top,Form("|y| < %.1f, %.1f < p_{T} < %.1f GeV",
-						onia::rapForPTRange[iRapBin+1],
-						onia::pTRange[iRapBin+1][iPTBin],onia::pTRange[iRapBin+1][iPTBin+1]));
-		else
-			latex->DrawLatex(left,top,Form("%.1f < |y| < %.1f, %.1f < p_{T} < %.1f GeV",
-						onia::rapForPTRange[iRapBin],onia::rapForPTRange[iRapBin+1],
-						onia::pTRange[iRapBin+1][iPTBin],onia::pTRange[iRapBin+1][iPTBin+1]));
+		if(iRapBin==0)
+		latex->DrawLatex(left,top,Form("|y| < %.1f, %.1f < p_{T} < %.1f GeV,\n %.1f < N_{ch} < %.1f",
+					onia::rapForPTRange[iRapBin+1],
+					onia::pTRange[iRapBin+1][iPTBin],onia::pTRange[iRapBin+1][iPTBin+1],
+					onia::cpmRange[iCPMBin],onia::cpmRange[iCPMBin+1]));
+	else
+		latex->DrawLatex(left,top,Form("%.1f < |y| < %.1f, %.1f < p_{T} < %.1f GeV,\n %.1f < N_{ch} < %.1f",
+					onia::rapForPTRange[iRapBin],onia::rapForPTRange[iRapBin+1],
+					onia::pTRange[iRapBin+1][iPTBin],onia::pTRange[iRapBin+1][iPTBin+1],
+					onia::cpmRange[iCPMBin],onia::cpmRange[iCPMBin+1]));
 
 		sprintf(name, "Figures/cosThetaPhiNPBG_%s_rap%d_pT%d_cpm%d.pdf", onia::frameLabel[iFrame], iRapBin+1, iPTBin+1, iCPMBin+1);
 		c1->Print(name);
@@ -535,14 +739,16 @@ void PlotHistos(Int_t iRapBin, Int_t iPTBin, Int_t iCPMBin, Int_t iFrame, Int_t 
 		hTCosThetaPhi[iRapBin][iPTBin][iCPMBin][iFrame]->GetYaxis()->SetTitleOffset(yOffset);
 		hTCosThetaPhi[iRapBin][iPTBin][iCPMBin][iFrame]->Draw("colz");
 
-		if(iRapBin==0) 
-			latex->DrawLatex(left,top,Form("|y| < %.1f, %.1f < p_{T} < %.1f GeV",
-						onia::rapForPTRange[iRapBin+1],
-						onia::pTRange[iRapBin+1][iPTBin],onia::pTRange[iRapBin+1][iPTBin+1]));
-		else
-			latex->DrawLatex(left,top,Form("%.1f < |y| < %.1f, %.1f < p_{T} < %.1f GeV",
-						onia::rapForPTRange[iRapBin],onia::rapForPTRange[iRapBin+1],
-						onia::pTRange[iRapBin+1][iPTBin],onia::pTRange[iRapBin+1][iPTBin+1]));
+		if(iRapBin==0)
+		latex->DrawLatex(left,top,Form("|y| < %.1f, %.1f < p_{T} < %.1f GeV,\n %.1f < N_{ch} < %.1f",
+					onia::rapForPTRange[iRapBin+1],
+					onia::pTRange[iRapBin+1][iPTBin],onia::pTRange[iRapBin+1][iPTBin+1],
+					onia::cpmRange[iCPMBin],onia::cpmRange[iCPMBin+1]));
+	else
+		latex->DrawLatex(left,top,Form("%.1f < |y| < %.1f, %.1f < p_{T} < %.1f GeV,\n %.1f < N_{ch} < %.1f",
+					onia::rapForPTRange[iRapBin],onia::rapForPTRange[iRapBin+1],
+					onia::pTRange[iRapBin+1][iPTBin],onia::pTRange[iRapBin+1][iPTBin+1],
+					onia::cpmRange[iCPMBin],onia::cpmRange[iCPMBin+1]));
 
 		sprintf(name, "Figures/cosThetaPhi_%s_rap%d_pT%d_cpm%d_total.pdf", onia::frameLabel[iFrame], iRapBin+1, iPTBin+1, iCPMBin+1);
 		c1->Print(name);

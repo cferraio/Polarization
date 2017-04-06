@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
 
 	int nRapBins = 1;
 	int nPtBins = 2;
-	if(nState==5) nRapBins =  3;
+	if(nState==5) nRapBins =  1;
 	cout<<"nRapBins: "<<nRapBins<<endl;
 
 	for(int iLam = 1; iLam<19; iLam++){

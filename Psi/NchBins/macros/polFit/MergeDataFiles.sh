@@ -7,9 +7,9 @@ NSigma=3.00 #needed in 2 decimal accuracy (x.yz)
 
 #JobID=Psi$[nState-3]S_${NSigma}Sigma_11Dec2012
 #JobID=Psi$[nState-3]S_${NSigma}Sigma_11Dec2012_noRhoFactor
-JobIDname=2011Psi2S
+JobIDname=FourthResults_ForPreApproval #FirstResults_2011_Nch_FracL25 # #
 
-nGenerations=15
+nGenerations=50
 MergeFiles=1
 
 if [ $nState -eq 4 ] 
@@ -19,7 +19,7 @@ rapBinMax=1
 ptBinMin=1
 ptBinMax=2
 cpmBinMin=1
-cpmBinMax=11
+cpmBinMax=12
 fi
 
 if [ $nState -eq 5 ] 

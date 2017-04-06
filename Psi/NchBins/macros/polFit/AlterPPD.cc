@@ -56,6 +56,8 @@ int main(int argc, char** argv) {
 	Char_t *DefaultID = "Default";
 	Char_t *ShiftID = "Default";
 
+	int cpmBinMin=1;
+	int cpmBinMax=1;
 	int ptBinMin=1;
 	int ptBinMax=1;
 	int rapBinMin=1;
@@ -105,7 +107,9 @@ int main(int argc, char** argv) {
 		if(std::string(argv[i]).find("SystID8Specify") != std::string::npos) {char* SystID8Specifychar = argv[i]; char* SystID8Specifychar2 = strtok (SystID8Specifychar, "="); SystID8Specify = SystID8Specifychar2; cout<<"SystID8Specify = "<<SystID8Specify<<endl;}
 		if(std::string(argv[i]).find("SystID8Title") != std::string::npos) {char* SystID8Titlechar = argv[i]; char* SystID8Titlechar2 = strtok (SystID8Titlechar, "="); SystID8Title = SystID8Titlechar2; cout<<"SystID8Title = "<<SystID8Title<<endl;}
 
-
+		if(std::string(argv[i]).find("cpmBinMin") != std::string::npos) {char* cpmBinMinchar = argv[i]; char* cpmBinMinchar2 = strtok (cpmBinMinchar, "p"); cpmBinMin = atof(cpmBinMinchar2); cout<<"cpmBinMin = "<<cpmBinMin<<endl;}
+		if(std::string(argv[i]).find("cpmBinMax") != std::string::npos) {char* cpmBinMaxchar = argv[i]; char* cpmBinMaxchar2 = strtok (cpmBinMaxchar, "p"); cpmBinMax = atof(cpmBinMaxchar2); cout<<"cpmBinMax = "<<cpmBinMax<<endl;}
+		
 		if(std::string(argv[i]).find("ptBinMin") != std::string::npos) {char* ptBinMinchar = argv[i]; char* ptBinMinchar2 = strtok (ptBinMinchar, "p"); ptBinMin = atof(ptBinMinchar2); cout<<"ptBinMin = "<<ptBinMin<<endl;}
 		if(std::string(argv[i]).find("ptBinMax") != std::string::npos) {char* ptBinMaxchar = argv[i]; char* ptBinMaxchar2 = strtok (ptBinMaxchar, "p"); ptBinMax = atof(ptBinMaxchar2); cout<<"ptBinMax = "<<ptBinMax<<endl;}
 		if(std::string(argv[i]).find("rapBinMin") != std::string::npos) {char* rapBinMinchar = argv[i]; char* rapBinMinchar2 = strtok (rapBinMinchar, "p"); rapBinMin = atof(rapBinMinchar2); cout<<"rapBinMin = "<<rapBinMin<<endl;}
@@ -126,7 +130,7 @@ int main(int argc, char** argv) {
 
 	}
 
-
+	int cpmBin=cpmBinMin;
 	int ptBin=ptBinMin;
 	int rapBin=rapBinMin;
 
@@ -182,20 +186,20 @@ int main(int argc, char** argv) {
 		for(int iFrame = 1; iFrame<nFrames+1; iFrame++){
 			for(int iSyst = 1; iSyst<nSystematics+1; iSyst++){
 
-				if(iLam==1&&iFrame==1)  sprintf(GraphName,"lth_CS_rap%d",rapBin);
-				if(iLam==2&&iFrame==1)  sprintf(GraphName,"lph_CS_rap%d",rapBin);
-				if(iLam==3&&iFrame==1)  sprintf(GraphName,"ltp_CS_rap%d",rapBin);
-				if(iLam==4&&iFrame==1)  sprintf(GraphName,"ltilde_CS_rap%d",rapBin);
+				if(iLam==1&&iFrame==1)  sprintf(GraphName,"lth_CS_rap%d_pt%d",rapBin,ptBin);
+				if(iLam==2&&iFrame==1)  sprintf(GraphName,"lph_CS_rap%d_pt%d",rapBin,ptBin);
+				if(iLam==3&&iFrame==1)  sprintf(GraphName,"ltp_CS_rap%d_pt%d",rapBin,ptBin);
+				if(iLam==4&&iFrame==1)  sprintf(GraphName,"ltilde_CS_rap%d_pt%d",rapBin,ptBin);
 
-				if(iLam==1&&iFrame==2)  sprintf(GraphName,"lth_HX_rap%d",rapBin);
-				if(iLam==2&&iFrame==2)  sprintf(GraphName,"lph_HX_rap%d",rapBin);
-				if(iLam==3&&iFrame==2)  sprintf(GraphName,"ltp_HX_rap%d",rapBin);
-				if(iLam==4&&iFrame==2)  sprintf(GraphName,"ltilde_HX_rap%d",rapBin);
+				if(iLam==1&&iFrame==2)  sprintf(GraphName,"lth_HX_rap%d_pt%d",rapBin,ptBin);
+				if(iLam==2&&iFrame==2)  sprintf(GraphName,"lph_HX_rap%d_pt%d",rapBin,ptBin);
+				if(iLam==3&&iFrame==2)  sprintf(GraphName,"ltp_HX_rap%d_pt%d",rapBin,ptBin);
+				if(iLam==4&&iFrame==2)  sprintf(GraphName,"ltilde_HX_rap%d_pt%d",rapBin,ptBin);
 
-				if(iLam==1&&iFrame==3)  sprintf(GraphName,"lth_PX_rap%d",rapBin);
-				if(iLam==2&&iFrame==3)  sprintf(GraphName,"lph_PX_rap%d",rapBin);
-				if(iLam==3&&iFrame==3)  sprintf(GraphName,"ltp_PX_rap%d",rapBin);
-				if(iLam==4&&iFrame==3)  sprintf(GraphName,"ltilde_PX_rap%d",rapBin);
+				if(iLam==1&&iFrame==3)  sprintf(GraphName,"lth_PX_rap%d_pt%d",rapBin,ptBin);
+				if(iLam==2&&iFrame==3)  sprintf(GraphName,"lph_PX_rap%d_pt%d",rapBin,ptBin);
+				if(iLam==3&&iFrame==3)  sprintf(GraphName,"ltp_PX_rap%d_pt%d",rapBin,ptBin);
+				if(iLam==4&&iFrame==3)  sprintf(GraphName,"ltilde_PX_rap%d_pt%d",rapBin,ptBin);
 
 				if(iSyst==1) {graphSyst = (TGraphAsymmErrors*) infileSyst1->Get(GraphName); ProbDist[iSyst]=SystID1ProbDist; }
 				if(iSyst==2) {graphSyst = (TGraphAsymmErrors*) infileSyst2->Get(GraphName); ProbDist[iSyst]=SystID2ProbDist; }
@@ -211,7 +215,7 @@ int main(int argc, char** argv) {
 				 	ProbDist[iSyst]=2; 
 				///////////////////////////////////////////
 
-				graphSyst->GetPoint(ptBin-1,BufferDouble,SystVariation[iSyst][iFrame][iLam]);
+				graphSyst->GetPoint(cpmBin-1,BufferDouble,SystVariation[iSyst][iFrame][iLam]);
 
 				SystVariation[iSyst][iFrame][iLam]=TMath::Abs(SystVariation[iSyst][iFrame][iLam]);
 
@@ -223,7 +227,7 @@ int main(int argc, char** argv) {
 			}
 			if(ShiftResults){
 				graphShift = (TGraphAsymmErrors*) infileShift->Get(GraphName);
-				graphShift->GetPoint(ptBin-1,BufferDouble,Shift[iFrame][iLam]);
+				graphShift->GetPoint(cpmBin-1,BufferDouble,Shift[iFrame][iLam]);
 				cout<<"Shift for iPar"<<iLam<<" in iFrame"<<iFrame<<": "<<Shift[iFrame][iLam]<<endl;
 			}
 			if(!ShiftResults) Shift[iFrame][iLam]=0.;
@@ -233,7 +237,7 @@ int main(int argc, char** argv) {
 
 	//// Start variation of PPD ///////////////
 
-	sprintf(filename,"%s/%s_%s/results_Psi%dS_rap%d_pT%d.root",storagedir,DefaultID,JobID,nState-3,rapBin,ptBin);
+	sprintf(filename,"%s/%s_%s/results_Psi%dS_rap%d_pT%d_cpm%d.root",storagedir,DefaultID,JobID,nState-3,rapBin,ptBin,cpmBin);
 	TFile *results = new TFile(filename,"UPDATE");
 
 

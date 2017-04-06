@@ -32,8 +32,8 @@ namespace onia{
   double pTRange[kNbRapForPTBins+1][kNbPTMaxBins+1] = {
 //    {10., 14., 18., 22., 30., 50.},//all rapidities
 //    {10., 14., 18., 22., 30., 50.},//mid-rapidity
-    {14., 18., 30.},//0.0 < |y| < 1.2
-    {14., 18., 30.}};//all rap
+    {14., 20., 35.},//0.0 < |y| < 1.2
+    {14., 20., 35.}};//all rap
     
   const int NchBins = 5;
   double cpmRange[NchBins+1] = {0,15,25,35,45,100};    

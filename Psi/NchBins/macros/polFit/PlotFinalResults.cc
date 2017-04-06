@@ -69,11 +69,11 @@ int main(int argc, char** argv) {
 	Char_t *LegendEntryCompID4= "Default";
 
 	Char_t *MPCentralsWithTotalSystID = "MPCentralsWithTotalSystID";
-	
-	int cpmBinMin=1;
-	int cpmBinMax=1;
+
 	int ptBinMin=1;
 	int ptBinMax=1;
+	int cpmBinMin=1;
+	int cpmBinMax=1;
 	int nSystematics=1;
 	int nComp=1;
 	int nState=1;
@@ -82,7 +82,6 @@ int main(int argc, char** argv) {
 	bool PlotAsymm(false);
 	bool PlotCompare(false);
 	bool PlotFinalData(false);
-	bool PlotNchData(false);
 	bool PlotSystematics(false);
 	bool PlotLegend(false);
 	bool PlotBrazilian(false);
@@ -150,11 +149,11 @@ int main(int argc, char** argv) {
 		if(std::string(argv[i]).find("LegendEntryCompID2") != std::string::npos) {char* LegendEntryCompID2char = argv[i]; char* LegendEntryCompID2char2 = strtok (LegendEntryCompID2char, "="); LegendEntryCompID2 = LegendEntryCompID2char2; cout<<"LegendEntryCompID2 = "<<LegendEntryCompID2<<endl;}
 		if(std::string(argv[i]).find("LegendEntryCompID3") != std::string::npos) {char* LegendEntryCompID3char = argv[i]; char* LegendEntryCompID3char2 = strtok (LegendEntryCompID3char, "="); LegendEntryCompID3 = LegendEntryCompID3char2; cout<<"LegendEntryCompID3 = "<<LegendEntryCompID3<<endl;}
 		if(std::string(argv[i]).find("LegendEntryCompID4") != std::string::npos) {char* LegendEntryCompID4char = argv[i]; char* LegendEntryCompID4char2 = strtok (LegendEntryCompID4char, "="); LegendEntryCompID4 = LegendEntryCompID4char2; cout<<"LegendEntryCompID4 = "<<LegendEntryCompID4<<endl;}
-		
-		if(std::string(argv[i]).find("cpmBinMin") != std::string::npos) {char* cpmBinMinchar = argv[i]; char* cpmBinMinchar2 = strtok (cpmBinMinchar, "p"); cpmBinMin = atof(cpmBinMinchar2); cout<<"cpmBinMin = "<<cpmBinMin<<endl;}
-		if(std::string(argv[i]).find("cpmBinMax") != std::string::npos) {char* cpmBinMaxchar = argv[i]; char* cpmBinMaxchar2 = strtok (cpmBinMaxchar, "p"); cpmBinMax = atof(cpmBinMaxchar2); cout<<"cpmBinMax = "<<cpmBinMax<<endl;}
+
 		if(std::string(argv[i]).find("ptBinMin") != std::string::npos) {char* ptBinMinchar = argv[i]; char* ptBinMinchar2 = strtok (ptBinMinchar, "p"); ptBinMin = atof(ptBinMinchar2); cout<<"ptBinMin = "<<ptBinMin<<endl;}
 		if(std::string(argv[i]).find("ptBinMax") != std::string::npos) {char* ptBinMaxchar = argv[i]; char* ptBinMaxchar2 = strtok (ptBinMaxchar, "p"); ptBinMax = atof(ptBinMaxchar2); cout<<"ptBinMax = "<<ptBinMax<<endl;}
+		if(std::string(argv[i]).find("cpmBinMin") != std::string::npos) {char* cpmBinMinchar = argv[i]; char* cpmBinMinchar2 = strtok (cpmBinMinchar, "p"); cpmBinMin = atof(cpmBinMinchar2); cout<<"cpmBinMin = "<<cpmBinMin<<endl;}
+		if(std::string(argv[i]).find("cpmBinMax") != std::string::npos) {char* cpmBinMaxchar = argv[i]; char* cpmBinMaxchar2 = strtok (cpmBinMaxchar, "p"); cpmBinMax = atof(cpmBinMaxchar2); cout<<"cpmBinMax = "<<cpmBinMax<<endl;}
 		if(std::string(argv[i]).find("nSystematics") != std::string::npos) {char* nSystematicschar = argv[i]; char* nSystematicschar2 = strtok (nSystematicschar, "p"); nSystematics = atof(nSystematicschar2); cout<<"nSystematics = "<<nSystematics<<endl;}
 		if(std::string(argv[i]).find("nComp") != std::string::npos) {char* nCompchar = argv[i]; char* nCompchar2 = strtok (nCompchar, "p"); nComp = atof(nCompchar2); cout<<"nComp = "<<nComp<<endl;}
 		if(std::string(argv[i]).find("nState") != std::string::npos) {char* nStatechar = argv[i]; char* nStatechar2 = strtok (nStatechar, "p"); nState = atof(nStatechar2); cout<<"nState = "<<nState<<endl;}
@@ -162,7 +161,6 @@ int main(int argc, char** argv) {
 		if(std::string(argv[i]).find("PlotMatt=1") != std::string::npos) {PlotMatt=true; cout<<"Plot Matts results"<<endl;}
 		if(std::string(argv[i]).find("PlotAsymm=1") != std::string::npos) {PlotAsymm=true; cout<<"Plot Asymms results"<<endl;}
 		if(std::string(argv[i]).find("PlotCompare=1") != std::string::npos) {PlotCompare=true; cout<<"Plot Comparison results"<<endl;}
-		if(std::string(argv[i]).find("PlotNchData=1") != std::string::npos) {PlotNchData=true; cout<<"Plot Data results"<<endl;}
 		if(std::string(argv[i]).find("PlotFinalData=1") != std::string::npos) {PlotFinalData=true; cout<<"Plot Data results"<<endl;}
 		if(std::string(argv[i]).find("PlotSystematics=1") != std::string::npos) {PlotSystematics=true; cout<<"Plot Systematics results"<<endl;}
 		if(std::string(argv[i]).find("PlotLegend=1") != std::string::npos) {PlotLegend=true; cout<<"Plot Legend"<<endl;}
@@ -201,16 +199,10 @@ int main(int argc, char** argv) {
 	double DeltaXCompare=0.;
 	if(ShiftCompareInX) DeltaXCompare=0.5;//0.9999
 
-	double PlotpTMinInitial = 6., PlotpTMaxInitial = 72.;
-	if(PlotFinalData) PlotpTMinInitial = 10.;
-	double PlotpTMin = PlotpTMinInitial, 
-				 PlotpTMax = PlotpTMaxInitial;
-				 
-	if(PlotNchData) {
-	double PlotcpmMaxInitial = 100., PlotcpmMinInitial = 0.;
+	double PlotcpmMinInitial = -1., PlotcpmMaxInitial = 99.;
+	if(PlotFinalData) PlotcpmMinInitial = -1.;
 	double PlotcpmMin = PlotcpmMinInitial, 
 				 PlotcpmMax = PlotcpmMaxInitial;
-	}
 
 	int OneSigColor=416;
 	int TwoSigColor=400;//858,898
@@ -272,28 +264,7 @@ int main(int argc, char** argv) {
 	//TFile *MattFileSyst = new TFile(filename,"READ");
 	//if(nState>1) MattFileSyst=infileRes;
 
-	sprintf(filename,"%s/macros/polFit/CDFRes/TGraphResults_Psi%dS_CDFStat.root",basedir,nState-3);
-	TFile *MattFileStat = new TFile(filename,"READ");
 
-	sprintf(filename,"%s/macros/polFit/CDFRes/TGraphResults_Psi%dS_CDFSyst.root",basedir,nState-3);
-	TFile *MattFileSyst = new TFile(filename,"READ");
-
-	sprintf(filename,"%s/macros/polFit/CDFRes/TGraphResults_Psi%dS_CDFTotal.root",basedir,nState-3);
-	TFile *MattFileTotal = new TFile(filename,"READ");
-
-	sprintf(filename,"%s/macros/polFit/CDFRes/TGraphResults_Psi1S_CDFStat.root",basedir);
-	TFile *infileMP1SCDF_Stat = new TFile(filename,"READ");
-	sprintf(filename,"%s/macros/polFit/CDFRes/TGraphResults_Psi2S_CDFStat.root",basedir);
-	TFile *infileMP2SCDF_Stat = new TFile(filename,"READ");
-	sprintf(filename,"%s/macros/polFit/CDFRes/TGraphResults_Psi3S_CDFStat.root",basedir);
-	TFile *infileMP3SCDF_Stat = new TFile(filename,"READ");
-
-	sprintf(filename,"%s/macros/polFit/CDFRes/TGraphResults_Psi1S_CDFTotal.root",basedir);
-	TFile *infileMP1SCDF_Total = new TFile(filename,"READ");
-	sprintf(filename,"%s/macros/polFit/CDFRes/TGraphResults_Psi2S_CDFTotal.root",basedir);
-	TFile *infileMP2SCDF_Total = new TFile(filename,"READ");
-	sprintf(filename,"%s/macros/polFit/CDFRes/TGraphResults_Psi3S_CDFTotal.root",basedir);
-	TFile *infileMP3SCDF_Total = new TFile(filename,"READ");
 
 	sprintf(filename,"%s/%s/TGraphResults_Psi%dS.root",storagedir,CompareID1,nState-3);
 	if(CompareSyst)sprintf(filename,"%s/macros/polFit/Systematics/%s/%s/TGraphResults_Psi1S.root",basedir,SystID2Base,SystID2Specify,nState);
@@ -397,26 +368,24 @@ int main(int argc, char** argv) {
 
 	// Declare variables needed for table production
 
-	const int tabPtBins=ptBinMax-ptBinMin+1;
 	const int tabcpmBins=cpmBinMax-cpmBinMin+1;
 	const int iParameters=18;
 
-	int  nRapBins =2;
-	if(nState==5) nRapBins=3;
+	int  nRapBins =1;
+	int nPtBins = 2;
 	cout << "nRapBins: " << nRapBins << endl;
 
-	double val_table[iParameters+1][nRapBins][tabPtBins][tabcpmBins];
-	double errHigh_table[iParameters+1][nRapBins][tabPtBins][tabcpmBins];
-	double errLow_table[iParameters+1][nRapBins][tabPtBins][tabcpmBins];
-	double syst_table[iParameters+1][nRapBins][tabPtBins][nSystematics+1][tabcpmBins];
-	double errHighTotal1_table[iParameters+1][nRapBins][tabPtBins][tabcpmBins];
-	double errLowTotal1_table[iParameters+1][nRapBins][tabPtBins][tabcpmBins];
-	double errHighTotal2_table[iParameters+1][nRapBins][tabPtBins][tabcpmBins];
-	double errLowTotal2_table[iParameters+1][nRapBins][tabPtBins][tabcpmBins];
-	double errHighTotal3_table[iParameters+1][nRapBins][tabPtBins][tabcpmBins];
-	double errLowTotal3_table[iParameters+1][nRapBins][tabPtBins][tabcpmBins];
-	double pTmean_table[iParameters+1][nRapBins][tabPtBins][tabcpmBins];
-
+	double val_table[iParameters+1][nRapBins][nPtBins][tabcpmBins];
+	double errHigh_table[iParameters+1][nRapBins][nPtBins][tabcpmBins];
+	double errLow_table[iParameters+1][nRapBins][nPtBins][tabcpmBins];
+	double syst_table[iParameters+1][nRapBins][nPtBins][tabcpmBins][nSystematics+1];
+	double errHighTotal1_table[iParameters+1][nRapBins][nPtBins][tabcpmBins];
+	double errLowTotal1_table[iParameters+1][nRapBins][nPtBins][tabcpmBins];
+	double errHighTotal2_table[iParameters+1][nRapBins][nPtBins][tabcpmBins];
+	double errLowTotal2_table[iParameters+1][nRapBins][nPtBins][tabcpmBins];
+	double errHighTotal3_table[iParameters+1][nRapBins][nPtBins][tabcpmBins];
+	double errLowTotal3_table[iParameters+1][nRapBins][nPtBins][tabcpmBins];
+	double cpmmean_table[iParameters+1][nRapBins][nPtBins][tabcpmBins];
 
 	TCanvas *MPcanvasCS;
 	TCanvas *MPcanvasHX;
@@ -442,7 +411,6 @@ int main(int argc, char** argv) {
 	TCanvas *MPcanvasTilde_New;
 	TCanvas *MPcanvasTilde_Psi;
 	TCanvas *MPcanvasCDF;
-
 	//================================================================
 	//==need to be changed for different rap bins(Psi1S:4, Psi2S:5)===
 	//================================================================
@@ -450,73 +418,74 @@ int main(int argc, char** argv) {
 	for(int iLam = 1; iLam<iParameters+1; iLam++){
 
 		for(int rapBin = 1; rapBin < nRapBins+1; rapBin++){
+		 for(int ptBin = 1; ptBin < nPtBins+1; ptBin++){
 
 
-			if(iLam==1)  sprintf(GraphName,"lth_CS_rap%d",rapBin);
-			if(iLam==2)  sprintf(GraphName,"lph_CS_rap%d",rapBin);
-			if(iLam==3)  sprintf(GraphName,"ltp_CS_rap%d",rapBin);
-			if(iLam==4)  sprintf(GraphName,"lthstar_CS_rap%d",rapBin);
-			if(iLam==5)  sprintf(GraphName,"lphstar_CS_rap%d",rapBin);
-			if(iLam==6)  sprintf(GraphName,"ltilde_CS_rap%d",rapBin);
+			if(iLam==1)  sprintf(GraphName,"lth_CS_rap%d_pt%d",rapBin,ptBin);
+			if(iLam==2)  sprintf(GraphName,"lph_CS_rap%d_pt%d",rapBin,ptBin);
+			if(iLam==3)  sprintf(GraphName,"ltp_CS_rap%d_pt%d",rapBin,ptBin);
+			if(iLam==4)  sprintf(GraphName,"lthstar_CS_rap%d_pt%d",rapBin,ptBin);
+			if(iLam==5)  sprintf(GraphName,"lphstar_CS_rap%d_pt%d",rapBin,ptBin);
+			if(iLam==6)  sprintf(GraphName,"ltilde_CS_rap%d_pt%d",rapBin,ptBin);
 
-			if(iLam==7)  sprintf(GraphName,"lth_HX_rap%d",rapBin);
-			if(iLam==8)  sprintf(GraphName,"lph_HX_rap%d",rapBin);
-			if(iLam==9)  sprintf(GraphName,"ltp_HX_rap%d",rapBin);
-			if(iLam==10) sprintf(GraphName,"lthstar_HX_rap%d",rapBin);
-			if(iLam==11) sprintf(GraphName,"lphstar_HX_rap%d",rapBin);
-			if(iLam==12) sprintf(GraphName,"ltilde_HX_rap%d",rapBin);
+			if(iLam==7)  sprintf(GraphName,"lth_HX_rap%d_pt%d",rapBin,ptBin);
+			if(iLam==8)  sprintf(GraphName,"lph_HX_rap%d_pt%d",rapBin,ptBin);
+			if(iLam==9)  sprintf(GraphName,"ltp_HX_rap%d_pt%d",rapBin,ptBin);
+			if(iLam==10) sprintf(GraphName,"lthstar_HX_rap%d_pt%d",rapBin,ptBin);
+			if(iLam==11) sprintf(GraphName,"lphstar_HX_rap%d_pt%d",rapBin,ptBin);
+			if(iLam==12) sprintf(GraphName,"ltilde_HX_rap%d_pt%d",rapBin,ptBin);
 
-			if(iLam==13) sprintf(GraphName,"lth_PX_rap%d",rapBin);
-			if(iLam==14) sprintf(GraphName,"lph_PX_rap%d",rapBin);
-			if(iLam==15) sprintf(GraphName,"ltp_PX_rap%d",rapBin);
-			if(iLam==16) sprintf(GraphName,"lthstar_PX_rap%d",rapBin);
-			if(iLam==17) sprintf(GraphName,"lphstar_PX_rap%d",rapBin);
-			if(iLam==18) sprintf(GraphName,"ltilde_PX_rap%d",rapBin);
+			if(iLam==13) sprintf(GraphName,"lth_PX_rap%d_pt%d",rapBin,ptBin);
+			if(iLam==14) sprintf(GraphName,"lph_PX_rap%d_pt%d",rapBin,ptBin);
+			if(iLam==15) sprintf(GraphName,"ltp_PX_rap%d_pt%d",rapBin,ptBin);
+			if(iLam==16) sprintf(GraphName,"lthstar_PX_rap%d_pt%d",rapBin,ptBin);
+			if(iLam==17) sprintf(GraphName,"lphstar_PX_rap%d_pt%d",rapBin,ptBin);
+			if(iLam==18) sprintf(GraphName,"ltilde_PX_rap%d_pt%d",rapBin,ptBin);
 
-			if(rapBin==1){
-				if(iLam==1)  sprintf(GraphNameOtherRap,"lth_CS_rap2");
-				if(iLam==2)  sprintf(GraphNameOtherRap,"lph_CS_rap2");
-				if(iLam==3)  sprintf(GraphNameOtherRap,"ltp_CS_rap2");
-				if(iLam==4)  sprintf(GraphNameOtherRap,"lthstar_CS_rap2");
-				if(iLam==5)  sprintf(GraphNameOtherRap,"lphstar_CS_rap2");
-				if(iLam==6)  sprintf(GraphNameOtherRap,"ltilde_CS_rap2");
+			if(ptBin==2){
+				if(iLam==1)  sprintf(GraphNameOtherRap,"lth_CS_rap1_pt2");
+				if(iLam==2)  sprintf(GraphNameOtherRap,"lph_CS_rap1_pt2");
+				if(iLam==3)  sprintf(GraphNameOtherRap,"ltp_CS_rap1_pt2");
+				if(iLam==4)  sprintf(GraphNameOtherRap,"lthstar_CS_rap1_pt2");
+				if(iLam==5)  sprintf(GraphNameOtherRap,"lphstar_CS_rap1_pt2");
+				if(iLam==6)  sprintf(GraphNameOtherRap,"ltilde_CS_rap1_pt2");
 
-				if(iLam==7)  sprintf(GraphNameOtherRap,"lth_HX_rap2");
-				if(iLam==8)  sprintf(GraphNameOtherRap,"lph_HX_rap2");
-				if(iLam==9)  sprintf(GraphNameOtherRap,"ltp_HX_rap2");
-				if(iLam==10) sprintf(GraphNameOtherRap,"lthstar_HX_rap2");
-				if(iLam==11) sprintf(GraphNameOtherRap,"lphstar_HX_rap2");
-				if(iLam==12) sprintf(GraphNameOtherRap,"ltilde_HX_rap2");
+				if(iLam==7)  sprintf(GraphNameOtherRap,"lth_HX_rap1_pt2");
+				if(iLam==8)  sprintf(GraphNameOtherRap,"lph_HX_rap1_pt2");
+				if(iLam==9)  sprintf(GraphNameOtherRap,"ltp_HX_rap1_pt2");
+				if(iLam==10) sprintf(GraphNameOtherRap,"lthstar_HX_rap1_pt2");
+				if(iLam==11) sprintf(GraphNameOtherRap,"lphstar_HX_rap1_pt2");
+				if(iLam==12) sprintf(GraphNameOtherRap,"ltilde_HX_rap1_pt2");
 
-				if(iLam==13) sprintf(GraphNameOtherRap,"lth_PX_rap2");
-				if(iLam==14) sprintf(GraphNameOtherRap,"lph_PX_rap2");
-				if(iLam==15) sprintf(GraphNameOtherRap,"ltp_PX_rap2");
-				if(iLam==16) sprintf(GraphNameOtherRap,"lthstar_PX_rap2");
-				if(iLam==17) sprintf(GraphNameOtherRap,"lphstar_PX_rap2");
-				if(iLam==18) sprintf(GraphNameOtherRap,"ltilde_PX_rap2");
+				if(iLam==13) sprintf(GraphNameOtherRap,"lth_PX_rap1_pt2");
+				if(iLam==14) sprintf(GraphNameOtherRap,"lph_PX_rap1_pt2");
+				if(iLam==15) sprintf(GraphNameOtherRap,"ltp_PX_rap1_pt2");
+				if(iLam==16) sprintf(GraphNameOtherRap,"lthstar_PX_rap1_pt2");
+				if(iLam==17) sprintf(GraphNameOtherRap,"lphstar_PX_rap1_pt2");
+				if(iLam==18) sprintf(GraphNameOtherRap,"ltilde_PX_rap1_pt2");
 			}
 
-			if(rapBin==2){
-				if(iLam==1)  sprintf(GraphNameOtherRap,"lth_CS_rap1");
-				if(iLam==2)  sprintf(GraphNameOtherRap,"lph_CS_rap1");
-				if(iLam==3)  sprintf(GraphNameOtherRap,"ltp_CS_rap1");
-				if(iLam==4)  sprintf(GraphNameOtherRap,"lthstar_CS_rap1");
-				if(iLam==5)  sprintf(GraphNameOtherRap,"lphstar_CS_rap1");
-				if(iLam==6)  sprintf(GraphNameOtherRap,"ltilde_CS_rap1");
+			if(ptBin==1){
+				if(iLam==1)  sprintf(GraphNameOtherRap,"lth_CS_rap1_pt1");
+				if(iLam==2)  sprintf(GraphNameOtherRap,"lph_CS_rap1_pt1");
+				if(iLam==3)  sprintf(GraphNameOtherRap,"ltp_CS_rap1_pt1");
+				if(iLam==4)  sprintf(GraphNameOtherRap,"lthstar_CS_rap1_pt1");
+				if(iLam==5)  sprintf(GraphNameOtherRap,"lphstar_CS_rap1_pt1");
+				if(iLam==6)  sprintf(GraphNameOtherRap,"ltilde_CS_rap1_pt1");
 
-				if(iLam==7)  sprintf(GraphNameOtherRap,"lth_HX_rap1");
-				if(iLam==8)  sprintf(GraphNameOtherRap,"lph_HX_rap1");
-				if(iLam==9)  sprintf(GraphNameOtherRap,"ltp_HX_rap1");
-				if(iLam==10) sprintf(GraphNameOtherRap,"lthstar_HX_rap1");
-				if(iLam==11) sprintf(GraphNameOtherRap,"lphstar_HX_rap1");
-				if(iLam==12) sprintf(GraphNameOtherRap,"ltilde_HX_rap1");
+				if(iLam==7)  sprintf(GraphNameOtherRap,"lth_HX_rap1_pt1");
+				if(iLam==8)  sprintf(GraphNameOtherRap,"lph_HX_rap1_pt1");
+				if(iLam==9)  sprintf(GraphNameOtherRap,"ltp_HX_rap1_pt1");
+				if(iLam==10) sprintf(GraphNameOtherRap,"lthstar_HX_rap1_pt1");
+				if(iLam==11) sprintf(GraphNameOtherRap,"lphstar_HX_rap1_pt1");
+				if(iLam==12) sprintf(GraphNameOtherRap,"ltilde_HX_rap1_pt1");
 
-				if(iLam==13) sprintf(GraphNameOtherRap,"lth_PX_rap1");
-				if(iLam==14) sprintf(GraphNameOtherRap,"lph_PX_rap1");
-				if(iLam==15) sprintf(GraphNameOtherRap,"ltp_PX_rap1");
-				if(iLam==16) sprintf(GraphNameOtherRap,"lthstar_PX_rap1");
-				if(iLam==17) sprintf(GraphNameOtherRap,"lphstar_PX_rap1");
-				if(iLam==18) sprintf(GraphNameOtherRap,"ltilde_PX_rap1");
+				if(iLam==13) sprintf(GraphNameOtherRap,"lth_PX_rap1_pt1");
+				if(iLam==14) sprintf(GraphNameOtherRap,"lph_PX_rap1_pt1");
+				if(iLam==15) sprintf(GraphNameOtherRap,"ltp_PX_rap1_pt1");
+				if(iLam==16) sprintf(GraphNameOtherRap,"lthstar_PX_rap1_pt1");
+				if(iLam==17) sprintf(GraphNameOtherRap,"lphstar_PX_rap1_pt1");
+				if(iLam==18) sprintf(GraphNameOtherRap,"ltilde_PX_rap1_pt1");
 			}
 
 
@@ -577,26 +546,26 @@ int main(int argc, char** argv) {
 			}
 
 
-			if(iLam==1)  sprintf(filename,"%s/FinalResults_CS_lth_rap%d.pdf",FigDir,rapBin);
-			if(iLam==2)  sprintf(filename,"%s/FinalResults_CS_lph_rap%d.pdf",FigDir,rapBin);
-			if(iLam==3)  sprintf(filename,"%s/FinalResults_CS_ltp_rap%d.pdf",FigDir,rapBin);
-			if(iLam==4)  sprintf(filename,"%s/FinalResults_CS_lthstar_rap%d.pdf",FigDir,rapBin);
-			if(iLam==5)  sprintf(filename,"%s/FinalResults_CS_lphstar_rap%d.pdf",FigDir,rapBin);
-			if(iLam==6)  sprintf(filename,"%s/FinalResults_CS_ltilde_rap%d.pdf",FigDir,rapBin);
+			if(iLam==1)  sprintf(filename,"%s/FinalResults_CS_lth_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==2)  sprintf(filename,"%s/FinalResults_CS_lph_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==3)  sprintf(filename,"%s/FinalResults_CS_ltp_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==4)  sprintf(filename,"%s/FinalResults_CS_lthstar_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==5)  sprintf(filename,"%s/FinalResults_CS_lphstar_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==6)  sprintf(filename,"%s/FinalResults_CS_ltilde_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
 
-			if(iLam==7)  sprintf(filename,"%s/FinalResults_HX_lth_rap%d.pdf",FigDir,rapBin);
-			if(iLam==8)  sprintf(filename,"%s/FinalResults_HX_lph_rap%d.pdf",FigDir,rapBin);
-			if(iLam==9)  sprintf(filename,"%s/FinalResults_HX_ltp_rap%d.pdf",FigDir,rapBin);
-			if(iLam==10) sprintf(filename,"%s/FinalResults_HX_lthstar_rap%d.pdf",FigDir,rapBin);
-			if(iLam==11) sprintf(filename,"%s/FinalResults_HX_lphstar_rap%d.pdf",FigDir,rapBin);
-			if(iLam==12) sprintf(filename,"%s/FinalResults_HX_ltilde_rap%d.pdf",FigDir,rapBin);
+			if(iLam==7)  sprintf(filename,"%s/FinalResults_HX_lth_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==8)  sprintf(filename,"%s/FinalResults_HX_lph_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==9)  sprintf(filename,"%s/FinalResults_HX_ltp_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==10) sprintf(filename,"%s/FinalResults_HX_lthstar_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==11) sprintf(filename,"%s/FinalResults_HX_lphstar_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==12) sprintf(filename,"%s/FinalResults_HX_ltilde_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
 
-			if(iLam==13) sprintf(filename,"%s/FinalResults_PX_lth_rap%d.pdf",FigDir,rapBin);
-			if(iLam==14) sprintf(filename,"%s/FinalResults_PX_lph_rap%d.pdf",FigDir,rapBin);
-			if(iLam==15) sprintf(filename,"%s/FinalResults_PX_ltp_rap%d.pdf",FigDir,rapBin);
-			if(iLam==16) sprintf(filename,"%s/FinalResults_PX_lthstar_rap%d.pdf",FigDir,rapBin);
-			if(iLam==17) sprintf(filename,"%s/FinalResults_PX_lphstar_rap%d.pdf",FigDir,rapBin);
-			if(iLam==18) sprintf(filename,"%s/FinalResults_PX_ltilde_rap%d.pdf",FigDir,rapBin);
+			if(iLam==13) sprintf(filename,"%s/FinalResults_PX_lth_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==14) sprintf(filename,"%s/FinalResults_PX_lph_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==15) sprintf(filename,"%s/FinalResults_PX_ltp_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==16) sprintf(filename,"%s/FinalResults_PX_lthstar_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==17) sprintf(filename,"%s/FinalResults_PX_lphstar_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==18) sprintf(filename,"%s/FinalResults_PX_ltilde_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
 
 			//if(iLam==18) sprintf(axislabel,"#tilde{#lambda}");
 
@@ -761,8 +730,8 @@ int main(int argc, char** argv) {
 				yMin=-0.06; //-0.15;
 				yMax=0.06; //0.15;
 				if(nState==5){
-					yMin=-0.085; //-0.1;
-					yMax=0.085; //0.1;
+					yMin=-0.1; //-0.1;
+					yMax=0.1; //0.1;
 					if(iLam==6||iLam==12||iLam==18){
 						yMin=-0.2;
 						yMax=0.2;
@@ -807,6 +776,8 @@ int main(int argc, char** argv) {
 			}
 
 			TGraphAsymmErrors* graphDefaultRes = (TGraphAsymmErrors*) infileRes->Get(GraphName);
+			cout<<"Filename is "<<filename<<endl;
+			cout<<"Graphname is "<<GraphName<<endl;
 			TGraphAsymmErrors* graphDefaultRes2sigma = (TGraphAsymmErrors*) infileRes2sigma->Get(GraphName);
 			TGraphAsymmErrors* graphDefaultRes3sigma = (TGraphAsymmErrors*) infileRes3sigma->Get(GraphName);
 			TGraphAsymmErrors* graphDefaultStat = (TGraphAsymmErrors*) infileStat->Get(GraphName);
@@ -819,167 +790,18 @@ int main(int argc, char** argv) {
 			TGraphAsymmErrors* graphSyst7 = (TGraphAsymmErrors*) infileSyst7->Get(GraphName);
 			TGraphAsymmErrors* graphSyst8 = (TGraphAsymmErrors*) infileSyst8->Get(GraphName);
 
-			TGraphAsymmErrors* graphMattStat = (TGraphAsymmErrors*) MattFileStat->Get(GraphName);
-			TGraphAsymmErrors* graphMattSyst = (TGraphAsymmErrors*) MattFileSyst->Get(GraphName);
-			TGraphAsymmErrors* graphMattTotal = (TGraphAsymmErrors*) MattFileTotal->Get(GraphName);
+//			TGraphAsymmErrors* graphMattStat = (TGraphAsymmErrors*) MattFileStat->Get(GraphName);
+//			TGraphAsymmErrors* graphMattSyst = (TGraphAsymmErrors*) MattFileSyst->Get(GraphName);
+//			TGraphAsymmErrors* graphMattTotal = (TGraphAsymmErrors*) MattFileTotal->Get(GraphName);
 			TGraphAsymmErrors* graphCompareFile1 = (TGraphAsymmErrors*) CompareFile1->Get(GraphName);
 			TGraphAsymmErrors* graphCompareFile2 = (TGraphAsymmErrors*) CompareFile2->Get(GraphName);
 			TGraphAsymmErrors* graphCompareFile3 = (TGraphAsymmErrors*) CompareFile3->Get(GraphName);
 			TGraphAsymmErrors* graphCompareFile4 = (TGraphAsymmErrors*) CompareFile4->Get(GraphName);
 
-			TGraphAsymmErrors* graphNLONRQCD = (TGraphAsymmErrors*) MattFileTotal->Get(GraphName);
-			TGraphAsymmErrors* graphNNLO = (TGraphAsymmErrors*) MattFileTotal->Get(GraphName);
+//			TGraphAsymmErrors* graphNLONRQCD = (TGraphAsymmErrors*) MattFileTotal->Get(GraphName);
+//			TGraphAsymmErrors* graphNNLO = (TGraphAsymmErrors*) MattFileTotal->Get(GraphName);
 
-			if(!PlotNchData){
-			int nBinspT=ptBinMax-ptBinMin+1;
-			double ptCentre_[nBinspT];
-			double ptCentreErr_low[nBinspT];
-			double ptCentreErr_high[nBinspT];
-			double lmean[nBinspT];
-			double lmean_errlow[nBinspT];
-			double lmean_errhigh[nBinspT];
-			double lmean_errmean[nBinspT];
-			double lmean_errmean_minus[nBinspT];
-			double lmeanTotal1_errlow[nBinspT];
-			double lmeanTotal1_errhigh[nBinspT];
-			double lmeanTotal2_errlow[nBinspT];
-			double lmeanTotal2_errhigh[nBinspT];
-			double lmeanTotal3_errlow[nBinspT];
-			double lmeanTotal3_errhigh[nBinspT];
-			double ptCentre_ForTable[nBinspT];
-			double lmeanBuff[nBinspT];
 
-			double fit_lmean_errmean[nBinspT];
-			double fit_lmean_errlow[nBinspT];
-			double fit_lmean_errhigh[nBinspT];
-
-			double SystError1[nBinspT];
-			double SystError2[nBinspT];
-			double SystError3[nBinspT];
-			double SystError4[nBinspT];
-			double SystError5[nBinspT];
-			double SystError6[nBinspT];
-			double SystError7[nBinspT];
-			double SystError8[nBinspT];
-			double SystError[nBinspT];
-			double ErrSystError1[nBinspT];
-			double ErrSystError2[nBinspT];
-			double ErrSystError3[nBinspT];
-			double ErrSystError4[nBinspT];
-			double ErrSystError5[nBinspT];
-			double ErrSystError6[nBinspT];
-			double ErrSystError7[nBinspT];
-			double ErrSystError8[nBinspT];
-
-			double SystError12[nBinspT];
-			double SystError123[nBinspT];
-			double SystError1234[nBinspT];
-			double SystError12345[nBinspT];
-			double SystError123456[nBinspT];
-			double SystError1234567[nBinspT];
-			double SystError12345678[nBinspT];
-
-			double Buffer[nBinspT];
-			
-
-			int pt=0;
-			for(int ptBin = ptBinMin; ptBin < ptBinMax+1; ptBin++) {
-
-				graphDefaultRes->GetPoint(ptBin-1,ptCentre_[pt],lmean[pt]);
-				cout<<"debug: ptCentre["<<pt<<"]: "<<ptCentre_[pt]<<endl;
-				cout<<"debug: lmean["<<pt<<"]: "<<lmean[pt]<<endl;
-				ptCentreErr_high[pt]=graphDefaultRes->GetErrorXhigh(ptBin-1);
-				ptCentreErr_low[pt]=graphDefaultRes->GetErrorXlow(ptBin-1);
-				lmean_errhigh[pt]=graphDefaultRes->GetErrorYhigh(ptBin-1);
-				lmean_errlow[pt]=graphDefaultRes->GetErrorYlow(ptBin-1);
-				lmean_errmean[pt]=(lmean_errlow[pt]+lmean_errhigh[pt])/2.;
-				lmean_errmean_minus[pt]=-(lmean_errlow[pt]+lmean_errhigh[pt])/2.;
-
-				//cout<<"lmean_errlow: "<<lmean_errlow[pt]<<endl;
-				//cout<<"lmean_errhigh: "<<lmean_errhigh[pt]<<endl;
-
-				lmeanTotal1_errlow[pt]=lmean_errlow[pt];
-				lmeanTotal1_errhigh[pt]=lmean_errhigh[pt];
-				lmeanTotal2_errlow[pt]=graphDefaultRes2sigma->GetErrorYlow(ptBin-1);
-				lmeanTotal2_errhigh[pt]=graphDefaultRes2sigma->GetErrorYhigh(ptBin-1);
-				lmeanTotal3_errlow[pt]=graphDefaultRes3sigma->GetErrorYlow(ptBin-1);
-				lmeanTotal3_errhigh[pt]=graphDefaultRes3sigma->GetErrorYhigh(ptBin-1);
-
-				if(PlotAlteredPPDResults){
-					graphDefaultRes->GetPoint(ptBin-1,ptCentre_[pt],lmeanBuff[pt]);
-					lmean_errhigh[pt]=graphDefaultStat->GetErrorYhigh(ptBin-1);
-					lmean_errlow[pt]=graphDefaultStat->GetErrorYlow(ptBin-1);
-					lmean_errmean[pt]=(lmean_errlow[pt]+lmean_errhigh[pt])/2.;
-					lmean_errmean_minus[pt]=-(lmean_errlow[pt]+lmean_errhigh[pt])/2.;
-				}
-				ptCentre_ForTable[pt]=ptCentre_[pt];
-
-				if(PlotSystematics&&PlotSysSquare) {
-					lmean_errmean[pt] = TMath::Power(lmean_errmean[pt],2);
-					lmean_errmean_minus[pt] = -TMath::Power(lmean_errmean_minus[pt],2);
-				}
-
-				if(nSystematics>0) {graphSyst1->GetPoint(ptBin-1,Buffer[pt],SystError1[pt]);	ErrSystError1[pt]=graphSyst1->GetErrorY(pt);    if(!PlotAsymm) SystError1[pt]=TMath::Abs(SystError1[pt]); }
-				if(nSystematics>1) {graphSyst2->GetPoint(ptBin-1,Buffer[pt],SystError2[pt]);	ErrSystError2[pt]=graphSyst2->GetErrorY(pt);    if(!PlotAsymm) SystError2[pt]=TMath::Abs(SystError2[pt]); }
-				if(nSystematics>2) {graphSyst3->GetPoint(ptBin-1,Buffer[pt],SystError3[pt]);	ErrSystError3[pt]=graphSyst3->GetErrorY(pt);    if(!PlotAsymm) SystError3[pt]=TMath::Abs(SystError3[pt]); }
-				if(nSystematics>3) {graphSyst4->GetPoint(ptBin-1,Buffer[pt],SystError4[pt]);	ErrSystError4[pt]=graphSyst4->GetErrorY(pt);    if(!PlotAsymm) SystError4[pt]=TMath::Abs(SystError4[pt]); }
-				if(nSystematics>4) {graphSyst5->GetPoint(ptBin-1,Buffer[pt],SystError5[pt]);	ErrSystError5[pt]=graphSyst5->GetErrorY(pt);    if(!PlotAsymm) SystError5[pt]=TMath::Abs(SystError5[pt]); }
-				if(nSystematics>5) {graphSyst6->GetPoint(ptBin-1,Buffer[pt],SystError6[pt]);	ErrSystError6[pt]=graphSyst6->GetErrorY(pt);    if(!PlotAsymm) SystError6[pt]=TMath::Abs(SystError6[pt]); }
-				if(nSystematics>6) {graphSyst7->GetPoint(ptBin-1,Buffer[pt],SystError7[pt]);	ErrSystError7[pt]=graphSyst7->GetErrorY(pt);    if(!PlotAsymm) SystError7[pt]=TMath::Abs(SystError7[pt]); }
-				if(nSystematics>7) {graphSyst8->GetPoint(ptBin-1,Buffer[pt],SystError8[pt]);	ErrSystError8[pt]=graphSyst8->GetErrorY(pt);    if(!PlotAsymm) SystError8[pt]=TMath::Abs(SystError8[pt]); }
-				double SquaredSysts;
-				if(nSystematics==1) SquaredSysts=SystError1[pt]*SystError1[pt];
-				if(nSystematics==2) SquaredSysts=SystError1[pt]*SystError1[pt]+SystError2[pt]*SystError2[pt];
-				if(nSystematics==3) SquaredSysts=SystError1[pt]*SystError1[pt]+SystError2[pt]*SystError2[pt]+SystError3[pt]*SystError3[pt];
-				if(nSystematics==4) SquaredSysts=SystError1[pt]*SystError1[pt]+SystError2[pt]*SystError2[pt]+SystError3[pt]*SystError3[pt]+SystError4[pt]*SystError4[pt];
-				if(nSystematics==5) SquaredSysts=SystError1[pt]*SystError1[pt]+SystError2[pt]*SystError2[pt]+SystError3[pt]*SystError3[pt]+SystError4[pt]*SystError4[pt]+SystError5[pt]*SystError5[pt];
-				if(nSystematics==6) SquaredSysts=SystError1[pt]*SystError1[pt]+SystError2[pt]*SystError2[pt]+SystError3[pt]*SystError3[pt]+SystError4[pt]*SystError4[pt]+SystError5[pt]*SystError5[pt]+SystError6[pt]*SystError6[pt];
-				if(nSystematics==7) SquaredSysts=SystError1[pt]*SystError1[pt]+SystError2[pt]*SystError2[pt]+SystError3[pt]*SystError3[pt]+SystError4[pt]*SystError4[pt]+SystError5[pt]*SystError5[pt]+SystError6[pt]*SystError6[pt]+SystError7[pt]*SystError7[pt];
-				if(nSystematics==8) SquaredSysts=SystError1[pt]*SystError1[pt]+SystError2[pt]*SystError2[pt]+SystError3[pt]*SystError3[pt]+SystError4[pt]*SystError4[pt]+SystError5[pt]*SystError5[pt]+SystError6[pt]*SystError6[pt]+SystError7[pt]*SystError7[pt]+SystError8[pt]*SystError8[pt];
-				SystError[pt]=TMath::Sqrt(SquaredSysts);
-
-				SystError12[pt]=SystError1[pt]+SystError2[pt]; if(PlotAsymm) SystError12[pt]=SystError2[pt];
-				SystError123[pt]=SystError1[pt]+SystError2[pt]+SystError3[pt]; if(PlotAsymm) SystError123[pt]=SystError3[pt];
-				SystError1234[pt]=SystError1[pt]+SystError2[pt]+SystError3[pt]+SystError4[pt]; if(PlotAsymm) SystError1234[pt]=SystError4[pt];
-				SystError12345[pt]=SystError1[pt]+SystError2[pt]+SystError3[pt]+SystError4[pt]+SystError5[pt]; if(PlotAsymm) SystError12345[pt]=SystError5[pt]; if(DeltaTildeplots) SystError12345[pt]=-SystError5[pt];//IfLamTildeClosure
-				SystError123456[pt]=SystError1[pt]+SystError2[pt]+SystError3[pt]+SystError4[pt]+SystError5[pt]+SystError6[pt]; if(PlotAsymm) SystError123456[pt]=SystError6[pt];
-				SystError1234567[pt]=SystError1[pt]+SystError2[pt]+SystError3[pt]+SystError4[pt]+SystError5[pt]+SystError6[pt]+SystError7[pt]; if(PlotAsymm) SystError1234567[pt]=SystError7[pt];
-				SystError12345678[pt]=SystError1[pt]+SystError2[pt]+SystError3[pt]+SystError4[pt]+SystError5[pt]+SystError6[pt]+SystError7[pt]+SystError8[pt]; if(PlotAsymm) SystError12345678[pt]=SystError8[pt];
-
-				fit_lmean_errmean[pt]=TMath::Sqrt(SystError[pt]*SystError[pt]+lmean_errmean[pt]*lmean_errmean[pt]);
-				fit_lmean_errlow[pt]=TMath::Sqrt(SystError[pt]*SystError[pt]+lmean_errlow[pt]*lmean_errlow[pt]);
-				fit_lmean_errhigh[pt]=TMath::Sqrt(SystError[pt]*SystError[pt]+lmean_errhigh[pt]*lmean_errhigh[pt]);
-
-				// Fill table variables
-
-				val_table[iLam][rapBin-1][pt]=lmean[pt];
-				errHigh_table[iLam][rapBin-1][pt]=lmean_errhigh[pt];
-				errLow_table[iLam][rapBin-1][pt]=lmean_errlow[pt];
-				syst_table[iLam][rapBin-1][pt][0]=SystError[pt];
-				syst_table[iLam][rapBin-1][pt][1]=TMath::Abs(SystError1[pt]);
-				syst_table[iLam][rapBin-1][pt][2]=TMath::Abs(SystError2[pt]);
-				syst_table[iLam][rapBin-1][pt][3]=TMath::Abs(SystError3[pt]);
-				syst_table[iLam][rapBin-1][pt][4]=TMath::Abs(SystError4[pt]);
-				syst_table[iLam][rapBin-1][pt][5]=TMath::Abs(SystError5[pt]);
-				syst_table[iLam][rapBin-1][pt][6]=TMath::Abs(SystError6[pt]);
-				syst_table[iLam][rapBin-1][pt][7]=TMath::Abs(SystError7[pt]);
-				syst_table[iLam][rapBin-1][pt][8]=TMath::Abs(SystError8[pt]);
-
-				errHighTotal1_table[iLam][rapBin-1][pt]=lmeanTotal1_errhigh[pt];
-				errLowTotal1_table[iLam][rapBin-1][pt]=lmeanTotal1_errlow[pt];
-				errHighTotal2_table[iLam][rapBin-1][pt]=lmeanTotal2_errhigh[pt];
-				errLowTotal2_table[iLam][rapBin-1][pt]=lmeanTotal2_errlow[pt];
-				errHighTotal3_table[iLam][rapBin-1][pt]=lmeanTotal3_errhigh[pt];
-				errLowTotal3_table[iLam][rapBin-1][pt]=lmeanTotal3_errlow[pt];
-
-				pTmean_table[iLam][rapBin-1][pt]=ptCentre_ForTable[pt];
-
-				pt++;
-			}
-			}
-			
-
-			if(PlotNchData){
 			int nBinscpm=cpmBinMax-cpmBinMin+1;
 			double cpmCentre_[nBinscpm];
 			double cpmCentreErr_low[nBinscpm];
@@ -995,7 +817,7 @@ int main(int argc, char** argv) {
 			double lmeanTotal2_errhigh[nBinscpm];
 			double lmeanTotal3_errlow[nBinscpm];
 			double lmeanTotal3_errhigh[nBinscpm];
-			double ptCentre_ForTable[nBinscpm];
+			double cpmCentre_ForTable[nBinscpm];
 			double lmeanBuff[nBinscpm];
 
 			double fit_lmean_errmean[nBinscpm];
@@ -1029,12 +851,13 @@ int main(int argc, char** argv) {
 			double SystError12345678[nBinscpm];
 
 			double Buffer[nBinscpm];
-			
+
 
 			int cpm=0;
 			for(int cpmBin = cpmBinMin; cpmBin < cpmBinMax+1; cpmBin++) {
 
 				graphDefaultRes->GetPoint(cpmBin-1,cpmCentre_[cpm],lmean[cpm]);
+
 				cout<<"debug: cpmCentre["<<cpm<<"]: "<<cpmCentre_[cpm]<<endl;
 				cout<<"debug: lmean["<<cpm<<"]: "<<lmean[cpm]<<endl;
 				cpmCentreErr_high[cpm]=graphDefaultRes->GetErrorXhigh(cpmBin-1);
@@ -1064,18 +887,28 @@ int main(int argc, char** argv) {
 				cpmCentre_ForTable[cpm]=cpmCentre_[cpm];
 
 				if(PlotSystematics&&PlotSysSquare) {
+				cout<<"pre square: "<<lmean_errmean[cpm]<<endl;
 					lmean_errmean[cpm] = TMath::Power(lmean_errmean[cpm],2);
+					cout<<"post square: "<<lmean_errmean[cpm]<<endl;
 					lmean_errmean_minus[cpm] = -TMath::Power(lmean_errmean_minus[cpm],2);
 				}
 
-				if(nSystematics>0) {graphSyst1->GetPoint(cpmBin-1,Buffer[cpm],SystError1[cpm]);	ErrSystError1[cpm]=graphSyst1->GetErrorY(cpm);    if(!PlotAsymm) SystError1[cpm]=TMath::Abs(SystError1[cpm]); }
-				if(nSystematics>1) {graphSyst2->GetPoint(cpmBin-1,Buffer[cpm],SystError2[cpm]);	ErrSystError2[cpm]=graphSyst2->GetErrorY(cpm);    if(!PlotAsymm) SystError2[cpm]=TMath::Abs(SystError2[cpm]); }
-				if(nSystematics>2) {graphSyst3->GetPoint(cpmBin-1,Buffer[cpm],SystError3[cpm]);	ErrSystError3[cpm]=graphSyst3->GetErrorY(cpm);    if(!PlotAsymm) SystError3[cpm]=TMath::Abs(SystError3[cpm]); }
-				if(nSystematics>3) {graphSyst4->GetPoint(cpmBin-1,Buffer[cpm],SystError4[cpm]);	ErrSystError4[cpm]=graphSyst4->GetErrorY(cpm);    if(!PlotAsymm) SystError4[cpm]=TMath::Abs(SystError4[cpm]); }
-				if(nSystematics>4) {graphSyst5->GetPoint(cpmBin-1,Buffer[cpm],SystError5[cpm]);	ErrSystError5[cpm]=graphSyst5->GetErrorY(cpm);    if(!PlotAsymm) SystError5[cpm]=TMath::Abs(SystError5[cpm]); }
-				if(nSystematics>5) {graphSyst6->GetPoint(cpmBin-1,Buffer[cpm],SystError6[cpm]);	ErrSystError6[cpm]=graphSyst6->GetErrorY(cpm);    if(!PlotAsymm) SystError6[cpm]=TMath::Abs(SystError6[cpm]); }
-				if(nSystematics>6) {graphSyst7->GetPoint(cpmBin-1,Buffer[cpm],SystError7[cpm]);	ErrSystError7[cpm]=graphSyst7->GetErrorY(cpm);    if(!PlotAsymm) SystError7[cpm]=TMath::Abs(SystError7[cpm]); }
-				if(nSystematics>7) {graphSyst8->GetPoint(cpmBin-1,Buffer[cpm],SystError8[cpm]);	ErrSystError8[cpm]=graphSyst8->GetErrorY(cpm);    if(!PlotAsymm) SystError8[cpm]=TMath::Abs(SystError8[cpm]); }
+				if(nSystematics>0) {graphSyst1->GetPoint(cpmBin-1,Buffer[cpm],SystError1[cpm]);	ErrSystError1[cpm]=graphSyst1->GetErrorY(cpm);    if(!PlotAsymm) SystError1[cpm]=TMath::Abs(SystError1[cpm]); 
+				if(PlotSysSquare) SystError1[cpm]= TMath::Power( TMath::Abs(SystError1[cpm]),2);     }
+				if(nSystematics>1) {graphSyst2->GetPoint(cpmBin-1,Buffer[cpm],SystError2[cpm]);	ErrSystError2[cpm]=graphSyst2->GetErrorY(cpm);    if(!PlotAsymm) SystError2[cpm]=TMath::Abs(SystError2[cpm]); 
+				if(PlotSysSquare) SystError2[cpm]= TMath::Power( TMath::Abs(SystError2[cpm]),2);}
+				if(nSystematics>2) {graphSyst3->GetPoint(cpmBin-1,Buffer[cpm],SystError3[cpm]);	ErrSystError3[cpm]=graphSyst3->GetErrorY(cpm);    if(!PlotAsymm) SystError3[cpm]=TMath::Abs(SystError3[cpm]); 
+				if(PlotSysSquare) SystError3[cpm]= TMath::Power( TMath::Abs(SystError3[cpm]),2);}
+				if(nSystematics>3) {graphSyst4->GetPoint(cpmBin-1,Buffer[cpm],SystError4[cpm]);	ErrSystError4[cpm]=graphSyst4->GetErrorY(cpm);    if(!PlotAsymm) SystError4[cpm]=TMath::Abs(SystError4[cpm]); 
+				if(PlotSysSquare) SystError4[cpm]= TMath::Power( TMath::Abs(SystError4[cpm]),2);}
+				if(nSystematics>4) {graphSyst5->GetPoint(cpmBin-1,Buffer[cpm],SystError5[cpm]);	ErrSystError5[cpm]=graphSyst5->GetErrorY(cpm);    if(!PlotAsymm) SystError5[cpm]=TMath::Abs(SystError5[cpm]); 
+				if(PlotSysSquare) SystError5[cpm]= TMath::Power( TMath::Abs(SystError5[cpm]),2);}
+				if(nSystematics>5) {graphSyst6->GetPoint(cpmBin-1,Buffer[cpm],SystError6[cpm]);	ErrSystError6[cpm]=graphSyst6->GetErrorY(cpm);    if(!PlotAsymm) SystError6[cpm]=TMath::Abs(SystError6[cpm]); 
+				if(PlotSysSquare) SystError6[cpm]= TMath::Power( TMath::Abs(SystError6[cpm]),2);}
+				if(nSystematics>6) {graphSyst7->GetPoint(cpmBin-1,Buffer[cpm],SystError7[cpm]);	ErrSystError7[cpm]=graphSyst7->GetErrorY(cpm);    if(!PlotAsymm) SystError7[cpm]=TMath::Abs(SystError7[cpm]); 
+				if(PlotSysSquare) SystError7[cpm]= TMath::Power( TMath::Abs(SystError7[cpm]),2);}
+				if(nSystematics>7) {graphSyst8->GetPoint(cpmBin-1,Buffer[cpm],SystError8[cpm]);	ErrSystError8[cpm]=graphSyst8->GetErrorY(cpm);    if(!PlotAsymm) SystError8[cpm]=TMath::Abs(SystError8[cpm]); 
+				if(PlotSysSquare) SystError8[cpm]= TMath::Power( TMath::Abs(SystError8[cpm]),2);}
 				double SquaredSysts;
 				if(nSystematics==1) SquaredSysts=SystError1[cpm]*SystError1[cpm];
 				if(nSystematics==2) SquaredSysts=SystError1[cpm]*SystError1[cpm]+SystError2[cpm]*SystError2[cpm];
@@ -1093,7 +926,8 @@ int main(int argc, char** argv) {
 				SystError12345[cpm]=SystError1[cpm]+SystError2[cpm]+SystError3[cpm]+SystError4[cpm]+SystError5[cpm]; if(PlotAsymm) SystError12345[cpm]=SystError5[cpm]; if(DeltaTildeplots) SystError12345[cpm]=-SystError5[cpm];//IfLamTildeClosure
 				SystError123456[cpm]=SystError1[cpm]+SystError2[cpm]+SystError3[cpm]+SystError4[cpm]+SystError5[cpm]+SystError6[cpm]; if(PlotAsymm) SystError123456[cpm]=SystError6[cpm];
 				SystError1234567[cpm]=SystError1[cpm]+SystError2[cpm]+SystError3[cpm]+SystError4[cpm]+SystError5[cpm]+SystError6[cpm]+SystError7[cpm]; if(PlotAsymm) SystError1234567[cpm]=SystError7[cpm];
-				SystError12345678[cpm]=SystError1[cpm]+SystError2[cpm]+SystError3[cpm]+SystError4[cpm]+SystError5[cpm]+SystError6[cpm]+SystError7[cpm]+SystError8[cpm]; if(PlotAsymm) SystError12345678[cpm]=SystError8[cpm];
+
+SystError12345678[cpm]=SystError1[cpm]+SystError2[cpm]+SystError3[cpm]+SystError4[cpm]+SystError5[cpm]+SystError6[cpm]+SystError7[cpm]+SystError8[cpm]; if(PlotAsymm) SystError12345678[cpm]=SystError8[cpm];
 
 				fit_lmean_errmean[cpm]=TMath::Sqrt(SystError[cpm]*SystError[cpm]+lmean_errmean[cpm]*lmean_errmean[cpm]);
 				fit_lmean_errlow[cpm]=TMath::Sqrt(SystError[cpm]*SystError[cpm]+lmean_errlow[cpm]*lmean_errlow[cpm]);
@@ -1101,31 +935,31 @@ int main(int argc, char** argv) {
 
 				// Fill table variables
 
-				val_table[iLam][rapBin-1][cpm]=lmean[cpm];
-				errHigh_table[iLam][rapBin-1][cpm]=lmean_errhigh[cpm];
-				errLow_table[iLam][rapBin-1][cpm]=lmean_errlow[cpm];
-				syst_table[iLam][rapBin-1][cpm][0]=SystError[cpm];
-				syst_table[iLam][rapBin-1][cpm][1]=TMath::Abs(SystError1[cpm]);
-				syst_table[iLam][rapBin-1][cpm][2]=TMath::Abs(SystError2[cpm]);
-				syst_table[iLam][rapBin-1][cpm][3]=TMath::Abs(SystError3[cpm]);
-				syst_table[iLam][rapBin-1][cpm][4]=TMath::Abs(SystError4[cpm]);
-				syst_table[iLam][rapBin-1][cpm][5]=TMath::Abs(SystError5[cpm]);
-				syst_table[iLam][rapBin-1][cpm][6]=TMath::Abs(SystError6[cpm]);
-				syst_table[iLam][rapBin-1][cpm][7]=TMath::Abs(SystError7[cpm]);
-				syst_table[iLam][rapBin-1][cpm][8]=TMath::Abs(SystError8[cpm]);
+				val_table[iLam][rapBin-1][ptBin-1][cpm]=lmean[cpm];
+				errHigh_table[iLam][rapBin-1][ptBin-1][cpm]=lmean_errhigh[cpm];
+				errLow_table[iLam][rapBin-1][ptBin-1][cpm]=lmean_errlow[cpm];
+				syst_table[iLam][rapBin-1][ptBin-1][cpm][0]=SystError[cpm];
+				syst_table[iLam][rapBin-1][ptBin-1][cpm][1]=TMath::Abs(SystError1[cpm]);
+				syst_table[iLam][rapBin-1][ptBin-1][cpm][2]=TMath::Abs(SystError2[cpm]);
+				syst_table[iLam][rapBin-1][ptBin-1][cpm][3]=TMath::Abs(SystError3[cpm]);
+				syst_table[iLam][rapBin-1][ptBin-1][cpm][4]=TMath::Abs(SystError4[cpm]);
+				syst_table[iLam][rapBin-1][ptBin-1][cpm][5]=TMath::Abs(SystError5[cpm]);
+				syst_table[iLam][rapBin-1][ptBin-1][cpm][6]=TMath::Abs(SystError6[cpm]);
+				syst_table[iLam][rapBin-1][ptBin-1][cpm][7]=TMath::Abs(SystError7[cpm]);
+				syst_table[iLam][rapBin-1][ptBin-1][cpm][8]=TMath::Abs(SystError8[cpm]);
 
-				errHighTotal1_table[iLam][rapBin-1][cpm]=lmeanTotal1_errhigh[cpm];
-				errLowTotal1_table[iLam][rapBin-1][cpm]=lmeanTotal1_errlow[cpm];
-				errHighTotal2_table[iLam][rapBin-1][cpm]=lmeanTotal2_errhigh[cpm];
-				errLowTotal2_table[iLam][rapBin-1][cpm]=lmeanTotal2_errlow[cpm];
-				errHighTotal3_table[iLam][rapBin-1][cpm]=lmeanTotal3_errhigh[cpm];
-				errLowTotal3_table[iLam][rapBin-1][cpm]=lmeanTotal3_errlow[cpm];
+				errHighTotal1_table[iLam][rapBin-1][ptBin-1][cpm]=lmeanTotal1_errhigh[cpm];
+				errLowTotal1_table[iLam][rapBin-1][ptBin-1][cpm]=lmeanTotal1_errlow[cpm];
+				errHighTotal2_table[iLam][rapBin-1][ptBin-1][cpm]=lmeanTotal2_errhigh[cpm];
+				errLowTotal2_table[iLam][rapBin-1][ptBin-1][cpm]=lmeanTotal2_errlow[cpm];
+				errHighTotal3_table[iLam][rapBin-1][ptBin-1][cpm]=lmeanTotal3_errhigh[cpm];
+				errLowTotal3_table[iLam][rapBin-1][ptBin-1][cpm]=lmeanTotal3_errlow[cpm];
 
-				cpmmean_table[iLam][rapBin-1][cpm]=cpmCentre_ForTable[cpm];
+				cpmmean_table[iLam][rapBin-1][ptBin-1][cpm]=cpmCentre_ForTable[cpm];
 
 				cpm++;
 			}
-			}
+
 			gStyle->SetPalette(1,0);
 			//gStyle->SetPadBottomMargin(0.12);
 			//gStyle->SetPadLeftMargin(0.13);
@@ -1164,24 +998,22 @@ int main(int argc, char** argv) {
 
 
 			TH1F *plotHisto = new TH1F;
-			if(!PlotMatt) plotHisto = plotCanvas->DrawFrame(PlotpTMin-DeltaXminOVERALL,yMin,PlotpTMax,yMax); //to be consistant for Psi 1S and 2S
-			if(PlotMatt) plotHisto = plotCanvas->DrawFrame(0.,yMin,onia::pTRange[rapBin][ptBinMax],yMax);
+			if(!PlotMatt) plotHisto = plotCanvas->DrawFrame(PlotcpmMin-DeltaXminOVERALL,yMin,PlotcpmMax,yMax); //to be consistant for Psi 1S and 2S
+			if(PlotMatt) plotHisto = plotCanvas->DrawFrame(0.,yMin,onia::cpmRange[cpmBinMax],yMax);
 			if(PlotVsComp) plotHisto = plotCanvas->DrawFrame(10.1,yMin,10.7,yMax);
 			plotHisto->SetXTitle("#it{p}_{T} [GeV]");
-			if(PlotNchData) plotHisto->SetXTitle("#it{p}_{T} [GeV]");
 			if(PlotVsComp) plotHisto->SetXTitle("M_{#mu#mu} [GeV]");
 			plotHisto->SetYTitle(axislabel);
 			//plotHisto->GetYaxis()->SetTitleOffset(1.5);
 
-			TLegend* plotcompLegend=new TLegend(0.12,0.12,0.62,0.3);
+			TLegend* plotcompLegend=new TLegend(0.75,0.75,0.95,0.95);
 			plotcompLegend->SetFillColor(0);
 			//plotcompLegend->SetTextFont(72);
 			plotcompLegend->SetTextSize(0.04);
 			plotcompLegend->SetBorderSize(1);
 			char complegendentry[200];
 
-			if(!PlotNchData) TGraphAsymmErrors *graphSyst = new TGraphAsymmErrors(nBinspT,ptCentre_,lmean,ptCentreErr_low,ptCentreErr_high,SystError,SystError);
-			if(PlotNchData) TGraphAsymmErrors *graphSyst = new TGraphAsymmErrors(nBinscpm,cpmCentre_,lmean,cpmCentreErr_low,cpmCentreErr_high,SystError,SystError);
+			TGraphAsymmErrors *graphSyst = new TGraphAsymmErrors(nBinscpm,cpmCentre_,lmean,cpmCentreErr_low,cpmCentreErr_high,SystError,SystError);
 			graphSyst->SetFillColor(kCyan-9);
 			graphSyst->SetFillStyle(3001);
 
@@ -1226,7 +1058,7 @@ int main(int argc, char** argv) {
 
 			if(!PlotBrazilian&&!SBmSigPlots&&!BGratioFits&&!SteerIndividuals&&!PlotMatt&&!PlotVsComp) graphDefaultRes->Draw(drawGraphStyle);//Comment if PlotBG0plots Low
 
-			if(PlotBrazilian&&!SteerIndividuals&&!PlotVsComp){
+/*			if(PlotBrazilian&&!SteerIndividuals&&!PlotVsComp){
 				int ptOriginal;
 				int nBinsOriginal;
 				double ptCentre_Original[nBinspT];
@@ -1332,12 +1164,12 @@ int main(int argc, char** argv) {
 				if(!PlotAlteredPPDResults) graphSyst->Draw(drawGraphStyle);
 				if(PlotAlteredPPDResults) graphDefaultStat->Draw(drawGraphStyle);
 			} //PlotBrazilian
-
+*/
 			if(PlotVsComp){
 				//code lambda vs mass plots here
 			}
 
-			if(SteerIndividuals){ //not yet changed 12.12.2012 Linlin
+/*			if(SteerIndividuals){ //not yet changed 12.12.2012 Linlin
 				plotHisto->SetYTitle("#lambda");
 
 				double ptCentre_SteerInd[nBinspT];
@@ -1588,8 +1420,8 @@ int main(int argc, char** argv) {
 				extreme0->SetLineColor( kBlack );
 				extreme0->Draw( "same" );
 			}// SteerIndividuals
-
-			if(PlotMatt&&!PlotMattForICHEP){ //not yet changed 12.12.2012 Linlin
+*/
+/*			if(PlotMatt&&!PlotMattForICHEP){ //not yet changed 12.12.2012 Linlin
 				graphMattTotal->SetLineColor(kCyan);
 				graphMattTotal->SetFillColor(kCyan);
 				graphMattTotal->SetFillStyle(3002);//3002
@@ -1631,8 +1463,8 @@ int main(int argc, char** argv) {
 				plotMattLegend->AddEntry(graphMattStat,Mattlegendentry,"elp");
 				plotMattLegend->Draw();
 			} // PlotMatt&&!PlotMattForICHEP
-
-			if(PlotMatt&&PlotMattForICHEP){ //not yet changed 12.12.2012 Linlin
+*/
+/*			if(PlotMatt&&PlotMattForICHEP){ //not yet changed 12.12.2012 Linlin
 				plotCanvas->SetRightMargin(0.05);
 				plotCanvas->SetTopMargin(0.05);
 
@@ -1725,16 +1557,8 @@ int main(int argc, char** argv) {
 				texICHEP5->SetTextSize(ICHEPFontSize*1.75);
 				texICHEP5->Draw( "same" );
 			} //PlotMatt&&PlotMattForICHEP
-
-			if(CompareSyst && !PlotNchData){
-				TLine* extreme0 = new TLine( PlotpTMin-DeltaXminOVERALL, 0, PlotpTMax ,0);
-				extreme0->SetLineWidth( 2 );
-				extreme0->SetLineStyle( 1 );
-				extreme0->SetLineColor( kBlack );
-				extreme0->Draw( "same" );
-			}//CompareSyst
-			
-			if(CompareSyst && PlotNchData){
+*/
+			if(CompareSyst){
 				TLine* extreme0 = new TLine( PlotcpmMin-DeltaXminOVERALL, 0, PlotcpmMax ,0);
 				extreme0->SetLineWidth( 2 );
 				extreme0->SetLineStyle( 1 );
@@ -1745,7 +1569,7 @@ int main(int argc, char** argv) {
 			sprintf(complegendentry,"%s",LegendEntryDefID);//FindLegend
 			if(!SBmSigPlots&&!BGratioFits) plotcompLegend->AddEntry(graphDefaultRes,complegendentry,"lp");
 
-			if(FitGraph){
+/*			if(FitGraph){
 				TGraphAsymmErrors *fitGraph = new TGraphAsymmErrors(nBinspT,ptCentre_,lmean,0,0,fit_lmean_errlow,fit_lmean_errhigh);
 				//TGraphErrors *fitGraph = new TGraphErrors(nBinspT,ptCentre_,lmean,0,fit_lmean_errmean);
 
@@ -1816,9 +1640,9 @@ int main(int argc, char** argv) {
 				textConst3->SetTextSize(1.75*FontSize)                                                                                                                                                                                                                                             ;
 				textConst3->Draw( "same" )                                                                                                                                                                                                                                                 ;
 			} //FitGraph
+*/
 
-
-			if(SBmSigPlots){ //not yet changed 12.12.2012 Linlin
+/*			if(SBmSigPlots){ //not yet changed 12.12.2012 Linlin
 				TGraphAsymmErrors *LSBgraph;
 				TGraphAsymmErrors *RSBgraph;
 
@@ -2123,12 +1947,12 @@ int main(int argc, char** argv) {
 					}
 				}
 
-				/*	      if(Const_BIC<Lin_BIC) sprintf(text,"BIC prefers #color[4]{constant} fit");
-									else sprintf(text,"BIC prefers #color[2]{linear} fit");
-									TLatex *textConst3 = new TLatex(pTminPlot*1.2,yMin+(yMax-yMin)*0.8,text);
-									textConst3->SetTextSize(1.75*FontSize)                                                                                                                                                                                                                                             ;
-									textConst3->Draw( "same" )                                                                                                                                                                                                                                                 ;
-									*/
+				//	      if(Const_BIC<Lin_BIC) sprintf(text,"BIC prefers #color[4]{constant} fit");
+					//				else sprintf(text,"BIC prefers #color[2]{linear} fit");
+					//				TLatex *textConst3 = new TLatex(pTminPlot*1.2,yMin+(yMax-yMin)*0.8,text);
+					//				textConst3->SetTextSize(1.75*FontSize)                                                                                                                                                                                                                                             ;
+					//				textConst3->Draw( "same" )                                                                                                                                                                                                                                                 ;
+					
 
 
 				TLine* extreme0 = new TLine( PlotpTMin-DeltaXminOVERALL, 0, PlotpTMax ,0);
@@ -2137,10 +1961,10 @@ int main(int argc, char** argv) {
 				extreme0->SetLineColor( kBlack );
 				extreme0->Draw( "same" );
 			} //SBmSigPlots
+*/
 
 
-
-			if(BGratioFits){ //not yet changed 12.12.2012 Linlin
+/*			if(BGratioFits){ //not yet changed 12.12.2012 Linlin
 				TGraphAsymmErrors *Ups1SBGratiograph;
 				TGraphAsymmErrors *Ups2SBGratiograph;
 				TGraphAsymmErrors *Ups3SBGratiograph;
@@ -2471,170 +2295,9 @@ int main(int argc, char** argv) {
 				}
 
 			} //BGratioFits
+*/
 
-
-			if(PlotCompare && !PlotNchData){ //not yet changed 12.12.2012 Linlin
-				////plot noRho
-				//graphCompareFile1->RemovePoint(0);
-				//graphCompareFile1->RemovePoint(0);
-				//graphCompareFile1->RemovePoint(0);
-				//graphCompareFile1->RemovePoint(0);
-				//graphCompareFile1->RemovePoint(0);
-				//graphCompareFile1->RemovePoint(0);
-				//graphCompareFile1->RemovePoint(0);
-				//graphCompareFile1->RemovePoint(0);
-				//graphCompareFile1->RemovePoint(0);
-
-				graphCompareFile1->SetMarkerColor(kRed);
-				graphCompareFile1->SetLineColor(kRed);
-				graphCompareFile1->SetMarkerStyle(28);
-				//graphCompareFile1->SetLineWidth(3);
-				graphCompareFile2->SetMarkerColor(kBlue);
-				graphCompareFile2->SetLineColor(kBlue);
-				graphCompareFile2->SetMarkerStyle(30);
-				graphCompareFile3->SetMarkerColor(kGreen-2);
-				graphCompareFile3->SetLineColor(kGreen-2);
-				graphCompareFile3->SetMarkerStyle(3);
-				graphCompareFile4->SetMarkerColor(kOrange);
-				graphCompareFile4->SetLineColor(kOrange);
-				graphCompareFile4->SetMarkerStyle(5);
-				if(PlotBG0plots||SetCompStyle){
-					graphCompareFile1->SetMarkerStyle(24);
-					graphCompareFile2->SetMarkerStyle(24);
-					graphCompareFile3->SetMarkerStyle(24);
-					graphCompareFile4->SetMarkerStyle(24);
-					graphCompareFile1->SetMarkerSize(BG0MarkerSize);
-					graphCompareFile2->SetMarkerSize(BG0MarkerSize);
-					graphCompareFile3->SetMarkerSize(BG0MarkerSize);
-					graphCompareFile4->SetMarkerSize(BG0MarkerSize);
-
-				}
-
-				TLine* extreme0 = new TLine( PlotpTMin-DeltaXminOVERALL, 0, PlotpTMax ,0);
-				extreme0->SetLineWidth( 1 );
-				extreme0->SetLineStyle( 2 );
-				extreme0->SetLineColor( kBlack );
-				extreme0->Draw( "same" );
-
-
-				int nBinspT=ptBinMax-ptBinMin+1;
-				double ptCentre[nBinspT];
-				double ptCentreErr_low[nBinspT];
-				double ptCentreErr_high[nBinspT];
-				double lmean[nBinspT];
-				double lmean_errlow[nBinspT];
-				double lmean_errhigh[nBinspT];
-
-				int pt=0;
-
-				if(nComp>0){//FindLegend
-					pt=0;
-					for(int ptBin = ptBinMin; ptBin < ptBinMax+1; ptBin++) {
-						graphCompareFile1->GetPoint(ptBin-1,ptCentre[pt],lmean[pt]);
-						ptCentreErr_high[pt]=graphCompareFile1->GetErrorXhigh(ptBin-1);
-						ptCentreErr_low[pt]=graphCompareFile1->GetErrorXlow(ptBin-1);
-						lmean_errhigh[pt]=graphCompareFile1->GetErrorYhigh(ptBin-1);
-						lmean_errlow[pt]=graphCompareFile1->GetErrorYlow(ptBin-1);
-						if(ShiftCompareInX){
-							ptCentre[pt] = ptCentre[pt] - DeltaXCompare;
-							ptCentreErr_high[pt] = ptCentreErr_high[pt]+DeltaXCompare; //0.
-							ptCentreErr_low[pt] = ptCentreErr_low[pt]-DeltaXCompare; //0.
-						}
-						pt++;
-					}
-					graphCompareFile1 = new TGraphAsymmErrors(nBinspT,ptCentre,lmean,ptCentreErr_low,ptCentreErr_high,lmean_errlow,lmean_errhigh);
-					graphCompareFile1->SetMarkerColor(kRed);
-					graphCompareFile1->SetLineColor(kRed);
-					graphCompareFile1->SetMarkerStyle(28);
-					graphCompareFile1->SetMarkerSize(2.75);
-
-					graphCompareFile1->Draw(drawGraphStyle);
-					sprintf(complegendentry,"#lambda(LSB)-#lambda(sig. region)");
-					sprintf(complegendentry,"%s",LegendEntryCompID1);
-					plotcompLegend->AddEntry(graphCompareFile1,complegendentry,"lp");
-				}
-				if(nComp>1){
-					pt=0;
-					for(int ptBin = ptBinMin; ptBin < ptBinMax+1; ptBin++) {
-						graphCompareFile2->GetPoint(ptBin-1,ptCentre[pt],lmean[pt]);
-						ptCentreErr_high[pt]=graphCompareFile2->GetErrorXhigh(ptBin-1);
-						ptCentreErr_low[pt]=graphCompareFile2->GetErrorXlow(ptBin-1);
-						lmean_errhigh[pt]=graphCompareFile2->GetErrorYhigh(ptBin-1);
-						lmean_errlow[pt]=graphCompareFile2->GetErrorYlow(ptBin-1);
-						if(ShiftCompareInX){
-							ptCentre[pt] = ptCentre[pt] + DeltaXCompare;
-							ptCentreErr_high[pt] = ptCentreErr_high[pt]-DeltaXCompare; //0.
-							ptCentreErr_low[pt] = ptCentreErr_low[pt]+DeltaXCompare; //0.
-						} 
-						pt++;
-					}
-					graphCompareFile2 = new TGraphAsymmErrors(nBinspT,ptCentre,lmean,ptCentreErr_low,ptCentreErr_high,lmean_errlow,lmean_errhigh);
-					graphCompareFile2->SetMarkerColor(kBlue);
-					graphCompareFile2->SetLineColor(kBlue);
-					graphCompareFile2->SetMarkerStyle(30);
-					graphCompareFile2->SetMarkerSize(2.75);
-
-					graphCompareFile2->Draw(drawGraphStyle);
-					sprintf(complegendentry,"#lambda(RSB)-#lambda(sig. region)");
-					sprintf(complegendentry,"%s",LegendEntryCompID2);
-					plotcompLegend->AddEntry(graphCompareFile2,complegendentry,"lp");
-				}
-				if(nComp>2){
-					pt=0;
-					for(int ptBin = ptBinMin; ptBin < ptBinMax+1; ptBin++) {
-						graphCompareFile3->GetPoint(ptBin-1,ptCentre[pt],lmean[pt]);
-						ptCentreErr_high[pt]=graphCompareFile3->GetErrorXhigh(ptBin-1);
-						ptCentreErr_low[pt]=graphCompareFile3->GetErrorXlow(ptBin-1);
-						lmean_errhigh[pt]=graphCompareFile3->GetErrorYhigh(ptBin-1);
-						lmean_errlow[pt]=graphCompareFile3->GetErrorYlow(ptBin-1);
-						if(ShiftCompareInX){
-							ptCentre[pt] = ptCentre[pt] - 2*DeltaXCompare;
-							ptCentreErr_high[pt] = ptCentreErr_high[pt]+2*DeltaXCompare; //0.
-							ptCentreErr_low[pt] = ptCentreErr_low[pt]-2*DeltaXCompare; //0.
-						}
-						pt++;
-					}
-					graphCompareFile3 = new TGraphAsymmErrors(nBinspT,ptCentre,lmean,ptCentreErr_low,ptCentreErr_high,lmean_errlow,lmean_errhigh);
-					graphCompareFile3->SetMarkerColor(kGreen-2);
-					graphCompareFile3->SetLineColor(kGreen-2);
-					graphCompareFile3->SetMarkerStyle(3);
-					graphCompareFile3->SetMarkerSize(2.75);
-
-					graphCompareFile3->Draw(drawGraphStyle);
-					sprintf(complegendentry,"Right sided 1.5 sigma");
-					sprintf(complegendentry,"%s",LegendEntryCompID3);
-					plotcompLegend->AddEntry(graphCompareFile3,complegendentry,"lp");
-				}
-				if(nComp>3){
-					pt=0;
-					for(int ptBin = ptBinMin; ptBin < ptBinMax+1; ptBin++) {
-						graphCompareFile4->GetPoint(ptBin-1,ptCentre[pt],lmean[pt]);
-						ptCentreErr_high[pt]=graphCompareFile4->GetErrorXhigh(ptBin-1);
-						ptCentreErr_low[pt]=graphCompareFile4->GetErrorXlow(ptBin-1);
-						lmean_errhigh[pt]=graphCompareFile4->GetErrorYhigh(ptBin-1);
-						lmean_errlow[pt]=graphCompareFile4->GetErrorYlow(ptBin-1);
-						if(ShiftCompareInX){
-							ptCentre[pt] = ptCentre[pt] + 2*DeltaXCompare;
-							ptCentreErr_high[pt] = ptCentreErr_high[pt]-2*DeltaXCompare; //0.
-							ptCentreErr_low[pt] = ptCentreErr_low[pt]+2*DeltaXCompare; //0.
-						} 
-						pt++;
-					}
-					graphCompareFile4 = new TGraphAsymmErrors(nBinspT,ptCentre,lmean,ptCentreErr_low,ptCentreErr_high,lmean_errlow,lmean_errhigh);
-					graphCompareFile4->SetMarkerColor(kOrange);
-					graphCompareFile4->SetLineColor(kOrange);
-					graphCompareFile4->SetMarkerStyle(5);
-					graphCompareFile4->SetMarkerSize(2.75);
-
-					graphCompareFile4->Draw(drawGraphStyle);
-					sprintf(complegendentry,"%s",LegendEntryCompID4);
-					plotcompLegend->AddEntry(graphCompareFile4,complegendentry,"lp");
-				}
-
-
-			} //PlotCompare
-			
-			if(PlotCompare && PlotNchData){ //not yet changed 12.12.2012 Linlin
+			if(PlotCompare){ //not yet changed 12.12.2012 Linlin
 				////plot noRho
 				//graphCompareFile1->RemovePoint(0);
 				//graphCompareFile1->RemovePoint(0);
@@ -2794,8 +2457,7 @@ int main(int argc, char** argv) {
 
 
 			} //PlotCompare
-			
-			if(!PlotNchData){
+
 			char texTex[200];
 			if(rapBin==1) sprintf(texTex,"      |#it{y}| < 0.6");
 			if(rapBin==2) sprintf(texTex,"0.6 < |#it{y}| < 1.2");
@@ -2804,15 +2466,14 @@ int main(int argc, char** argv) {
 				sprintf(texTex,"      |#it{y}| < 1.2");
 				if(nState>3) sprintf(texTex,"      |#it{y}| < 1.5");
 			}
-			TLatex *text = new TLatex(PlotpTMax*0.75,yMin+(yMax-yMin)*0.066,texTex);
+			TLatex *text = new TLatex(PlotcpmMax*0.75,yMin+(yMax-yMin)*0.066,texTex);
 			text->SetTextSize(0.045); //0.035
 			if(!SteerIndividuals&&!PlotMattForICHEP&&!PlotVsComp) text->Draw( "same" );
-			}
-			
+
 			if(PlotBG0plots){
 				char texTex2[200];
 				sprintf(texTex2,"      |c#tau/#sigma_{c#tau}| < 2");
-				TLatex *text2 = new TLatex(PlotpTMax*0.7,yMin+(yMax-yMin)*0.122,texTex2);
+				TLatex *text2 = new TLatex(PlotcpmMax*0.7,yMin+(yMax-yMin)*0.122,texTex2);
 				text2->SetTextSize(0.05);
 				text2->Draw( "same" );
 			} 
@@ -2825,34 +2486,34 @@ int main(int argc, char** argv) {
 				char text[200];
 				sprintf(text,"CMS preliminary");
 				cout<<text<<endl;
-				TLatex *CentralsText1 = new TLatex(PlotpTMin+(PlotpTMax-PlotpTMin)*0.02-DeltaXminOVERALL,yMin+(yMax-yMin)*0.76,text);
+				TLatex *CentralsText1 = new TLatex(PlotcpmMin+(PlotcpmMax-PlotcpmMin)*0.02-DeltaXminOVERALL,yMin+(yMax-yMin)*0.76,text);
 				CentralsText1->SetTextSize(CentralsFontSize*1.25);
 				if(DrawPreliminary) CentralsText1->Draw( "same" );
 				sprintf(text,"L_{int} = 4.9 fb^{-1}");
 				cout<<text<<endl;
-				TLatex *CentralsText2 = new TLatex(PlotpTMin+(PlotpTMax-PlotpTMin)*0.02-DeltaXminOVERALL,yMin+(yMax-yMin)*0.935,text);
+				TLatex *CentralsText2 = new TLatex(PlotcpmMin+(PlotcpmMax-PlotcpmMin)*0.02-DeltaXminOVERALL,yMin+(yMax-yMin)*0.935,text);
 				CentralsText2->SetTextSize(CentralsFontSize);
 				if(DrawLatexStuff) CentralsText2->Draw( "same" );
 				sprintf(text,"pp    #sqrt{s} = 7 TeV");
 				cout<<text<<endl;
-				TLatex *CentralsText3 = new TLatex(PlotpTMin+(PlotpTMax-PlotpTMin)*0.02-DeltaXminOVERALL,yMin+(yMax-yMin)*0.875,text);
+				TLatex *CentralsText3 = new TLatex(PlotcpmMin+(PlotcpmMax-PlotcpmMin)*0.02-DeltaXminOVERALL,yMin+(yMax-yMin)*0.875,text);
 				CentralsText3->SetTextSize(CentralsFontSize);
 				if(DrawLatexStuff) CentralsText3->Draw( "same" );
 
 
-				TLine* extreme0 = new TLine( PlotpTMin-DeltaXminOVERALL, 0, PlotpTMax ,0);
+				TLine* extreme0 = new TLine( PlotcpmMin-DeltaXminOVERALL, 0, PlotcpmMax ,0);
 				extreme0->SetLineWidth( 1 );
 				extreme0->SetLineStyle( 2 );
 				extreme0->SetLineColor( kBlack );
 				extreme0->Draw( "same" );
 
-				TLine* extreme1 = new TLine( PlotpTMin-DeltaXminOVERALL, 1, PlotpTMax , 1);
+				TLine* extreme1 = new TLine( PlotcpmMin-DeltaXminOVERALL, 1, PlotcpmMax , 1);
 				extreme1->SetLineWidth( 1 );
 				extreme1->SetLineStyle( 2 );
 				extreme1->SetLineColor( kBlack );
 				if(iLam==1||iLam==7||iLam==13) extreme1->Draw( "same" );
 
-				TLine* extreme2 = new TLine( PlotpTMin-DeltaXminOVERALL, -1, PlotpTMax ,-1);
+				TLine* extreme2 = new TLine( PlotcpmMin-DeltaXminOVERALL, -1, PlotcpmMax ,-1);
 				extreme2->SetLineWidth( 1 );
 				extreme2->SetLineStyle( 2 );
 				extreme2->SetLineColor( kBlack );
@@ -2873,7 +2534,7 @@ int main(int argc, char** argv) {
 			////////////// End FinalDataResults Plotting //////////////////
 			///////////////////////////////////////////////////////////////
 
-			if(MultiPanelPlots&&iLam!=4&&iLam!=5&&iLam!=10&&iLam!=11&&iLam!=16&&iLam!=17){
+/*			if(MultiPanelPlots&&iLam!=4&&iLam!=5&&iLam!=10&&iLam!=11&&iLam!=16&&iLam!=17){
 
 				bool NEW_MPplots=false;
 				bool Psi_MPplots=true;
@@ -3456,13 +3117,13 @@ int main(int argc, char** argv) {
 							char GraphNameMP[200];
 
 							if(iFrameMP==1){
-								sprintf(GraphNameMP,"ltilde_CS_rap%d",rapBin);
+								sprintf(GraphNameMP,"ltilde_CS_rap%d_pt%d",rapBin,ptBin);
 							}
 							if(iFrameMP==2){
-								sprintf(GraphNameMP,"ltilde_HX_rap%d",rapBin);
+								sprintf(GraphNameMP,"ltilde_HX_rap%d_pt%d",rapBin,ptBin);
 							}
 							if(iFrameMP==3){
-								sprintf(GraphNameMP,"ltilde_PX_rap%d",rapBin);
+								sprintf(GraphNameMP,"ltilde_PX_rap%d_pt%d",rapBin,ptBin);
 							}
 
 							if(rapBin<3) graphMP1 = (TGraphAsymmErrors*) infileMP1->Get(GraphNameMP);
@@ -3577,13 +3238,13 @@ int main(int argc, char** argv) {
 
 
 							if(mainframe==1){
-								sprintf(GraphNameMP,"ltilde_CS_rap%d",rapBin);
+								sprintf(GraphNameMP,"ltilde_CS_rap%d_pt%d",rapBin,ptBin);
 							}
 							if(mainframe==2){
-								sprintf(GraphNameMP,"ltilde_HX_rap%d",rapBin);
+								sprintf(GraphNameMP,"ltilde_HX_rap%d_pt%d",rapBin,ptBin);
 							}
 							if(mainframe==3){
-								sprintf(GraphNameMP,"ltilde_PX_rap%d",rapBin);
+								sprintf(GraphNameMP,"ltilde_PX_rap%d_pt%d",rapBin,ptBin);
 							}
 
 							if(rapBin<3){
@@ -4496,13 +4157,13 @@ int main(int argc, char** argv) {
 								char GraphNameMP[200];
 
 								if(iFrameMP==1){
-									sprintf(GraphNameMP,"ltilde_CS_rap%d",rapBin);
+									sprintf(GraphNameMP,"ltilde_CS_rap%d_pt%d",rapBin,ptBin);
 								}
 								if(iFrameMP==2){
-									sprintf(GraphNameMP,"ltilde_HX_rap%d",rapBin);
+									sprintf(GraphNameMP,"ltilde_HX_rap%d_pt%d",rapBin,ptBin);
 								}
 								if(iFrameMP==3){
-									sprintf(GraphNameMP,"ltilde_PX_rap%d",rapBin);
+									sprintf(GraphNameMP,"ltilde_PX_rap%d_pt%d",rapBin,ptBin);
 								}
 
 								if(iStateMP==1) graphMP_1sig = (TGraphAsymmErrors*) infileMP1_1sig->Get(GraphNameMP);
@@ -5623,38 +5284,38 @@ int main(int argc, char** argv) {
 						MPXlabeltext->SetTextColor(kBlack);
 						if(iPanel==nPanels&&!ShiftXminOVERALL) MPXlabeltext->Draw( "same" );
 
-						if(iLam==3&&rapBin==1){  sprintf(filename,"%s/FinalResultsCS_rap%d.pdf",FigDir,rapBin);
+						if(iLam==3&&rapBin==1){  sprintf(filename,"%s/FinalResultsCS_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
 							if(PlotFinalData) MPcanvasCS_rap1->SaveAs(filename);
 							sprintf(filename,"%s/FinalResultsCS_rap%d.C",FigDir,rapBin);
 							if(PlotFinalData) MPcanvasCS_rap1->SaveAs(filename);
 							MPcanvasCS_rap1->Close();
 						}
-						if(iLam==9&&rapBin==1){  sprintf(filename,"%s/FinalResultsHX_rap%d.pdf",FigDir,rapBin);
+						if(iLam==9&&rapBin==1){  sprintf(filename,"%s/FinalResultsHX_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
 							if(PlotFinalData) MPcanvasHX_rap1->SaveAs(filename);
 							sprintf(filename,"%s/FinalResultsHX_rap%d.C",FigDir,rapBin);
 							if(PlotFinalData) MPcanvasHX_rap1->SaveAs(filename);
 							MPcanvasHX_rap1->Close();
 						}
-						if(iLam==15&&rapBin==1){  sprintf(filename,"%s/FinalResultsPX_rap%d.pdf",FigDir,rapBin);
+						if(iLam==15&&rapBin==1){  sprintf(filename,"%s/FinalResultsPX_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
 							if(PlotFinalData) MPcanvasPX_rap1->SaveAs(filename);
 							sprintf(filename,"%s/FinalResultsPX_rap%d.C",FigDir,rapBin);
 							if(PlotFinalData) MPcanvasPX_rap1->SaveAs(filename);
 							MPcanvasPX_rap1->Close();
 						}
 
-						if(iLam==3&&rapBin==2){  sprintf(filename,"%s/FinalResultsCS_rap%d.pdf",FigDir,rapBin);
+						if(iLam==3&&rapBin==2){  sprintf(filename,"%s/FinalResultsCS_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
 							if(PlotFinalData) MPcanvasCS_rap2->SaveAs(filename);
 							sprintf(filename,"%s/FinalResultsCS_rap%d.C",FigDir,rapBin);
 							if(PlotFinalData) MPcanvasCS_rap2->SaveAs(filename);
 							MPcanvasCS_rap2->Close();
 						}
-						if(iLam==9&&rapBin==2){  sprintf(filename,"%s/FinalResultsHX_rap%d.pdf",FigDir,rapBin);
+						if(iLam==9&&rapBin==2){  sprintf(filename,"%s/FinalResultsHX_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
 							if(PlotFinalData) MPcanvasHX_rap2->SaveAs(filename);
 							sprintf(filename,"%s/FinalResultsHX_rap%d.C",FigDir,rapBin);
 							if(PlotFinalData) MPcanvasHX_rap2->SaveAs(filename);
 							MPcanvasHX_rap2->Close();
 						}
-						if(iLam==15&&rapBin==2){  sprintf(filename,"%s/FinalResultsPX_rap%d.pdf",FigDir,rapBin);
+						if(iLam==15&&rapBin==2){  sprintf(filename,"%s/FinalResultsPX_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
 							if(PlotFinalData) MPcanvasPX_rap2->SaveAs(filename);
 							sprintf(filename,"%s/FinalResultsPX_rap%d.C",FigDir,rapBin);
 							if(PlotFinalData) MPcanvasPX_rap2->SaveAs(filename);
@@ -5790,13 +5451,13 @@ int main(int argc, char** argv) {
 
 
 								if(iFrameMP==1){
-									sprintf(GraphNameMP,"ltilde_CS_rap%d",rapBin);
+									sprintf(GraphNameMP,"ltilde_CS_rap%d_pt%d",rapBin,ptBin);
 								}
 								if(iFrameMP==2){
-									sprintf(GraphNameMP,"ltilde_HX_rap%d",rapBin);
+									sprintf(GraphNameMP,"ltilde_HX_rap%d_pt%d",rapBin,ptBin);
 								}
 								if(iFrameMP==3){
-									sprintf(GraphNameMP,"ltilde_PX_rap%d",rapBin);
+									sprintf(GraphNameMP,"ltilde_PX_rap%d_pt%d",rapBin,ptBin);
 								}
 
 								graphMP1 = (TGraphAsymmErrors*) infileMP1->Get(GraphNameMP);
@@ -5914,13 +5575,13 @@ int main(int argc, char** argv) {
 														MPtildeLegend->AddEntry(graphMP1,MPtildeLegendEntry,"p"); }
 
 														if(mainframe==1){
-															sprintf(GraphNameMP,"ltilde_CS_rap%d",rapBin);
+															sprintf(GraphNameMP,"ltilde_CS_rap%d_pt%d",rapBin,ptBin);
 														}
 														if(mainframe==2){
-															sprintf(GraphNameMP,"ltilde_HX_rap%d",rapBin);
+															sprintf(GraphNameMP,"ltilde_HX_rap%d_pt%d",rapBin,ptBin);
 														}
 														if(mainframe==3){
-															sprintf(GraphNameMP,"ltilde_PX_rap%d",rapBin);
+															sprintf(GraphNameMP,"ltilde_PX_rap%d_pt%d",rapBin,ptBin);
 														}
 
 														graphMP1_1sig = (TGraphAsymmErrors*) infileMP1_1sig->Get(GraphNameMP);
@@ -6424,22 +6085,7 @@ int main(int argc, char** argv) {
 				if(NEW_MPplots&&PlotMatt){
 					if(iLam<1000&&rapBin==1){
 
-						/*yMin=-1;
-							yMax=1;
 
-							if(iLam==2||iLam==8||iLam==14||iLam==3||iLam==9||iLam==15){
-							yMin=-0.5;
-							yMax=0.5;
-							}
-
-							if(iLam==6||iLam==12||iLam==18){
-							yMin=-1;
-							yMax=1;
-							}
-
-							yMinMP=yMin+0.01;
-							yMaxMP=yMax-0.01;
-							*/
 						if(iLam==6||iLam==12||iLam==18||iLam==1||iLam==7||iLam==13){
 							yMin=-1;
 							yMax=1;
@@ -6912,36 +6558,36 @@ int main(int argc, char** argv) {
 
 
 			} //MultiPanelPlots
+*/
 
 
 
 
-
-			double PlotpTMin = PlotpTMinInitial, 
-						 PlotpTMax = PlotpTMaxInitial;
+			double PlotcpmMin = PlotcpmMinInitial, 
+						 PlotcpmMax = PlotcpmMaxInitial;
 
 			// Systematic uncertainties
 
-			if(iLam==1)  sprintf(filename,"%s/Systematics_CS_lth_rap%d.pdf",FigDir,rapBin);
-			if(iLam==2)  sprintf(filename,"%s/Systematics_CS_lph_rap%d.pdf",FigDir,rapBin);
-			if(iLam==3)  sprintf(filename,"%s/Systematics_CS_ltp_rap%d.pdf",FigDir,rapBin);
-			if(iLam==4)  sprintf(filename,"%s/Systematics_CS_lthstar_rap%d.pdf",FigDir,rapBin);
-			if(iLam==5)  sprintf(filename,"%s/Systematics_CS_lphstar_rap%d.pdf",FigDir,rapBin);
-			if(iLam==6)  sprintf(filename,"%s/Systematics_CS_ltilde_rap%d.pdf",FigDir,rapBin);
+			if(iLam==1)  sprintf(filename,"%s/Systematics_CS_lth_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==2)  sprintf(filename,"%s/Systematics_CS_lph_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==3)  sprintf(filename,"%s/Systematics_CS_ltp_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==4)  sprintf(filename,"%s/Systematics_CS_lthstar_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==5)  sprintf(filename,"%s/Systematics_CS_lphstar_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==6)  sprintf(filename,"%s/Systematics_CS_ltilde_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
 
-			if(iLam==7)  sprintf(filename,"%s/Systematics_HX_lth_rap%d.pdf",FigDir,rapBin);
-			if(iLam==8)  sprintf(filename,"%s/Systematics_HX_lph_rap%d.pdf",FigDir,rapBin);
-			if(iLam==9)  sprintf(filename,"%s/Systematics_HX_ltp_rap%d.pdf",FigDir,rapBin);
-			if(iLam==10) sprintf(filename,"%s/Systematics_HX_lthstar_rap%d.pdf",FigDir,rapBin);
-			if(iLam==11) sprintf(filename,"%s/Systematics_HX_lphstar_rap%d.pdf",FigDir,rapBin);
-			if(iLam==12) sprintf(filename,"%s/Systematics_HX_ltilde_rap%d.pdf",FigDir,rapBin);
+			if(iLam==7)  sprintf(filename,"%s/Systematics_HX_lth_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==8)  sprintf(filename,"%s/Systematics_HX_lph_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==9)  sprintf(filename,"%s/Systematics_HX_ltp_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==10) sprintf(filename,"%s/Systematics_HX_lthstar_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==11) sprintf(filename,"%s/Systematics_HX_lphstar_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==12) sprintf(filename,"%s/Systematics_HX_ltilde_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
 
-			if(iLam==13) sprintf(filename,"%s/Systematics_PX_lth_rap%d.pdf",FigDir,rapBin);
-			if(iLam==14) sprintf(filename,"%s/Systematics_PX_lph_rap%d.pdf",FigDir,rapBin);
-			if(iLam==15) sprintf(filename,"%s/Systematics_PX_ltp_rap%d.pdf",FigDir,rapBin);
-			if(iLam==16) sprintf(filename,"%s/Systematics_PX_lthstar_rap%d.pdf",FigDir,rapBin);
-			if(iLam==17) sprintf(filename,"%s/Systematics_PX_lphstar_rap%d.pdf",FigDir,rapBin);
-			if(iLam==18) sprintf(filename,"%s/Systematics_PX_ltilde_rap%d.pdf",FigDir,rapBin);
+			if(iLam==13) sprintf(filename,"%s/Systematics_PX_lth_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==14) sprintf(filename,"%s/Systematics_PX_lph_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==15) sprintf(filename,"%s/Systematics_PX_ltp_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==16) sprintf(filename,"%s/Systematics_PX_lthstar_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==17) sprintf(filename,"%s/Systematics_PX_lphstar_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
+			if(iLam==18) sprintf(filename,"%s/Systematics_PX_ltilde_rap%d_pT%d.pdf",FigDir,rapBin,ptBin);
 
 			TCanvas *SystCanvas = new TCanvas("SystCanvas","SystCanvas",1000,800);
 
@@ -6977,12 +6623,12 @@ int main(int argc, char** argv) {
 			//sprintf(drawGraphStyle,"PE");
 
 			TH1F *SystHisto = new TH1F;
-			SystHisto = SystCanvas->DrawFrame(PlotpTMin,yMin,PlotpTMax,yMax); //to be consistant for Psi 1S and 2S
+			SystHisto = SystCanvas->DrawFrame(PlotcpmMin,yMin,PlotcpmMax,yMax); //to be consistant for Psi 1S and 2S
 			SystHisto->SetXTitle("#it{p}_{T} [GeV]");
 			SystHisto->SetYTitle(axislabel);
 			//SystHisto->GetYaxis()->SetTitleOffset(1.5);
 
-			TGraphAsymmErrors *graphStat = new TGraphAsymmErrors(nBinspT,ptCentre_,lmean_errmean_minus,ptCentreErr_low,ptCentreErr_high,0,lmean_errmean);
+			TGraphAsymmErrors *graphStat = new TGraphAsymmErrors(nBinscpm,cpmCentre_,lmean_errmean_minus,cpmCentreErr_low,cpmCentreErr_high,0,lmean_errmean);
 			graphStat->SetFillColor(kGreen-2);
 			graphStat->SetFillStyle(1001);
 			graphStat->SetLineColor(kGreen-2);
@@ -6991,7 +6637,7 @@ int main(int argc, char** argv) {
 			sprintf(legendentry,"Statistics");
 
 			if(nSystematics>7){
-				TGraphAsymmErrors *graphSyst12345678 = new TGraphAsymmErrors(nBinspT,ptCentre_,SystError12345678,ptCentreErr_low,ptCentreErr_high,SystError12345678,0);
+				TGraphAsymmErrors *graphSyst12345678 = new TGraphAsymmErrors(nBinscpm,cpmCentre_,SystError12345678,cpmCentreErr_low,cpmCentreErr_high,SystError12345678,0);
 				graphSyst12345678->SetFillColor(41);
 				graphSyst12345678->SetFillStyle(1001);
 				graphSyst12345678->SetLineColor(41);
@@ -7002,7 +6648,7 @@ int main(int argc, char** argv) {
 				else plotLegend->AddEntry(graphSyst12345678,SystID8Title,"l");
 			}
 			if(nSystematics>6){
-				TGraphAsymmErrors *graphSyst1234567 = new TGraphAsymmErrors(nBinspT,ptCentre_,SystError1234567,ptCentreErr_low,ptCentreErr_high,SystError1234567,0);
+				TGraphAsymmErrors *graphSyst1234567 = new TGraphAsymmErrors(nBinscpm,cpmCentre_,SystError1234567,cpmCentreErr_low,cpmCentreErr_high,SystError1234567,0);
 				graphSyst1234567->SetFillColor(46);
 				graphSyst1234567->SetFillStyle(1001);
 				graphSyst1234567->SetLineColor(46);
@@ -7013,7 +6659,7 @@ int main(int argc, char** argv) {
 				else plotLegend->AddEntry(graphSyst1234567,SystID7Title,"l");
 			}
 			if(nSystematics>5){
-				TGraphAsymmErrors *graphSyst123456 = new TGraphAsymmErrors(nBinspT,ptCentre_,SystError123456,ptCentreErr_low,ptCentreErr_high,SystError123456,0);
+				TGraphAsymmErrors *graphSyst123456 = new TGraphAsymmErrors(nBinscpm,cpmCentre_,SystError123456,cpmCentreErr_low,cpmCentreErr_high,SystError123456,0);
 				graphSyst123456->SetFillColor(kMagenta);//kYellow
 				graphSyst123456->SetFillStyle(1001);
 				graphSyst123456->SetLineColor(kMagenta);//kYellow
@@ -7024,7 +6670,7 @@ int main(int argc, char** argv) {
 				else plotLegend->AddEntry(graphSyst123456,SystID6Title,"l");
 			}
 			if(nSystematics>4){
-				TGraphAsymmErrors *graphSyst12345 = new TGraphAsymmErrors(nBinspT,ptCentre_,SystError12345,ptCentreErr_low,ptCentreErr_high,SystError12345,0);
+				TGraphAsymmErrors *graphSyst12345 = new TGraphAsymmErrors(nBinscpm,cpmCentre_,SystError12345,cpmCentreErr_low,cpmCentreErr_high,SystError12345,0);
 				graphSyst12345->SetFillColor(9);//9 //IfLamTildeClosure: kOrange
 				if(DeltaTildeplots) graphSyst12345->SetFillColor(kOrange);
 				graphSyst12345->SetFillStyle(1001);
@@ -7040,7 +6686,7 @@ int main(int argc, char** argv) {
 
 			}
 			if(nSystematics>3){
-				TGraphAsymmErrors *graphSyst1234 = new TGraphAsymmErrors(nBinspT,ptCentre_,SystError1234,ptCentreErr_low,ptCentreErr_high,SystError1234,0);
+				TGraphAsymmErrors *graphSyst1234 = new TGraphAsymmErrors(nBinscpm,cpmCentre_,SystError1234,cpmCentreErr_low,cpmCentreErr_high,SystError1234,0);
 				graphSyst1234->SetFillColor(kOrange);
 				graphSyst1234->SetFillStyle(1001);
 				graphSyst1234->SetLineColor(kOrange);
@@ -7055,7 +6701,7 @@ int main(int argc, char** argv) {
 
 			}
 			if(nSystematics>2){
-				TGraphAsymmErrors *graphSyst123 = new TGraphAsymmErrors(nBinspT,ptCentre_,SystError123,ptCentreErr_low,ptCentreErr_high,SystError123,0);
+				TGraphAsymmErrors *graphSyst123 = new TGraphAsymmErrors(nBinscpm,cpmCentre_,SystError123,cpmCentreErr_low,cpmCentreErr_high,SystError123,0);
 				graphSyst123->SetFillColor(8);
 				graphSyst123->SetFillStyle(1001);
 				graphSyst123->SetLineColor(8);
@@ -7072,7 +6718,7 @@ int main(int argc, char** argv) {
 				else plotLegend->AddEntry(graphSyst123,SystID3Title,"l");
 			}
 			if(nSystematics>1){
-				TGraphAsymmErrors *graphSyst12 = new TGraphAsymmErrors(nBinspT,ptCentre_,SystError12,ptCentreErr_low,ptCentreErr_high,SystError12,0);
+				TGraphAsymmErrors *graphSyst12 = new TGraphAsymmErrors(nBinscpm,cpmCentre_,SystError12,cpmCentreErr_low,cpmCentreErr_high,SystError12,0);
 				graphSyst12->SetFillColor(kRed);
 				graphSyst12->SetFillStyle(1001);
 				graphSyst12->SetLineColor(kRed);
@@ -7084,7 +6730,7 @@ int main(int argc, char** argv) {
 				else plotLegend->AddEntry(graphSyst12,SystID2Title,"l");
 			}
 
-			TGraphAsymmErrors *graphSyst1_ = new TGraphAsymmErrors(nBinspT,ptCentre_,SystError1,ptCentreErr_low,ptCentreErr_high,SystError1,0);
+			TGraphAsymmErrors *graphSyst1_ = new TGraphAsymmErrors(nBinscpm,cpmCentre_,SystError1,cpmCentreErr_low,cpmCentreErr_high,SystError1,0);
 			graphSyst1_->SetFillColor(kBlue);
 			graphSyst1_->SetFillStyle(1001);
 			graphSyst1_->SetLineColor(kBlue);
@@ -7107,8 +6753,8 @@ int main(int argc, char** argv) {
 			if(rapBin==1) sprintf(texTex,"      |#it{y}| < 0.6");
 			if(rapBin==2) sprintf(texTex,"0.6 < |#it{y}| < 1.2");
 			if(rapBin==3) sprintf(texTex,"1.2 < |#it{y}| < 1.5");
-			//TLatex *Systtext = new TLatex(PlotpTMax*0.75,yMin+(yMax-yMin)*0.1,texTex);
-			TLatex *Systtext = new TLatex(PlotpTMax*0.75,yMin+(yMax-yMin)*0.03,texTex);
+			//TLatex *Systtext = new TLatex(PlotcpmMax*0.75,yMin+(yMax-yMin)*0.1,texTex);
+			TLatex *Systtext = new TLatex(PlotcpmMax*0.75,yMin+(yMax-yMin)*0.03,texTex);
 			Systtext->SetTextSize(0.035);
 			if(DrawLatexStuff) Systtext->Draw( "same" );
 
@@ -7122,7 +6768,8 @@ int main(int argc, char** argv) {
 			delete SystCanvas;
 
 
-		} // rapBin
+		} // cpmbin 
+		}// rapBin
 
 
 	} // iLam
@@ -7138,7 +6785,7 @@ int main(int argc, char** argv) {
 	bool SaveTables=true;
 	if(SaveTables){
 
-		char framerap[200];
+		char framept[200];
 
 		char NumFileName[200];
 		sprintf(NumFileName,"%s/FinalNumericalResults.tex",FigDir);
@@ -7189,7 +6836,7 @@ int main(int argc, char** argv) {
 		double ltildeerrTotal3_tab;
 		double ltildeerrTotal3_high_tab;
 
-		double pTmean_tab;
+		double cpmmean_tab;
 
 		int nTables=2;
 		for(int iTab=1; iTab<nTables+1;iTab++){
@@ -7215,78 +6862,80 @@ int main(int argc, char** argv) {
 
 				int rap=0;
 				for(int rapBin = 1; rapBin < nRapBins+1; rapBin++) {
+				int pt=0;
+				for(int ptBin = 1; ptBin < nPtBins+1; ptBin++) {
 
-					if(iFrame==1) {sprintf(framerap,"\\hline \\multicolumn{5}{|c|}{CS frame, $%1.1f < |y| < %1.1f$}\\\\ \\hline \\rule{0pt}{4mm}\n",onia::rapForPTRange[rapBin-1],onia::rapForPTRange[rapBin]); fprintf(NumFile,framerap);}
-					if(iFrame==2) {sprintf(framerap,"\\hline \\multicolumn{5}{|c|}{HX frame, $%1.1f < |y| < %1.1f$}\\\\ \\hline \\rule{0pt}{4mm}\n",onia::rapForPTRange[rapBin-1],onia::rapForPTRange[rapBin]); fprintf(NumFile,framerap);}
-					if(iFrame==3) {sprintf(framerap,"\\hline \\multicolumn{5}{|c|}{PX frame, $%1.1f < |y| < %1.1f$}\\\\ \\hline \\rule{0pt}{4mm}\n",onia::rapForPTRange[rapBin-1],onia::rapForPTRange[rapBin]); fprintf(NumFile,framerap);}
+					if(iFrame==1) {sprintf(framept,"\\hline \\multicolumn{5}{|c|}{CS frame, $%1.1f < p_{T} < %1.1f$}\\\\ \\hline \\rule{0pt}{4mm}\n",onia::pTRange[rapBin][ptBin-1],onia::pTRange[rapBin][ptBin]); fprintf(NumFile,framept);}
+					if(iFrame==2) {sprintf(framept,"\\hline \\multicolumn{5}{|c|}{HX frame, $%1.1f < p_{T} < %1.1f$}\\\\ \\hline \\rule{0pt}{4mm}\n",onia::pTRange[rapBin][ptBin-1],onia::pTRange[rapBin][ptBin]); fprintf(NumFile,framept);}
+					if(iFrame==3) {sprintf(framept,"\\hline \\multicolumn{5}{|c|}{PX frame, $%1.1f < p_{T} < %1.1f$}\\\\ \\hline \\rule{0pt}{4mm}\n",onia::pTRange[rapBin][ptBin-1],onia::pTRange[rapBin][ptBin]); fprintf(NumFile,framept);}
 
-					int pt=0;
-					for(int ptBin = ptBinMin; ptBin < ptBinMax+1; ptBin++) {
+					int cpm=0;
+					for(int cpmBin = cpmBinMin; cpmBin < cpmBinMax+1; cpmBin++) {
 
 
-						/*
-							 syst_table[iLam-1][rapBin-1][pt][0]=SystError[pt];
-							 syst_table[iLam-1][rapBin-1][pt][1]=TMath::Abs(SystError1[pt]);
-							 syst_table[iLam-1][rapBin-1][pt][2]=TMath::Abs(SystError2[pt]);
-							 syst_table[iLam-1][rapBin-1][pt][3]=TMath::Abs(SystError3[pt]);
-							 syst_table[iLam-1][rapBin-1][pt][4]=TMath::Abs(SystError4[pt]);
-							 syst_table[iLam-1][rapBin-1][pt][5]=TMath::Abs(SystError5[pt]);
-							 syst_table[iLam-1][rapBin-1][pt][6]=TMath::Abs(SystError6[pt]);
-							 syst_table[iLam-1][rapBin-1][pt][7]=TMath::Abs(SystError7[pt]);
-							 syst_table[iLam-1][rapBin-1][pt][8]=TMath::Abs(SystError8[pt]);
-							 */
+						
+						//	 syst_table[iLam-1][rapBin-1][pt][0]=SystError[pt];
+							// //syst_table[iLam-1][rapBin-1][pt][1]=TMath::Abs(SystError1[pt]);
+//							 syst_table[iLam-1][rapBin-1][pt][2]=TMath::Abs(SystError2[pt]);
+//							 syst_table[iLam-1][rapBin-1][pt][3]=TMath::Abs(SystError3[pt]);
+//							 syst_table[iLam-1][rapBin-1][pt][4]=TMath::Abs(SystError4[pt]);
+//							 syst_table[iLam-1][rapBin-1][pt][5]=TMath::Abs(SystError5[pt]);
+//							 syst_table[iLam-1][rapBin-1][pt][6]=TMath::Abs(SystError6[pt]);
+//							 syst_table[iLam-1][rapBin-1][pt][7]=TMath::Abs(SystError7[pt]);
+//							 syst_table[iLam-1][rapBin-1][pt][8]=TMath::Abs(SystError8[pt]);
+							 
 						if(iTab==1){
 							if(iFrame==1){
-								lth_tab=val_table[1][rap][pt]			;   ltherr_tab=errLow_table[1][rap][pt];            ltherr_high_tab=errHigh_table[1][rap][pt];
-								lph_tab=val_table[2][rap][pt]			;   lpherr_tab=errLow_table[2][rap][pt];            lpherr_high_tab=errHigh_table[2][rap][pt];
-								ltp_tab=val_table[3][rap][pt]			;   ltperr_tab=errLow_table[3][rap][pt];            ltperr_high_tab=errHigh_table[3][rap][pt];
-								ltilde_tab=val_table[6][rap][pt]		;   ltildeerr_tab=errLow_table[6][rap][pt];      	ltildeerr_high_tab=errHigh_table[6][rap][pt];
+								lth_tab=val_table[1][rap][pt][cpm]			;   ltherr_tab=errLow_table[1][rap][pt][cpm];            ltherr_high_tab=errHigh_table[1][rap][pt][cpm];
+								lph_tab=val_table[2][rap][pt][cpm]			;   lpherr_tab=errLow_table[2][rap][pt][cpm];            lpherr_high_tab=errHigh_table[2][rap][pt][cpm];
+								ltp_tab=val_table[3][rap][pt][cpm]			;   ltperr_tab=errLow_table[3][rap][pt][cpm];            ltperr_high_tab=errHigh_table[3][rap][pt][cpm];
+								ltilde_tab=val_table[6][rap][pt][cpm]		;   ltildeerr_tab=errLow_table[6][rap][pt][cpm];      	ltildeerr_high_tab=errHigh_table[6][rap][pt][cpm];
 							}
 							if(iFrame==2){
-								lth_tab=val_table[7][rap][pt]			;   ltherr_tab=errLow_table[7][rap][pt];            ltherr_high_tab=errHigh_table[7][rap][pt];
-								lph_tab=val_table[8][rap][pt]			;   lpherr_tab=errLow_table[8][rap][pt];            lpherr_high_tab=errHigh_table[8][rap][pt];
-								ltp_tab=val_table[9][rap][pt]			;   ltperr_tab=errLow_table[9][rap][pt];            ltperr_high_tab=errHigh_table[9][rap][pt];
-								ltilde_tab=val_table[12][rap][pt]		;   ltildeerr_tab=errLow_table[12][rap][pt];      	ltildeerr_high_tab=errHigh_table[12][rap][pt];
+								lth_tab=val_table[7][rap][pt][cpm]			;   ltherr_tab=errLow_table[7][rap][pt][cpm];            ltherr_high_tab=errHigh_table[7][rap][pt][cpm];
+								lph_tab=val_table[8][rap][pt][cpm]			;   lpherr_tab=errLow_table[8][rap][pt][cpm];            lpherr_high_tab=errHigh_table[8][rap][pt][cpm];
+								ltp_tab=val_table[9][rap][pt][cpm]			;   ltperr_tab=errLow_table[9][rap][pt][cpm];            ltperr_high_tab=errHigh_table[9][rap][pt][cpm];
+								ltilde_tab=val_table[12][rap][pt][cpm]		;   ltildeerr_tab=errLow_table[12][rap][pt][cpm];      	ltildeerr_high_tab=errHigh_table[12][rap][pt][cpm];
 							}
 							if(iFrame==3){
-								lth_tab=val_table[13][rap][pt]			;   ltherr_tab=errLow_table[13][rap][pt];            ltherr_high_tab=errHigh_table[13][rap][pt];
-								lph_tab=val_table[14][rap][pt]			;   lpherr_tab=errLow_table[14][rap][pt];            lpherr_high_tab=errHigh_table[14][rap][pt];
-								ltp_tab=val_table[15][rap][pt]			;   ltperr_tab=errLow_table[15][rap][pt];            ltperr_high_tab=errHigh_table[15][rap][pt];
-								ltilde_tab=val_table[18][rap][pt]		;   ltildeerr_tab=errLow_table[18][rap][pt];      	ltildeerr_high_tab=errHigh_table[18][rap][pt];
+								lth_tab=val_table[13][rap][pt][cpm]			;   ltherr_tab=errLow_table[13][rap][pt][cpm];            ltherr_high_tab=errHigh_table[13][rap][pt][cpm];
+								lph_tab=val_table[14][rap][pt][cpm]			;   lpherr_tab=errLow_table[14][rap][pt][cpm];            lpherr_high_tab=errHigh_table[14][rap][pt][cpm];
+								ltp_tab=val_table[15][rap][pt][cpm]			;   ltperr_tab=errLow_table[15][rap][pt][cpm];            ltperr_high_tab=errHigh_table[15][rap][pt][cpm];
+								ltilde_tab=val_table[18][rap][pt][cpm]		;   ltildeerr_tab=errLow_table[18][rap][pt][cpm];      	ltildeerr_high_tab=errHigh_table[18][rap][pt][cpm];
 							}
-							fprintf(NumFile, "%1.0f--%1.0f   &  $%1.3f _{-%1.3f}^{+%1.3f} $  & $%1.3f _{-%1.3f}^{+%1.3f}$  &  $%1.3f _{-%1.3f}^{+%1.3f}$ &  $%1.3f _{-%1.3f}^{+%1.3f}$ \\\\\n",onia::pTRange[rapBin][ptBin-1],onia::pTRange[rapBin][ptBin],lth_tab,ltherr_tab,ltherr_high_tab   ,lph_tab,lpherr_tab,lpherr_high_tab   ,ltp_tab,ltperr_tab,ltperr_high_tab   ,ltilde_tab,ltildeerr_tab,ltildeerr_high_tab );
+							fprintf(NumFile, "%1.0f--%1.0f   &  $%1.3f _{-%1.3f}^{+%1.3f} $  & $%1.3f _{-%1.3f}^{+%1.3f}$  &  $%1.3f _{-%1.3f}^{+%1.3f}$ &  $%1.3f _{-%1.3f}^{+%1.3f}$ \\\\\n",onia::cpmRange[cpmBin-1],onia::cpmRange[cpmBin],lth_tab,ltherr_tab,ltherr_high_tab   ,lph_tab,lpherr_tab,lpherr_high_tab   ,ltp_tab,ltperr_tab,ltperr_high_tab   ,ltilde_tab,ltildeerr_tab,ltildeerr_high_tab );
 						}
 
 						if(iTab==2){
 							if(iFrame==1){
-								lth_tab=syst_table[1][rap][pt][0]		;
-								lph_tab=syst_table[2][rap][pt][0]		;
-								ltp_tab=syst_table[3][rap][pt][0]		;
-								ltilde_tab=syst_table[6][rap][pt][0]	;
+								lth_tab=syst_table[1][rap][pt][cpm][0]		;
+								lph_tab=syst_table[2][rap][pt][cpm][0]		;
+								ltp_tab=syst_table[3][rap][pt][cpm][0]		;
+								ltilde_tab=syst_table[6][rap][pt][cpm][0]	;
 							}                                       ;
 							if(iFrame==2){                          ;
-								lth_tab=syst_table[7][rap][pt][0]		;
-								lph_tab=syst_table[8][rap][pt][0]		;
-								ltp_tab=syst_table[9][rap][pt][0]		;
-								ltilde_tab=syst_table[12][rap][pt][0]	;
+								lth_tab=syst_table[7][rap][pt][cpm][0]		;
+								lph_tab=syst_table[8][rap][pt][cpm][0]		;
+								ltp_tab=syst_table[9][rap][pt][cpm][0]		;
+								ltilde_tab=syst_table[12][rap][pt][cpm][0]	;
 							}                                       ;
 							if(iFrame==3){                          ;
-								lth_tab=syst_table[13][rap][pt][0]		;
-								lph_tab=syst_table[14][rap][pt][0]		;
-								ltp_tab=syst_table[15][rap][pt][0]		;
-								ltilde_tab=syst_table[18][rap][pt][0]	;
+								lth_tab=syst_table[13][rap][pt][cpm][0]		;
+								lph_tab=syst_table[14][rap][pt][cpm][0]		;
+								ltp_tab=syst_table[15][rap][pt][cpm][0]		;
+								ltilde_tab=syst_table[18][rap][pt][cpm][0]	;
 							}
-							fprintf(NumFile, "%1.0f--%1.0f   &  $%1.3f  $  & $%1.3f $  &  $%1.3f $ &  $%1.3f $ \\\\\n",onia::pTRange[rapBin][ptBin-1],onia::pTRange[rapBin][ptBin],lth_tab,lph_tab,ltp_tab,ltilde_tab );
+							fprintf(NumFile, "%1.0f--%1.0f   &  $%1.3f  $  & $%1.3f $  &  $%1.3f $ &  $%1.3f $ \\\\\n",onia::cpmRange[cpmBin-1],onia::cpmRange[cpmBin],lth_tab,lph_tab,ltp_tab,ltilde_tab );
 						}
 
 
+						cpm++;
+					} //end cpmbin
+
 						pt++;
-					}
-
-
-
+					}// end pt bin
 					rap++;
-
+					
 				}//end rapBin
 
 			}//end iFrame
@@ -7412,6 +7061,8 @@ int main(int argc, char** argv) {
 
 			int rap=0;
 			for(int rapBin = 1; rapBin < nRapBins+1; rapBin++) {
+			int pt=0;
+			for(int ptBin = 1; ptBin < nPtBins+1; ptBin++) {
 
 				if(rapBin==1) sprintf(TabRapChar,"|y| < 0.6");
 				if(rapBin==2) sprintf(TabRapChar,"0.6 < |y| < 1.2");
@@ -7425,29 +7076,30 @@ int main(int argc, char** argv) {
 				}
 				if(rapBin==1)fprintf(SuppFile,"pT-min   pT-max   |y|-min   |y|-max   %s   -T.U.68.3%%CL    +T.U.68.3%%CL   -T.U.95.5%%CL   +T.U.95.5%%CL   -T.U.99.7%%CL   +T.U.99.7%%CL   -S.U.68.3%%CL   +S.U.68.3%%CL\n",TabParCharSpace);
 
-				int pt=0;
-				for(int ptBin = ptBinMin; ptBin < ptBinMax+1; ptBin++) {
+				int cpm=0;
+				for(int cpmBin = cpmBinMin; cpmBin < cpmBinMax+1; cpmBin++) {
 
-					lambda_tab=val_table[iLam][rap][pt]			;   lambdaerr_tab=errLow_table[iLam][rap][pt];            lambdaerr_high_tab=errHigh_table[iLam][rap][pt];          lambdaerrTotal1_high_tab=errHighTotal1_table[iLam][rap][pt];        lambdaerrTotal1_tab=errLowTotal1_table[iLam][rap][pt];          lambdaerrTotal2_high_tab=errHighTotal2_table[iLam][rap][pt];        lambdaerrTotal2_tab=errLowTotal2_table[iLam][rap][pt];         lambdaerrTotal3_high_tab=errHighTotal3_table[iLam][rap][pt];        lambdaerrTotal3_tab=errLowTotal3_table[iLam][rap][pt];
+					lambda_tab=val_table[iLam][rap][pt][cpm]			;   lambdaerr_tab=errLow_table[iLam][rap][pt][cpm];            lambdaerr_high_tab=errHigh_table[iLam][rap][pt][cpm];          lambdaerrTotal1_high_tab=errHighTotal1_table[iLam][rap][pt][cpm];        lambdaerrTotal1_tab=errLowTotal1_table[iLam][rap][pt][cpm];          lambdaerrTotal2_high_tab=errHighTotal2_table[iLam][rap][pt][cpm];        lambdaerrTotal2_tab=errLowTotal2_table[iLam][rap][pt][cpm];         lambdaerrTotal3_high_tab=errHighTotal3_table[iLam][rap][pt][cpm];        lambdaerrTotal3_tab=errLowTotal3_table[iLam][rap][pt][cpm];
 
-					pTmean_tab=pTmean_table[1][rap][pt];
+					cpmmean_tab=cpmmean_table[1][rap][pt][cpm];
 
-					if(onia::pTRange[rapBin][ptBin-1]<10)
-						fprintf(SuppFile, "   %1.0f       %1.0f       %1.1f       %1.1f          % 1.3f           -%1.3f          +%1.3f         -%1.3f         +%1.3f         -%1.3f         +%1.3f         -%1.3f         +%1.3f\n",onia::pTRange[rapBin][ptBin-1],onia::pTRange[rapBin][ptBin],onia::rapForPTRange[rapBin-1],onia::rapForPTRange[rapBin],lambda_tab,lambdaerrTotal1_tab, lambdaerrTotal1_high_tab,lambdaerrTotal2_tab, lambdaerrTotal2_high_tab,lambdaerrTotal3_tab, lambdaerrTotal3_high_tab,lambdaerr_tab, lambdaerr_high_tab );
+					if(onia::cpmRange[cpmBin-1]<10)
+						fprintf(SuppFile, "   %1.0f       %1.0f       %1.1f       %1.1f          % 1.3f           -%1.3f          +%1.3f         -%1.3f         +%1.3f         -%1.3f         +%1.3f         -%1.3f         +%1.3f\n",onia::cpmRange[cpmBin-1],onia::cpmRange[cpmBin],onia::pTRange[rapBin][ptBin-1],onia::pTRange[rapBin][ptBin],lambda_tab,lambdaerrTotal1_tab, lambdaerrTotal1_high_tab,lambdaerrTotal2_tab, lambdaerrTotal2_high_tab,lambdaerrTotal3_tab, lambdaerrTotal3_high_tab,lambdaerr_tab, lambdaerr_high_tab );
 					else
-						fprintf(SuppFile, "  %1.0f       %1.0f       %1.1f       %1.1f          % 1.3f           -%1.3f          +%1.3f         -%1.3f         +%1.3f         -%1.3f         +%1.3f         -%1.3f         +%1.3f\n",onia::pTRange[rapBin][ptBin-1],onia::pTRange[rapBin][ptBin],onia::rapForPTRange[rapBin-1],onia::rapForPTRange[rapBin],lambda_tab,lambdaerrTotal1_tab, lambdaerrTotal1_high_tab,lambdaerrTotal2_tab, lambdaerrTotal2_high_tab,lambdaerrTotal3_tab, lambdaerrTotal3_high_tab,lambdaerr_tab, lambdaerr_high_tab );
+						fprintf(SuppFile, "  %1.0f       %1.0f       %1.1f       %1.1f          % 1.3f           -%1.3f          +%1.3f         -%1.3f         +%1.3f         -%1.3f         +%1.3f         -%1.3f         +%1.3f\n",onia::cpmRange[cpmBin-1],onia::cpmRange[cpmBin],onia::pTRange[rapBin][ptBin-1],onia::pTRange[rapBin][ptBin],lambda_tab,lambdaerrTotal1_tab, lambdaerrTotal1_high_tab,lambdaerrTotal2_tab, lambdaerrTotal2_high_tab,lambdaerrTotal3_tab, lambdaerrTotal3_high_tab,lambdaerr_tab, lambdaerr_high_tab );
 
-					pt++;
+					cpm++;
 
 
 				}
 
-
-
+				pt++;
+				if(ptBin==2) fprintf(SuppFile,"\n");
+				}
 				rap++;
 
-				if(nState < 5 && rapBin==2) fprintf(SuppFile,"\n");
-				if(nState ==5 && rapBin==3) fprintf(SuppFile,"\n");
+				
+
 
 			}//end rapBin
 

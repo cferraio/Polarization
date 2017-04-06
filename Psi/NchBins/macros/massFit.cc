@@ -108,7 +108,10 @@ if(nState==5){
 
 		ws->var("CBmass_p2")->setVal(0.);
 		ws->var("CBmass_p2")->setConstant(kTRUE);
-
+		
+		ws->var("CBalpha_p0")->setVal(1.85);
+		ws->var("CBalpha_p0")->setConstant(kTRUE);
+		
 		ws->var("CBalpha_p1")->setVal(0.);
 		ws->var("CBalpha_p1")->setConstant(kTRUE);
 
@@ -140,6 +143,9 @@ if(nState==5){
 
 		ws->var("CBmass_p2")->setVal(0.);
 		ws->var("CBmass_p2")->setConstant(kTRUE);
+		
+		ws->var("CBalpha_p0")->setVal(1.85);
+		ws->var("CBalpha_p0")->setConstant(kTRUE);
 
 		ws->var("CBalpha_p1")->setVal(0.);
 		ws->var("CBalpha_p1")->setConstant(kTRUE);

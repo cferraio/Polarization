@@ -12,7 +12,7 @@ storagedir=/data/users/ferraioc/Polarization/JPsi/NchBins/ToyMC
 
 ########## INPUTS ##########
 
-for nState in 4; do
+for nState in 4 5; do
 
 cp ../../interface/rootIncludes.inc               rootIncludes.inc
 cp ../../interface/commonVar_Psi$[nState-3]S.h    commonVar.h
@@ -21,7 +21,10 @@ cp ../../interface/effsAndCuts_Psi$[nState-3]S.h  effsAndCuts.h
 touch polRapPtPlot.cc
 make
 
-for JobID in FrameworkIII_19May2016; do
+#for param in 1066; do #comment out for non TnP param systs along with "done" near the end
+
+for JobID in FrameworkII_Psi$[nState-3]_ThirdResult_ForPreApproval; do
+#FrameworkII_Psi1_ThirdResult_ForPreApproval
 #for JobID in ToyMC_Psi$[nState-3]S_13Dec2012; do
 
 echo ${JobID}
@@ -32,19 +35,21 @@ then
 ptBinMin=1
 ptBinMax=2
 cpmBinMin=1
-cpmBinMax=10
+cpmBinMax=12
 fi
 if [ $nState -eq 5 ]
 then
-ptBinMin=2
-ptBinMax=6
+ptBinMin=1
+ptBinMax=2
+cpmBinMin=1
+cpmBinMax=5
 fi
 
-frameSig=1
-for polScenSig in 3;do
+frameSig=3
+for polScenSig in 1 2 4 5;do
 
-frameBkg=1
-for polScenBkg in 4;do
+frameBkg=3
+for polScenBkg in 1;do
 
 nGenerations=50
 
@@ -60,11 +65,11 @@ cd ${basedir}/macros/polFit
 rapBinMin=1 #don't change
 if [ $nState -eq 4 ]
 then
-rapBinMax=2 #don't change
+rapBinMax=1 #don't change
 fi
 if [ $nState -eq 5 ]
 then
-rapBinMax=3 #don't change
+rapBinMax=1 #don't change
 fi
 
 ScenDir=Sig_frame${frameSig}scen${polScenSig}_Bkg_frame${frameBkg}scen${polScenBkg}
@@ -128,6 +133,8 @@ rm polRapPtPlot
 done
 done
 done
+
+#done #comment out for non TnP param systs 
 
 cd ${basedir}/macros/polFit
 rm polRapPtPlot

@@ -61,6 +61,8 @@ int main(int argc, char* argv[]){
       cpmMax = 999,
       nState = 999,
       Plotting = 999;
+      
+      bool fitmass2gaus;
 
     // Loop over argument list
     for (int i=1; i < argc; i++)
@@ -73,6 +75,7 @@ int main(int argc, char* argv[]){
         fromSplit("cpmMin", arg, cpmMin);
         fromSplit("cpmMax", arg, cpmMax);
         fromSplit("nState", arg, nState);
+        fromSplit("fitmass2gaus", arg, fitmass2gaus);
 	fromSplit("Plotting", arg, Plotting);
       }
 
@@ -91,7 +94,7 @@ int main(int argc, char* argv[]){
 	temp << "tmpFiles/fit_Psi" << nState-3 << "S_rap" << iRap << "_pt" << iPT << "_cpm" << icpm << ".root";
 	const std::string infilename = temp.str().c_str();
 
-	PlotMassLifetime(infilename.c_str(), iRap, iPT, icpm, nState, Plotting);
+	PlotMassLifetime(infilename.c_str(), iRap, iPT, icpm, nState, Plotting, fitmass2gaus);
         }
       }
     }

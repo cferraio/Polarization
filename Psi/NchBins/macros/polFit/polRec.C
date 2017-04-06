@@ -318,25 +318,6 @@ void polRec(double rapdilepton_min = 1,
 		TEff_nDenominatorAmap=(TEfficiency*) fInEff_nDenominatorAmap->Get(EffType);
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	double mass_min = mass_signal_peak - n_sigmas_signal*mass_signal_sigma;
 	double mass_max = mass_signal_peak + n_sigmas_signal*mass_signal_sigma;
 
@@ -352,6 +333,7 @@ void polRec(double rapdilepton_min = 1,
 	// create output data file
 
 	sprintf(filename,"%s/data.root",dirstruct);
+	cout<<filename<<endl;
 	TFile* dataFile = new TFile(filename, "RECREATE", "dataFile");
 
 

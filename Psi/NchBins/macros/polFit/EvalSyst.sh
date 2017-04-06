@@ -12,24 +12,24 @@ storagedir=`more storagedir`
 
 ########## INPUTS ##########
 
-for nState in 4;do
+for nState in 4 5;do
 
 
 #this is the systematic error!!! 
 #ifCorrectCentralResultsForBias: here is the central
-for JobID1 in 19May16_MassUpdateFixedErrBars_FracL75; do
+for JobID1 in ThirdResults_ForPreApproval_fracL75; do
 
 #this is the default!!!
 #JobID2=Psi$[nState-3]S_fLSB0_18March2013 #default_Linlin_20March2013   
-JobID2=19May16_MassUpdateFixedErrBars_FracL25
+JobID2=ThirdResults_ForPreApproval_fracL25
 
 #define name of the directory
-SystID=BackgroundModel_19May16
+SystID=BackgroundModelSQRT12_ThirdResults_ForPreapproval
 
 if [ $nState -eq 4 ]
 then
 cpmBinMin=1
-cpmBinMax=10
+cpmBinMax=12
 ptBinMin=1
 ptBinMax=2
 rapBinMin=1
@@ -40,15 +40,15 @@ then
 cpmBinMin=1
 cpmBinMax=5
 ptBinMin=1
-ptBinMax=5
+ptBinMax=2
 rapBinMin=1
-rapBinMax=3
+rapBinMax=1
 fi
 
 statErrConsideration=false
 centralsPlusSyst=false #take one from centrals and one from systematics
 differentErrors=false #'take central value from JobID2, take error from JobID1'
-sqrt12=false #divide mean value by sqrt12
+sqrt12=true #divide mean value by sqrt12, do this for background model uncertainty
 removeFirstPoint=false
 TU=false #calculate mean = sqrt(error1^2 - error2^2)
 ########################################

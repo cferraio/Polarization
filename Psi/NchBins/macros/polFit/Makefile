@@ -4,9 +4,12 @@ LIBS=$(shell root-config --libs)
 %.o : %.cc
 	$(CXX) -c $<
 
-#all: polRapPtPlot polGenRecFitPlot EvaluateSyst PlotFinalResults MattsResults AverageSystematics ChangeTGraph AlterPPD
-all: polRapPtPlot polGenRecFitPlot PlotFinalResults
+#all: polRapPtPlot polGenRecFitPlot EvaluateSyst PlotFinalResults MattsResults AverageSystematics ChangeTGraph AlterPPD InterpolateLifeSyst
+all: polRapPtPlot polGenRecFitPlot AverageSystematics PlotFinalResults EvaluateSyst  AlterPPD
 
+InterpolateLifeSyst: InterpolateLifeSyst.cc
+	$(CXX) $^ -o $@ $(LIBS) -lFoam -lMinuit
+	
 polRapPtPlot: polRapPtPlot.cc
 	$(CXX) $^ -o $@ $(LIBS) -lFoam -lMinuit
 
@@ -32,4 +35,4 @@ AlterPPD: AlterPPD.cc
 	$(CXX) $^ -o $@ $(LIBS) -lFoam -lMinuit
 									
 clean: 
-	rm polRapPtPlot polGenRecFitPlot EvaluateSyst PlotFinalResults MattsResults AverageSystematics ChangeTGraph AlterPPD*.o
+	rm polRapPtPlot polGenRecFitPlot EvaluateSyst PlotFinalResults MattsResults InterpolateLifeSyst ChangeTGraph AlterPPD*.o

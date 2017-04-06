@@ -277,7 +277,7 @@ void createWorkspace(const std::string &infilename, int nState, bool correctCtau
 			rapPtLine->SetLineWidth( 2 );
 			rapPtLine->SetLineStyle( 1 );
 			rapPtLine->SetLineColor( kWhite );
-			rapPtLine->Draw();
+//			rapPtLine->Draw();
 			int pTBegin = 0;
 			if(nState==5) pTBegin = 1;
 			for(int iPt=pTBegin;iPt<onia::kNbPTBins[iRap]+1;iPt++){

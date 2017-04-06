@@ -7,7 +7,7 @@ using namespace RooFit;
 using namespace onia;
 
 double calcuFracL(RooWorkspace *ws, double mean, double sigma);
-void PlotMassPar(int  nState=4);
+void PlotMassPar(int  nState=4, bool fitmass2gaus = false);
 void PlotLifePar(int  nState=4);
 void PlotBFrac_1S(int  nState=4);
 void PlotBFrac_2S(int  nState=5);
@@ -17,10 +17,10 @@ double ctMin = -2., ctMax = 6.;
 int fineBins=8000;
 double legendsize=0.035;
 vector<double> getSigma(RooWorkspace *ws, RooDataSet *dataJpsictErr, int rapBin, int ptBin, int cpmBin);
-void evaluate(double nSigma=2.5, int nState=4, int type=0, bool doCtauUncer=false); 
+void evaluate(double nSigma=2.5, int nState=4, int type=0, bool doCtauUncer=false, bool fitmass2gaus = false); 
 // type=0: PR(-ctau,ctau); type=1: NP(ctau,+infinity)
 void plotEval(double nSigma=2.5, int nState=4, int type=0); 
-void evaluateCtauCut(double nSigma=2.5, int nState=4, int type=0, bool doCtauUncer=false);
+void evaluateCtauCut(double nSigma=2.5, int nState=4, int type=0, bool doCtauUncer=false, bool fitmass2gaus=false);
 vector<double> calculateInte(RooWorkspace *ws, RooDataSet *dataJpsictErr, double ctCutMin, double ctCutMax);
 
 //========================================================
@@ -67,15 +67,17 @@ int main(int argc, char* argv[]){
 	// set default values
 	int nState = 999;
 	bool doCtauUncer = false;
+	bool fitmass2gaus = false;
 
 	// Loop over argument list                                                                                                                                                       
 	for (int i=1; i < argc; i++){
 		std::string arg = argv[i];
 		fromSplit("nState", arg, nState);
 		fromSplit("doCtauUncer", arg, doCtauUncer);
+		fromSplit("fitmass2gaus", arg, fitmass2gaus);
 	}
 
-	PlotMassPar(nState);
+	PlotMassPar(nState, fitmass2gaus);
 	PlotLifePar(nState);
 	if(nState==4)
 		PlotBFrac_1S(nState);
@@ -86,15 +88,17 @@ int main(int argc, char* argv[]){
 	if(nState==4) nSigma=3.0; //2.5
 	if(nState==5) nSigma=3.0; //2.0
 	//nSigma = -1;
-	evaluateCtauCut(nSigma, nState, 0, doCtauUncer);
-	evaluateCtauCut(nSigma, nState, 1, doCtauUncer);
+	cout<<"doing prompt"<<endl;
+	evaluateCtauCut(nSigma, nState, 0, doCtauUncer, fitmass2gaus);
+	cout<<"doing nonprompt"<<endl;
+	evaluateCtauCut(nSigma, nState, 1, doCtauUncer, fitmass2gaus);
 
 	return 0;
 }
 
 //=============================================
 //edit
-void PlotMassPar(int  nState){
+void PlotMassPar(int  nState, bool fitmass2gaus){
 	int RapBins = onia::kNbRapForPTBins,
 			PtBins  = onia::kNbPTMaxBins,
 			CpmBins  = onia::NchBins;
@@ -192,17 +196,74 @@ void PlotMassPar(int  nState){
 			if(!ws){ cout<<">>=======Error: no workspace in root file=========="<<endl; continue; }
 			RooRealVar JpsiMass(*ws->var("JpsiMass"));
 			data=(RooDataSet *)ws->data(Form("data_rap%d_pt%d_cpm%d",rapBin,ptBin,cpmBin));
+			
+			double Mean;
+			double MeanErr;
+			double jpsirap;
+			double jpsiraperr;
+			double cbsigp0;
+			double cbsigp1;
+			double cbsigp2;
+			double cbsigp0Err;
+			double cbsigp1Err;
+			double cbsigp2Err;
+			double Alpha;
+			double AlphaErr;
+			double cbN;
+			double cbNErr;
+			double lambda;
+			double lambdaErr;
+			double Sigma;
+			double SigmaErr;
+			double fracBkg;
+			double fracBkgErr;
+			double SigmaWei;
+			double SigmaWeiErr;
+			double Sigma2;
+			double Sigma2Err;
+			double fracCB1;
+			double fracCB1Err;
 
-			//RooRealVar *CBmass=(RooRealVar *)ws->var("CBmass");
-			//RooRealVar *CBsigma=(RooRealVar *)ws->var("CBsigma");
-			//RooRealVar *CBsigma2=(RooRealVar *)ws->var("CBsigma2");
-			//RooRealVar *CBalpha=(RooRealVar *)ws->var("CBalpha");
-			//RooRealVar *CBn=(RooRealVar *)ws->var("CBn");
-			//RooRealVar *bkgLambda=(RooRealVar *)ws->var("bkgLambda");
-			//RooRealVar *fracCB1_=(RooRealVar *)ws->var("fracCB1");
-			//RooRealVar *fracBkg_=(RooRealVar *)ws->var("fracBkg");
+
+			if(fitmass2gaus){
+			RooRealVar *CBmass=(RooRealVar *)ws->var("CBmass");
+			RooRealVar *CBsigma=(RooRealVar *)ws->var("CBsigma");
+			RooRealVar *CBsigma2=(RooRealVar *)ws->var("CBsigma2");
+			RooRealVar *CBalpha=(RooRealVar *)ws->var("CBalpha");
+			RooRealVar *CBn=(RooRealVar *)ws->var("CBn");
+			RooRealVar *bkgLambda=(RooRealVar *)ws->var("bkgLambda");
+			RooRealVar *fracCB1_=(RooRealVar *)ws->var("fracCB1");
+			RooRealVar *fracBkg_=(RooRealVar *)ws->var("fracBkg");
+
+			 Mean = CBmass->getVal();
+			 MeanErr = CBmass->getError();
+			 Sigma = CBsigma->getVal();
+			 SigmaErr = CBsigma->getError();
+			 Sigma2 = CBsigma2->getVal();
+			 Sigma2Err = CBsigma2->getError();
+			 Alpha = CBalpha->getVal();
+			 AlphaErr = CBalpha->getError();
+			 cbN = CBn->getVal();
+			 cbNErr = CBn->getError();
+			 lambda = bkgLambda->getVal();
+			 lambdaErr = bkgLambda->getError();
+			 fracCB1 = fracCB1_->getVal();
+			 fracCB1Err = fracCB1_->getError();
+			 fracBkg = fracBkg_->getVal();
+			 fracBkgErr = fracBkg_->getError();
+			 SigmaWei = sqrt(pow(Sigma,2)*fracCB1+pow(Sigma2,2)*(1-fracCB1));
+			 SigmaWeiErr =  (1./(2*SigmaWei))*
+				sqrt(pow((pow(Sigma,2)-pow(Sigma2,2))*fracCB1Err,2) + pow(2*fracCB1*Sigma*SigmaErr,2) + pow(2*(1-fracCB1)*Sigma2*Sigma2Err,2) );
+
+			if(Sigma > Sigma2){
+				fracCB1 = 1-fracCB1;
+				 double temp = 0.;
+				temp = Sigma; Sigma = Sigma2; Sigma2 = temp;
+				temp = SigmaErr; SigmaErr = Sigma2Err; Sigma2Err = temp;
+			}
+			}
 			
-			
+			if(!fitmass2gaus) {
 			RooRealVar *bkgLambda=(RooRealVar *)ws->var("bkgLambda");
 			RooRealVar *CBn=(RooRealVar *)ws->var("CBn");
 			RooRealVar *CBalpha=(RooRealVar *)ws->var("CBalpha_p0");
@@ -213,44 +274,31 @@ void PlotMassPar(int  nState){
 			RooRealVar *CBsigma_p2 = ws->var("CBsigma_p2");
 			RooRealVar *fracBkg_=(RooRealVar *)ws->var("fracBkg");
 	
-			double Mean = CBmass->getVal();
-			double MeanErr = CBmass->getError();
-			//double Sigma = CBsigma->getVal();
-			//double SigmaErr = CBsigma->getError();
-			//double Sigma2 = CBsigma2->getVal();
-			//double Sigma2Err = CBsigma2->getError();
-			double jpsirap = JpsiRap->getVal();
-			double jpsiraperr = JpsiRap->getError();
-			double cbsigp0 = CBsigma_p0->getVal();
-			double cbsigp1 = CBsigma_p1->getVal();
-			double cbsigp2 = CBsigma_p2->getVal();
-			double cbsigp0Err = CBsigma_p0->getError();
-			double cbsigp1Err = CBsigma_p1->getError();
-			double cbsigp2Err = CBsigma_p2->getError();
-			double Alpha = CBalpha->getVal();
-			double AlphaErr = CBalpha->getError();
-			double cbN = CBn->getVal();
-			double cbNErr = CBn->getError();
-			double lambda = bkgLambda->getVal();
-			double lambdaErr = bkgLambda->getError();
-			double Sigma = cbsigp0 + cbsigp1*jpsirap + cbsigp2*pow(jpsirap,2);
-			double SigmaErr = cbsigp0Err;
+			 Mean = CBmass->getVal();
+			 MeanErr = CBmass->getError();
+			 jpsirap = JpsiRap->getVal();
+			 jpsiraperr = JpsiRap->getError();
+			 cbsigp0 = CBsigma_p0->getVal();
+			 cbsigp1 = CBsigma_p1->getVal();
+			 cbsigp2 = CBsigma_p2->getVal();
+			 cbsigp0Err = CBsigma_p0->getError();
+			 cbsigp1Err = CBsigma_p1->getError();
+			 cbsigp2Err = CBsigma_p2->getError();
+			 Alpha = CBalpha->getVal();
+			 AlphaErr = CBalpha->getError();
+			 cbN = CBn->getVal();
+			 cbNErr = CBn->getError();
+			 lambda = bkgLambda->getVal();
+			 lambdaErr = bkgLambda->getError();
+			 Sigma = cbsigp0 + cbsigp1*jpsirap + cbsigp2*pow(jpsirap,2);
+			 SigmaErr = cbsigp0Err;
 			cout<<"sigma error is "<<SigmaErr<<endl;
-			//double fracCB1 = fracCB1_->getVal();
-			//double fracCB1Err = fracCB1_->getError();
-			double fracBkg = fracBkg_->getVal();
-			double fracBkgErr = fracBkg_->getError();
-			//double SigmaWei = sqrt(pow(Sigma,2)*fracCB1+pow(Sigma2,2)*(1-fracCB1));
-			double SigmaWei = cbsigp0 + cbsigp1*jpsirap + cbsigp2*pow(jpsirap,2);
-			//double SigmaWeiErr =  (1./(2*SigmaWei))*sqrt(pow((pow(Sigma,2)-pow(Sigma2,2))*fracCB1Err,2) + pow(2*fracCB1*Sigma*SigmaErr,2) + pow(2*(1-fracCB1)*Sigma2*Sigma2Err,2) );
-				double SigmaWeiErr = SigmaErr;
-/*			if(Sigma > Sigma2){
-				fracCB1 = 1-fracCB1;
-				double temp = 0.;
-				temp = Sigma; Sigma = Sigma2; Sigma2 = temp;
-				temp = SigmaErr; SigmaErr = Sigma2Err; Sigma2Err = temp;
+			 fracBkg = fracBkg_->getVal();
+			 fracBkgErr = fracBkg_->getError();
+			 SigmaWei = cbsigp0 + cbsigp1*jpsirap + cbsigp2*pow(jpsirap,2);
+			 SigmaWeiErr = SigmaErr;
 			}
-*/
+			
 			double sigMaxMass = Mean+SigmaWei*onia::nSigMass;
 			double sigMinMass = Mean-SigmaWei*onia::nSigMass;
 			double sbHighMass = Mean+SigmaWei*onia::nSigBkgHigh;
@@ -353,7 +401,7 @@ void PlotMassPar(int  nState){
 			sigmaWei[rapBin-1][ptBin-1][cpmBin-1] = SigmaWei*1000;
 			bkgRatio3Sig[rapBin-1][ptBin-1][cpmBin-1] = BkgRatio3Sig;
 			sigma1[rapBin-1][ptBin-1][cpmBin-1] = Sigma*1000;
-			//sigma2[rapBin-1][ptBin-1][cpmBin-1] = Sigma2*1000;
+			sigma2[rapBin-1][ptBin-1][cpmBin-1] = Sigma2*1000;
 
 			alphaCB[rapBin-1][ptBin-1][cpmBin-1] = Alpha;
 			lambdaBG[rapBin-1][ptBin-1][cpmBin-1] = -lambda;
@@ -363,7 +411,7 @@ void PlotMassPar(int  nState){
 			sigmaWeiErr[rapBin-1][ptBin-1][cpmBin-1] = SigmaWeiErr*1000;
 			bkgRatio3SigErr[rapBin-1][ptBin-1][cpmBin-1] = BkgRatio3SigErr;
 			sigma1Err[rapBin-1][ptBin-1][cpmBin-1] = SigmaErr*1000;
-			//sigma2Err[rapBin-1][ptBin-1][cpmBin-1] = Sigma2Err*1000;
+			sigma2Err[rapBin-1][ptBin-1][cpmBin-1] = Sigma2Err*1000;
 
 			alphaCBErr[rapBin-1][ptBin-1][cpmBin-1] = AlphaErr;
 			lambdaBGErr[rapBin-1][ptBin-1][cpmBin-1] = lambdaErr;
@@ -379,7 +427,7 @@ void PlotMassPar(int  nState){
 			cout<<"sigmaWei: "<<sigmaWei[rapBin-1][ptBin-1][cpmBin-1]<<"    sigmaWeiErr: "<<sigmaWeiErr[rapBin-1][ptBin-1][cpmBin-1]<<endl;
 			cout<<"bkgRatio3Sig: "<<bkgRatio3Sig[rapBin-1][ptBin-1][cpmBin-1]<<"    bkgRatio3SigErr: "<<bkgRatio3SigErr[rapBin-1][ptBin-1][cpmBin-1]<<endl;
 			cout<<"sigma1: "<<sigma1[rapBin-1][ptBin-1][cpmBin-1]<<"    sigma1Err: "<<sigma1Err[rapBin-1][ptBin-1][cpmBin-1]<<endl;
-//			cout<<"sigma2: "<<sigma2[rapBin-1][ptBin-1][cpmBin-1]<<"    sigma2Err: "<<sigma2Err[rapBin-1][ptBin-1][cpmBin-1]<<endl;
+			cout<<"sigma2: "<<sigma2[rapBin-1][ptBin-1][cpmBin-1]<<"    sigma2Err: "<<sigma2Err[rapBin-1][ptBin-1][cpmBin-1]<<endl;
 			cout<<"evtBkgSB: "<<evtBkgSB[rapBin-1][ptBin-1][cpmBin-1]<<"    evtBkgSBErr: "<<evtBkgSBErr[rapBin-1][ptBin-1][cpmBin-1]<<endl;
 			cout<<"fracLSB: "<<fracLSB[rapBin-1][ptBin-1][cpmBin-1]<<"    fracLSBErr: "<<fracLSBErr[rapBin-1][ptBin-1][cpmBin-1]<<endl;
 			cout<<"alphaCB: "<<alphaCB[rapBin-1][ptBin-1][cpmBin-1]<<"    alphaCBErr: "<<alphaCBErr[rapBin-1][ptBin-1][cpmBin-1]<<endl;
@@ -394,7 +442,7 @@ void PlotMassPar(int  nState){
 
 	RooRealVar JpsiMass(*ws->var("JpsiMass"));
 	TGraphErrors *graph_mean[RapBins][PtBins], *graph_sigmaWei[RapBins][PtBins], *graph_bkgRatio3Sig[RapBins][PtBins],
-							 *graph_sigma1[RapBins][PtBins], //*graph_sigma2[RapBins][PtBins],
+							 *graph_sigma1[RapBins][PtBins], *graph_sigma2[RapBins][PtBins],
 							 *graph_evtBkgSB[RapBins][PtBins],
 							 *graph_fracLSB[RapBins][PtBins], *graph_alphaCB[RapBins][PtBins], *graph_lambdaBG[RapBins][PtBins], 
 							 *graph_fracSigInLSB[RapBins][PtBins], *graph_fracSigInRSB[RapBins][PtBins], *graph_evtInLSB[RapBins][PtBins],
@@ -410,8 +458,8 @@ void PlotMassPar(int  nState){
 				cpm[rapBin-1][ptBin-1], bkgRatio3Sig[rapBin-1][ptBin-1], cpmErr[rapBin-1][ptBin-1], bkgRatio3SigErr[rapBin-1][ptBin-1]);
 		graph_sigma1[rapBin-1][ptBin-1] = new TGraphErrors(CpmBins,
 				cpm[rapBin-1][ptBin-1], sigma1[rapBin-1][ptBin-1], cpmErr[rapBin-1][ptBin-1], sigma1Err[rapBin-1][ptBin-1]);
-		//graph_sigma2[rapBin-1][ptBin-1] = new TGraphErrors(CpmBins,
-			//	cpm[rapBin-1][ptBin-1], sigma2[rapBin-1][ptBin-1], cpmErr[rapBin-1][ptBin-1], sigma2Err[rapBin-1][ptBin-1]);
+		graph_sigma2[rapBin-1][ptBin-1] = new TGraphErrors(CpmBins,
+				cpm[rapBin-1][ptBin-1], sigma2[rapBin-1][ptBin-1], cpmErr[rapBin-1][ptBin-1], sigma2Err[rapBin-1][ptBin-1]);
 		graph_evtBkgSB[rapBin-1][ptBin-1] = new TGraphErrors(CpmBins,
 				cpm[rapBin-1][ptBin-1], evtBkgSB[rapBin-1][ptBin-1], cpmErr[rapBin-1][ptBin-1], evtBkgSBErr[rapBin-1][ptBin-1]);
 		graph_fracLSB[rapBin-1][ptBin-1] = new TGraphErrors(CpmBins,
@@ -431,22 +479,7 @@ void PlotMassPar(int  nState){
 		graph_fracBkgInRSB[rapBin-1][ptBin-1] = new TGraphErrors(CpmBins,
 				cpm[rapBin-1][ptBin-1], fracBkgInRSB[rapBin-1][ptBin-1], cpmErr[rapBin-1][ptBin-1], fracBkgInRSBErr[rapBin-1][ptBin-1]);
 
-		//remove first pT bin for 2S
-		if(nState==5){
-			//graph_mean[rapBin-1][ptBin-1]         -> RemovePoint(0);
-			//graph_sigmaWei[rapBin-1][ptBin-1]     -> RemovePoint(0);
-			//graph_bkgRatio3Sig[rapBin-1][ptBin-1] -> RemovePoint(0);
-			//graph_sigma1[rapBin-1][ptBin-1]       -> RemovePoint(0);
-			//graph_sigma2[rapBin-1][ptBin-1]       -> RemovePoint(0);
-			//graph_evtBkgSB[rapBin-1][ptBin-1]     -> RemovePoint(0);
-			//graph_fracLSB[rapBin-1][ptBin-1]      -> RemovePoint(0);
-			//graph_alphaCB[rapBin-1][ptBin-1]      -> RemovePoint(0);
-			//graph_fracSigInLSB[rapBin-1][ptBin-1] -> RemovePoint(0);
-			//graph_fracSigInRSB[rapBin-1][ptBin-1] -> RemovePoint(0);
-			//graph_evtInLSB[rapBin-1][ptBin-1]     -> RemovePoint(0);
-			//graph_fracBkgInLSB[rapBin-1][ptBin-1] -> RemovePoint(0);
-			//graph_fracBkgInRSB[rapBin-1][ptBin-1] -> RemovePoint(0);
-		}
+
 	}}
 
 	//double blX = 0.17-0.05, blY = 0.70+0.05, trX = 0.4-0.05, trY = 0.84+0.05;
@@ -457,23 +490,31 @@ void PlotMassPar(int  nState){
 //	legend->SetTextFont(42);
 	legend->SetTextSize(legendsize);
 	legend->SetBorderSize(0.);
-	legend->AddEntry(graph_mean[0][0],"0.0 < |y| < 1.2, 14 < p_T < 25 GeV","lp");
-	legend->AddEntry(graph_mean[0][1],"0.0 < |y| < 1.2, 25 < p_T < 50 GeV","lp");
-	if(nState==6)
-		legend->AddEntry(graph_mean[0][2],"1.2 < |y| < 1.5","lp");
-
+	if(nState==5){
+		legend->AddEntry(graph_mean[0][0],"0.0 < |y| < 1.5, 14 < p_T < 20 GeV","lp");
+		legend->AddEntry(graph_mean[0][1],"0.0 < |y| < 1.5, 20 < p_T < 35 GeV","lp");
+	}
+	if(nState==4){
+		legend->AddEntry(graph_mean[0][0],"0.0 < |y| < 1.2, 14 < p_T < 20 GeV","lp");
+		legend->AddEntry(graph_mean[0][1],"0.0 < |y| < 1.2, 20 < p_T < 35 GeV","lp");
+	}
 	TLegend* legendFull=new TLegend(blX,blY,trX,trY);
 	legendFull->SetFillColor(kWhite);
 //	legendFull->SetTextFont(42);
 	legendFull->SetTextSize(legendsize);
 	legendFull->SetBorderSize(0.);
-	legendFull->AddEntry(graph_sigma1[0][0],"0.0 < |y| < 1.2, 14 < p_T < 25 GeV #sigma_{1}","lp");
-	//legendFull->AddEntry(graph_sigma2[0][0],"0.0 < |y| < 1.2, 14 < p_T < 25 GeV #sigma_{2}","lp");
-	legendFull->AddEntry(graph_sigma1[0][1],"0.0 < |y| < 1.2, 25 < p_T < 50 GeV #sigma_{1}","lp");
-	//legendFull->AddEntry(graph_sigma2[0][1],"0.0 < |y| < 1.2, 25 < p_T < 50 GeV #sigma_{2}","lp");
-	if(nState==6){
-		legendFull->AddEntry(graph_sigma1[0][2],"1.2 < |y| < 1.5 #sigma_{1}","lp");
-		//legendFull->AddEntry(graph_sigma2[0][2],"1.2 < |y| < 1.5 #sigma_{2}","lp");
+	
+	if(nState==5){
+		legendFull->AddEntry(graph_sigma1[0][0],"0.0 < |y| < 1.5, 14 < p_T < 20 GeV #sigma_{1}","lp");
+		legendFull->AddEntry(graph_sigma2[0][0],"0.0 < |y| < 1.5, 14 < p_T < 20 GeV #sigma_{2}","lp");
+		legendFull->AddEntry(graph_sigma1[0][1],"0.0 < |y| < 1.5, 20 < p_T < 35 GeV #sigma_{1}","lp");
+		legendFull->AddEntry(graph_sigma2[0][1],"0.0 < |y| < 1.5, 20 < p_T < 35 GeV #sigma_{2}","lp");
+	}
+	if(nState==4){
+		legendFull->AddEntry(graph_sigma1[0][0],"0.0 < |y| < 1.2, 14 < p_T < 20 GeV #sigma_{1}","lp");
+		legendFull->AddEntry(graph_sigma2[0][0],"0.0 < |y| < 1.2, 14 < p_T < 20 GeV #sigma_{2}","lp");
+		legendFull->AddEntry(graph_sigma1[0][1],"0.0 < |y| < 1.2, 20 < p_T < 35 GeV #sigma_{1}","lp");
+		legendFull->AddEntry(graph_sigma2[0][1],"0.0 < |y| < 1.2, 20 < p_T < 35 GeV #sigma_{2}","lp");
 	}
 
 	//0.75,0.75,0.82,0.84
@@ -487,11 +528,14 @@ void PlotMassPar(int  nState){
 //	legendRight->SetTextFont(42);
 	legendRight->SetTextSize(legendsize);
 	legendRight->SetBorderSize(0.);
-	legendRight->AddEntry(graph_mean[0][0],"0.0 < |y| < 1.2, 14 < p_T < 25 GeV","lp");
-	legendRight->AddEntry(graph_mean[0][1],"0.0 < |y| < 1.2, 25 < p_T < 50 GeV","lp");
-	if(nState==6)
-		legendRight->AddEntry(graph_mean[0][2],"1.2 < |y| < 1.5","lp");
-
+	if(nState==5){
+		legendRight->AddEntry(graph_mean[0][0],"0.0 < |y| < 1.5, 14 < p_T < 20 GeV","lp");
+		legendRight->AddEntry(graph_mean[0][1],"0.0 < |y| < 1.5, 20 < p_T < 35 GeV","lp");
+	}
+	if(nState==4){
+		legendRight->AddEntry(graph_mean[0][0],"0.0 < |y| < 1.2, 14 < p_T < 20 GeV","lp");
+		legendRight->AddEntry(graph_mean[0][1],"0.0 < |y| < 1.2, 20 < p_T < 35 GeV","lp");
+	}
 	//blX = 0.625+0.05; blY = 0.60+0.05; trX = 0.825+0.05; trY = 0.84+0.05;
 	//blX = 0.725; blY = 0.7; trX = 0.925; trY = 0.94;
 	blX = 0.35; blY = 0.7; trX = 0.96; trY = 0.96;
@@ -500,13 +544,16 @@ void PlotMassPar(int  nState){
 //	legendRightFull->SetTextFont(42);
 	legendRightFull->SetTextSize(legendsize);
 	legendRightFull->SetBorderSize(0.);
-	legendRightFull->AddEntry(graph_sigma1[0][0],"0.0 < |y| < 1.2, 14 < p_T < 25 GeV #sigma_{1}","lp");
-	//legendRightFull->AddEntry(graph_sigma2[0][1],"0.0 < |y| < 1.2, 14 < p_T < 25 GeV #sigma_{2}","lp");
-	legendRightFull->AddEntry(graph_sigma1[0][0],"0.0 < |y| < 1.2, 25 < p_T < 50 GeV #sigma_{1}","lp");
-	//legendRightFull->AddEntry(graph_sigma2[0][1],"0.0 < |y| < 1.2, 25 < p_T < 50 GeV #sigma_{2}","lp");
-	if(nState==6){
-		legendRightFull->AddEntry(graph_sigma1[0][2],"1.2 < |y| < 1.5 #sigma_{1}","lp");
-//		legendRightFull->AddEntry(graph_sigma2[0][2],"1.2 < |y| < 1.5 #sigma_{2}","lp");
+	if(nState==5){
+		legendRightFull->AddEntry(graph_sigma1[0][0],"0.0 < |y| < 1.5, 14 < p_T < 20 GeV #sigma_{1}","lp");
+		legendRightFull->AddEntry(graph_sigma2[0][1],"0.0 < |y| < 1.5, 14 < p_T < 20 GeV #sigma_{2}","lp");
+		legendRightFull->AddEntry(graph_sigma1[0][0],"0.0 < |y| < 1.5, 20 < p_T < 35 GeV #sigma_{1}","lp");
+		legendRightFull->AddEntry(graph_sigma2[0][1],"0.0 < |y| < 1.5, 20 < p_T < 35 GeV #sigma_{2}","lp");	}
+	if(nState==4){
+		legendRightFull->AddEntry(graph_sigma1[0][0],"0.0 < |y| < 1.2, 14 < p_T < 20 GeV #sigma_{1}","lp");
+		legendRightFull->AddEntry(graph_sigma2[0][1],"0.0 < |y| < 1.2, 14 < p_T < 20 GeV #sigma_{2}","lp");
+		legendRightFull->AddEntry(graph_sigma1[0][0],"0.0 < |y| < 1.2, 20 < p_T < 35 GeV #sigma_{1}","lp");
+		legendRightFull->AddEntry(graph_sigma2[0][1],"0.0 < |y| < 1.2, 20 < p_T < 35 GeV #sigma_{2}","lp");
 	}
 
 	TLegend* legendSigConRightFull=new TLegend(blX,blY,trX,trY);
@@ -514,13 +561,18 @@ void PlotMassPar(int  nState){
 //	legendSigConRightFull->SetTextFont(42);
 	legendSigConRightFull->SetTextSize(legendsize);
 	legendSigConRightFull->SetBorderSize(0.);
-	legendSigConRightFull->AddEntry(graph_fracSigInLSB[0][0],"0.0 < |y| < 1.2, 14 < p_T < 25 GeV LSB","lp");
-	legendSigConRightFull->AddEntry(graph_fracSigInRSB[0][0],"0.0 < |y| < 1.2, 14 < p_T < 25 GeV RSB","lp");
-	legendSigConRightFull->AddEntry(graph_fracSigInLSB[0][1],"0.0 < |y| < 1.2, 25 < p_T < 50 GeV LSB","lp");
-	legendSigConRightFull->AddEntry(graph_fracSigInRSB[0][1],"0.0 < |y| < 1.2, 25 < p_T < 50 GeV RSB","lp");
-	if(nState==6){
-		legendSigConRightFull->AddEntry(graph_fracSigInLSB[0][2],"1.2 < |y| < 1.5 LSB","lp");
-		legendSigConRightFull->AddEntry(graph_fracSigInRSB[0][2],"1.2 < |y| < 1.5 RSB","lp");
+	
+	if(nState==4){
+		legendSigConRightFull->AddEntry(graph_fracSigInLSB[0][0],"0.0 < |y| < 1.2, 14 < p_T < 20 GeV LSB","lp");
+		legendSigConRightFull->AddEntry(graph_fracSigInRSB[0][0],"0.0 < |y| < 1.2, 14 < p_T < 20 GeV RSB","lp");
+		legendSigConRightFull->AddEntry(graph_fracSigInLSB[0][1],"0.0 < |y| < 1.2, 20 < p_T < 35 GeV LSB","lp");
+		legendSigConRightFull->AddEntry(graph_fracSigInRSB[0][1],"0.0 < |y| < 1.2, 20 < p_T < 35 GeV RSB","lp");
+	}
+	if(nState==5){
+		legendSigConRightFull->AddEntry(graph_fracSigInLSB[0][0],"0.0 < |y| < 1.5, 14 < p_T < 20 GeV LSB","lp");
+		legendSigConRightFull->AddEntry(graph_fracSigInRSB[0][0],"0.0 < |y| < 1.5, 14 < p_T < 20 GeV RSB","lp");
+		legendSigConRightFull->AddEntry(graph_fracSigInLSB[0][1],"0.0 < |y| < 1.5, 20 < p_T < 35 GeV LSB","lp");
+		legendSigConRightFull->AddEntry(graph_fracSigInRSB[0][1],"0.0 < |y| < 1.5, 20 < p_T < 35 GeV RSB","lp");
 	}
 
 	gStyle->SetPadBottomMargin(0.11); //0.12
@@ -574,7 +626,7 @@ void PlotMassPar(int  nState){
 	graph_mean[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_mean[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_mean[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_mean[0][2]->SetTitle("");
 		graph_mean[0][2]->GetXaxis()->SetTitle("N_{ch}");
 		graph_mean[0][2]->GetYaxis()->SetTitle("mean (GeV)");
@@ -584,7 +636,7 @@ void PlotMassPar(int  nState){
 		graph_mean[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_mean[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-
+*/
 	Ymin = 0; Ymax = 90;
 
 	graph_sigmaWei[0][0]->SetTitle("");
@@ -603,7 +655,7 @@ void PlotMassPar(int  nState){
 	graph_sigmaWei[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_sigmaWei[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_sigmaWei[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_sigmaWei[0][2]->SetTitle("");
 		graph_sigmaWei[0][2]->GetXaxis()->SetTitle("N_{ch}");
 		graph_sigmaWei[0][2]->GetYaxis()->SetTitle("effective #sigma (MeV)");
@@ -613,7 +665,7 @@ void PlotMassPar(int  nState){
 		graph_sigmaWei[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_sigmaWei[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-
+*/
 	graph_sigma1[0][0]->SetTitle("");
 	graph_sigma1[0][0]->GetXaxis()->SetTitle("N_{ch}");
 	graph_sigma1[0][0]->GetYaxis()->SetTitle("#sigma_{1} (MeV)");
@@ -630,7 +682,7 @@ void PlotMassPar(int  nState){
 	graph_sigma1[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_sigma1[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_sigma1[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_sigma1[0][2]->SetTitle("");
 		graph_sigma1[0][2]->GetXaxis()->SetTitle("N_{ch}");
 		graph_sigma1[0][2]->GetYaxis()->SetTitle("#sigma_{1} (MeV)");
@@ -640,10 +692,10 @@ void PlotMassPar(int  nState){
 		graph_sigma1[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_sigma1[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-
+*/
 	Ymin = 0; Ymax = 90;
 
-/*	graph_sigma2[0][0]->SetTitle("");
+	graph_sigma2[0][0]->SetTitle("");
 	graph_sigma2[0][0]->GetXaxis()->SetTitle("N_{ch}");
 	graph_sigma2[0][0]->GetYaxis()->SetTitle("#sigma_{2} (MeV)");
 	graph_sigma2[0][0]->GetXaxis()->SetLimits(Xmin, Xmax);
@@ -659,7 +711,7 @@ void PlotMassPar(int  nState){
 	graph_sigma2[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_sigma2[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_sigma2[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==5){
+/*	if(nState==4){
 		graph_sigma2[0][2]->SetTitle("");
 		graph_sigma2[0][2]->GetXaxis()->SetTitle("N_{ch}");
 		graph_sigma2[0][2]->GetYaxis()->SetTitle("#sigma_{2} (MeV)");
@@ -689,7 +741,7 @@ void PlotMassPar(int  nState){
 	graph_bkgRatio3Sig[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_bkgRatio3Sig[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_bkgRatio3Sig[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_bkgRatio3Sig[0][2]->SetTitle("");
 		graph_bkgRatio3Sig[0][2]->GetXaxis()->SetTitle("N_{ch}");
 		graph_bkgRatio3Sig[0][2]->GetYaxis()->SetTitle("Bg fraction(#pm3#sigma)");
@@ -699,7 +751,7 @@ void PlotMassPar(int  nState){
 		graph_bkgRatio3Sig[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_bkgRatio3Sig[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-
+*/
 	double x=0,y=0;
 	graph_evtBkgSB[0][0]->GetPoint(0,x,y);
 	//Ymin = 100; Ymax = y*3;
@@ -723,7 +775,7 @@ void PlotMassPar(int  nState){
 	graph_evtBkgSB[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_evtBkgSB[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_evtBkgSB[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_evtBkgSB[0][2]->SetTitle("");
 		graph_evtBkgSB[0][2]->GetXaxis()->SetTitle("N_{ch}");
 		graph_evtBkgSB[0][2]->GetYaxis()->SetTitle("number of events in SB");
@@ -733,7 +785,7 @@ void PlotMassPar(int  nState){
 		graph_evtBkgSB[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_evtBkgSB[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-
+*/
 	Ymin = 0.; Ymax = 1.;
 	graph_fracLSB[0][0]->SetTitle("");
 	graph_fracLSB[0][0]->GetXaxis()->SetTitle("N_{ch}");
@@ -751,7 +803,7 @@ void PlotMassPar(int  nState){
 	graph_fracLSB[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_fracLSB[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracLSB[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_fracLSB[0][2]->SetTitle("");
 		graph_fracLSB[0][2]->GetXaxis()->SetTitle("N_{ch}");
 		graph_fracLSB[0][2]->GetYaxis()->SetTitle("frac_{LSB}");
@@ -761,7 +813,7 @@ void PlotMassPar(int  nState){
 		graph_fracLSB[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_fracLSB[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-
+*/
 	Ymin = 0.5; Ymax = 4.;
 	graph_alphaCB[0][0]->SetTitle("");
 	graph_alphaCB[0][0]->GetXaxis()->SetTitle("N_{ch}");
@@ -779,7 +831,7 @@ void PlotMassPar(int  nState){
 	graph_alphaCB[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_alphaCB[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_alphaCB[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_alphaCB[0][2]->SetTitle("");
 		graph_alphaCB[0][2]->GetXaxis()->SetTitle("N_{ch}");
 		graph_alphaCB[0][2]->GetYaxis()->SetTitle("#alpha_{CB}");
@@ -789,7 +841,7 @@ void PlotMassPar(int  nState){
 		graph_alphaCB[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_alphaCB[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-
+*/
 	Ymin = 0.; Ymax = 4.;
 	graph_lambdaBG[0][0]->SetTitle("");
 	graph_lambdaBG[0][0]->GetXaxis()->SetTitle("N_{ch}");
@@ -807,7 +859,7 @@ void PlotMassPar(int  nState){
 	graph_lambdaBG[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_lambdaBG[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_lambdaBG[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_lambdaBG[0][2]->SetTitle("");
 		graph_lambdaBG[0][2]->GetXaxis()->SetTitle("N_{ch}");
 		graph_lambdaBG[0][2]->GetYaxis()->SetTitle("#lambda_{BG}");
@@ -817,7 +869,7 @@ void PlotMassPar(int  nState){
 		graph_lambdaBG[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_lambdaBG[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-
+*/
 	Ymin = 0.0; Ymax = 0.4;
 	graph_fracSigInLSB[0][0]->SetTitle("");
 	graph_fracSigInLSB[0][0]->GetXaxis()->SetTitle("N_{ch}");
@@ -835,7 +887,7 @@ void PlotMassPar(int  nState){
 	graph_fracSigInLSB[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_fracSigInLSB[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracSigInLSB[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_fracSigInLSB[0][2]->SetTitle("");
 		graph_fracSigInLSB[0][2]->GetXaxis()->SetTitle("N_{ch}");
 		graph_fracSigInLSB[0][2]->GetYaxis()->SetTitle("signal contamination in LSB");
@@ -845,7 +897,7 @@ void PlotMassPar(int  nState){
 		graph_fracSigInLSB[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_fracSigInLSB[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-
+*/
 	Ymin = 0.0; Ymax = 0.4;
 	graph_fracSigInRSB[0][0]->SetTitle("");
 	graph_fracSigInRSB[0][0]->GetXaxis()->SetTitle("N_{ch}");
@@ -863,7 +915,7 @@ void PlotMassPar(int  nState){
 	graph_fracSigInRSB[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_fracSigInRSB[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracSigInRSB[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_fracSigInRSB[0][2]->SetTitle("");
 		graph_fracSigInRSB[0][2]->GetXaxis()->SetTitle("N_{ch}");
 		graph_fracSigInRSB[0][2]->GetYaxis()->SetTitle("signal contamination in RSB");
@@ -873,7 +925,7 @@ void PlotMassPar(int  nState){
 		graph_fracSigInRSB[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_fracSigInRSB[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-
+*/
 	Ymin = 8; Ymax = 1.e6+100;
 	graph_evtInLSB[0][0]->SetTitle("");
 	graph_evtInLSB[0][0]->GetXaxis()->SetTitle("N_{ch}");
@@ -891,7 +943,7 @@ void PlotMassPar(int  nState){
 	graph_evtInLSB[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_evtInLSB[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_evtInLSB[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_evtInLSB[0][2]->SetTitle("");
 		graph_evtInLSB[0][2]->GetXaxis()->SetTitle("N_{ch}");
 		graph_evtInLSB[0][2]->GetYaxis()->SetTitle("number of events in LSB");
@@ -901,7 +953,7 @@ void PlotMassPar(int  nState){
 		graph_evtInLSB[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_evtInLSB[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-
+*/
 	Ymin = 0.5; Ymax = 1.2;
 	graph_fracBkgInLSB[0][0]->SetTitle("");
 	graph_fracBkgInLSB[0][0]->GetXaxis()->SetTitle("N_{ch}");
@@ -919,7 +971,7 @@ void PlotMassPar(int  nState){
 	graph_fracBkgInLSB[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_fracBkgInLSB[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracBkgInLSB[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_fracBkgInLSB[0][2]->SetTitle("");
 		graph_fracBkgInLSB[0][2]->GetXaxis()->SetTitle("N_{ch}");
 		graph_fracBkgInLSB[0][2]->GetYaxis()->SetTitle("Bg fraction in LSB");
@@ -929,7 +981,7 @@ void PlotMassPar(int  nState){
 		graph_fracBkgInLSB[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_fracBkgInLSB[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-
+*/
 	Ymin = 0.5; Ymax = 1.2;
 	graph_fracBkgInRSB[0][0]->SetTitle("");
 	graph_fracBkgInRSB[0][0]->GetXaxis()->SetTitle("N_{ch}");
@@ -947,7 +999,7 @@ void PlotMassPar(int  nState){
 	graph_fracBkgInRSB[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_fracBkgInRSB[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracBkgInRSB[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_fracBkgInRSB[0][2]->SetTitle("");
 		graph_fracBkgInRSB[0][2]->GetXaxis()->SetTitle("N_{ch}");
 		graph_fracBkgInRSB[0][2]->GetYaxis()->SetTitle("Bg fraction in RSB");
@@ -957,7 +1009,7 @@ void PlotMassPar(int  nState){
 		graph_fracBkgInRSB[0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_fracBkgInRSB[0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-
+*/
 	//double left=0.43, top=0.8+0.05, textSize=0.055;
 	//if(nState==5) left=0.41;
 	double left=0.45, top=0.87, textSize=0.055;
@@ -970,149 +1022,149 @@ void PlotMassPar(int  nState){
 	///////////////////
 	graph_mean[0][0]->Draw("AP");
 	graph_mean[0][1]->Draw("P");
-	if(nState==6)
-		graph_mean[0][2]->Draw("P");
+//	if(nState==4)
+//		graph_mean[0][2]->Draw("P");
 	legendRight->Draw();
 	if(nState==4)
 		latex->DrawLatex(left,top-2,"J/#psi");
-	if(nState==6)
+	if(nState==5)
 		latex->DrawLatex(left,top,"#psi(2S)");
 	c1->SaveAs(Form("%s/mean.pdf",savePath.str().c_str()));
 
 	graph_sigmaWei[0][0]->Draw("AP");
 	graph_sigmaWei[0][1]->Draw("P");
-	if(nState==6){
-		graph_sigmaWei[0][2]->Draw("P");
+	if(nState==4){
+//		graph_sigmaWei[0][2]->Draw("P");
 		legendRight->Draw();
-		latex->DrawLatex(left,top,"#psi(2S)");
+		latex->DrawLatex(left,top,"J/#psi");
 	}
 	else{
 		legend->Draw();
-		latex->DrawLatex(left,top-2,"J/#psi");
+		latex->DrawLatex(left,top-2,"#psi(2S)");
 	}
 	c1->SaveAs(Form("%s/sigmaEffective.pdf",savePath.str().c_str()));
 
 	graph_sigma1[0][0]->Draw("AP");
 	graph_sigma1[0][1]->Draw("P");
-	if(nState==6)
-		graph_sigma1[0][2]->Draw("P");
+//	if(nState==4)
+//		graph_sigma1[0][2]->Draw("P");
 	legend->Draw();
 	c1->SaveAs(Form("%s/sigma1.pdf",savePath.str().c_str()));
 
-//	graph_sigma2[0][0]->Draw("AP");
-//	graph_sigma2[0][1]->Draw("P");
-//	if(nState==5)
+	graph_sigma2[0][0]->Draw("AP");
+	graph_sigma2[0][1]->Draw("P");
+//	if(nState==4)
 //		graph_sigma2[0][2]->Draw("P");
-//	legend->Draw();
-//	c1->SaveAs(Form("%s/sigma2.pdf",savePath.str().c_str()));
+	legend->Draw();
+	c1->SaveAs(Form("%s/sigma2.pdf",savePath.str().c_str()));
 
 	graph_bkgRatio3Sig[0][0]->Draw("AP");
 	graph_bkgRatio3Sig[0][1]->Draw("P");
-	if(nState==6)
-		graph_bkgRatio3Sig[0][2]->Draw("P");
+//	if(nState==4)
+//		graph_bkgRatio3Sig[0][2]->Draw("P");
 	legend->Draw();
 	c1->SaveAs(Form("%s/bkgRatio3Sig.pdf",savePath.str().c_str()));
 
 	c1->SetLogy();
 	graph_evtBkgSB[0][0]->Draw("AP");
 	graph_evtBkgSB[0][1]->Draw("P");
-	if(nState==6)
-		graph_evtBkgSB[0][2]->Draw("P");
+//	if(nState==4)
+//		graph_evtBkgSB[0][2]->Draw("P");
 	legendRight->Draw();
 	if(nState==4)
 		latex->DrawLatex(left,top-2,"J/#psi");
-	if(nState==6)
+	if(nState==5)
 		latex->DrawLatex(left,top,"#psi(2S)");
 	c1->SaveAs(Form("%s/evtBkgSB.pdf",savePath.str().c_str()));
 	c1->SetLogy(0);
 
 	graph_fracLSB[0][0]->Draw("AP");
 	graph_fracLSB[0][1]->Draw("P");
-	if(nState==6)
-		graph_fracLSB[0][2]->Draw("P");
+//	if(nState==4)
+//		graph_fracLSB[0][2]->Draw("P");
 	legendRight->Draw();
 	if(nState==4)
 		latex->DrawLatex(left,top-2,"J/#psi");
-	if(nState==6)
+	if(nState==5)
 		latex->DrawLatex(left,top,"#psi(2S)");
 	c1->SaveAs(Form("%s/fracLSB.pdf",savePath.str().c_str()));
 
 	graph_alphaCB[0][0]->Draw("AP");
 	graph_alphaCB[0][1]->Draw("P");
-	if(nState==6)
-		graph_alphaCB[0][2]->Draw("P");
+//	if(nState==4)
+//		graph_alphaCB[0][2]->Draw("P");
 	legendRight->Draw();
 	if(nState==4)
 		latex->DrawLatex(left,top-2,"J/#psi");
-	if(nState==6)
+	if(nState==5)
 		latex->DrawLatex(left,top,"#psi(2S)");
 	c1->SaveAs(Form("%s/alphaCB.pdf",savePath.str().c_str()));
 
 	graph_lambdaBG[0][0]->Draw("AP");
 	graph_lambdaBG[0][1]->Draw("P");
-	if(nState==6)
-		graph_lambdaBG[0][2]->Draw("P");
+//	if(nState==4)
+//		graph_lambdaBG[0][2]->Draw("P");
 	legendRight->Draw();
 	if(nState==4)
 		latex->DrawLatex(left,top-2,"J/#psi");
-	if(nState==6)
+	if(nState==5)
 		latex->DrawLatex(left,top,"#psi(2S)");
 	c1->SaveAs(Form("%s/lambdaBG.pdf",savePath.str().c_str()));
 
 	graph_fracSigInLSB[0][0]->Draw("AP");
 	graph_fracSigInLSB[0][1]->Draw("P");
-	if(nState==6)
-		graph_fracSigInLSB[0][2]->Draw("P");
+//	if(nState==4)
+//		graph_fracSigInLSB[0][2]->Draw("P");
 	legendRight->Draw();
 	if(nState==4)
 		latex->DrawLatex(left,top-2,"J/#psi");
-	if(nState==6)
+	if(nState==5)
 		latex->DrawLatex(left,top,"#psi(2S)");
 	c1->SaveAs(Form("%s/fracSigInLSB.pdf",savePath.str().c_str()));
 
 	graph_fracSigInRSB[0][0]->Draw("AP");
 	graph_fracSigInRSB[0][1]->Draw("P");
-	if(nState==6)
-		graph_fracSigInRSB[0][2]->Draw("P");
+//	if(nState==4)
+//		graph_fracSigInRSB[0][2]->Draw("P");
 	legendRight->Draw();
 	if(nState==4)
 		latex->DrawLatex(left,top-2,"J/#psi");
-	if(nState==6)
+	if(nState==5)
 		latex->DrawLatex(left,top,"#psi(2S)");
 	c1->SaveAs(Form("%s/fracSigInRSB.pdf",savePath.str().c_str()));
 
 	c1->SetLogy();
 	graph_evtInLSB[0][0]->Draw("AP");
 	graph_evtInLSB[0][1]->Draw("P");
-	if(nState==6)
-		graph_evtInLSB[0][2]->Draw("P");
+//	if(nState==4)
+//		graph_evtInLSB[0][2]->Draw("P");
 	legendRight->Draw();
 	if(nState==4)
 		latex->DrawLatex(left,top-2,"J/#psi");
-	if(nState==6)
+	if(nState==5)
 		latex->DrawLatex(left,top,"#psi(2S)");
 	c1->SaveAs(Form("%s/evtInLSB.pdf",savePath.str().c_str()));
 	c1->SetLogy(0);
 
 	graph_fracBkgInLSB[0][0]->Draw("AP");
 	graph_fracBkgInLSB[0][1]->Draw("P");
-	if(nState==6)
-		graph_fracBkgInLSB[0][2]->Draw("P");
+//	if(nState==4)
+//		graph_fracBkgInLSB[0][2]->Draw("P");
 	legendRight->Draw();
 	if(nState==4)
 		latex->DrawLatex(left,top-2,"J/#psi");
-	if(nState==6)
+	if(nState==5)
 		latex->DrawLatex(left,top,"#psi(2S)");
 	c1->SaveAs(Form("%s/fracBkgInLSB.pdf",savePath.str().c_str()));
 
 	graph_fracBkgInRSB[0][0]->Draw("AP");
 	graph_fracBkgInRSB[0][1]->Draw("P");
-	if(nState==6)
-		graph_fracBkgInRSB[0][2]->Draw("P");
+//	if(nState==4)
+//		graph_fracBkgInRSB[0][2]->Draw("P");
 	legendRight->Draw();
 	if(nState==4)
 		latex->DrawLatex(left,top-2,"J/#psi");
-	if(nState==6)
+	if(nState==5)
 		latex->DrawLatex(left,top,"#psi(2S)");
 	c1->SaveAs(Form("%s/fracBkgInRSB.pdf",savePath.str().c_str()));
 
@@ -1125,61 +1177,63 @@ void PlotMassPar(int  nState){
 
 	graph_fracSigInRSB[0][0]->SetMarkerSize(1.2);
 	graph_fracSigInRSB[0][1]->SetMarkerSize(1.2);
-	if(nState==6){
+/*	if(nState==4){
 		graph_fracSigInLSB[0][2]->SetMarkerStyle(22);
 		graph_fracSigInRSB[0][2]->SetMarkerStyle(26);
 		graph_fracSigInRSB[0][2]->SetMarkerSize(1.2);
 	}
-	graph_fracSigInLSB[0][0]->GetYaxis()->SetTitle("signal contamination in L(R)SB");
+*/	graph_fracSigInLSB[0][0]->GetYaxis()->SetTitle("signal contamination in L(R)SB");
 	graph_fracSigInLSB[0][0]->Draw("AP");
 	graph_fracSigInLSB[0][1]->Draw("P");
 	graph_fracSigInRSB[0][0]->Draw("P");
 	graph_fracSigInRSB[0][1]->Draw("P");
-	if(nState==6){
-		graph_fracSigInLSB[0][2]->Draw("P");
-		graph_fracSigInRSB[0][2]->Draw("P");
+	if(nState==4){
+//		graph_fracSigInLSB[0][2]->Draw("P");
+//		graph_fracSigInRSB[0][2]->Draw("P");
 		legendSigConRightFull->Draw();
-		latex->DrawLatex(left,top,"#psi(2S)");
+		latex->DrawLatex(left,top,"J/#psi");
+		c1->SaveAs(Form("%s/fracSigInSB.pdf",savePath.str().c_str()));
 	}
 	else{
 		legendSigConRightFull->Draw();
-		latex->DrawLatex(left,top-2,"J/#psi");
+		latex->DrawLatex(left,top-2,"#psi(2S)");
+		c1->SaveAs(Form("%s/fracSigInSB.pdf",savePath.str().c_str()));
 	}
-	c1->SaveAs(Form("%s/fracSigInSB.pdf",savePath.str().c_str()));
+	
 	graph_fracSigInLSB[0][0]->GetYaxis()->SetTitle("signal contamination in LSB");
 
 
 	////
 	graph_sigma1[0][0]->SetMarkerStyle(20);
 	graph_sigma1[0][1]->SetMarkerStyle(21);
-//	graph_sigma2[0][0]->SetMarkerStyle(24);
-//	graph_sigma2[0][1]->SetMarkerStyle(25);
+	graph_sigma2[0][0]->SetMarkerStyle(24);
+	graph_sigma2[0][1]->SetMarkerStyle(25);
 
-//	graph_sigma2[0][0]->SetMarkerSize(1.2);
-//	graph_sigma2[0][1]->SetMarkerSize(1.2);
-	if(nState==6){
+	graph_sigma2[0][0]->SetMarkerSize(1.2);
+	graph_sigma2[0][1]->SetMarkerSize(1.2);
+/*	if(nState==4){
 		graph_sigma1[0][2]->SetMarkerStyle(22);
-//		graph_sigma2[0][2]->SetMarkerStyle(26);
-//		graph_sigma2[0][2]->SetMarkerSize(1.2);
+		graph_sigma2[0][2]->SetMarkerStyle(26);
+		graph_sigma2[0][2]->SetMarkerSize(1.2);
 	}
-
-//	graph_sigma2[0][0]->GetYaxis()->SetTitle("#sigma_{1,2} (MeV)");
-//	graph_sigma2[0][0]->Draw("AP");
-//	graph_sigma2[0][1]->Draw("P");
+*/
+	graph_sigma2[0][0]->GetYaxis()->SetTitle("#sigma_{1,2} (MeV)");
+	graph_sigma2[0][0]->Draw("AP");
+	graph_sigma2[0][1]->Draw("P");
 	graph_sigma1[0][0]->Draw("P");
 	graph_sigma1[0][1]->Draw("P");
-	if(nState==6){
+	if(nState==4){
 //		graph_sigma2[0][2]->Draw("P");
-		graph_sigma1[0][2]->Draw("P");
+//		graph_sigma1[0][2]->Draw("P");
 		legendRightFull->Draw();
-		latex->DrawLatex(left,top,"#psi(2S)");
+		latex->DrawLatex(left,top,"J/#psi");
 	}
 	else{
 		legendFull->Draw();
-		latex->DrawLatex(left,top-2,"J/#psi");
+		latex->DrawLatex(left,top-2,"#psi(2S)");
 	}
 	c1->SaveAs(Form("%s/sigma1_2.pdf",savePath.str().c_str()));
-//	graph_sigma2[0][0]->GetYaxis()->SetTitle("sigma_{2} (MeV)");
+	graph_sigma2[0][0]->GetYaxis()->SetTitle("sigma_{2} (MeV)");
 
 	///
 	TFile *outfile  = new TFile(Form("%s/MassPar_%dS.root",savePath.str().c_str(),nState-3),"RECREATE");
@@ -1188,7 +1242,7 @@ void PlotMassPar(int  nState){
 		graph_mean[rapBin-1][ptBin-1]->SetName(Form("graph_mean_%d_%d",rapBin,ptBin)); graph_mean[rapBin-1][ptBin-1]->Write();
 		graph_sigmaWei[rapBin-1][ptBin-1]->SetName(Form("graph_sigmaWei_%d_%d",rapBin,ptBin)); graph_sigmaWei[rapBin-1][ptBin-1]->Write();
 		graph_sigma1[rapBin-1][ptBin-1]->SetName(Form("graph_sigma1_%d_%d",rapBin,ptBin)); graph_sigma1[rapBin-1][ptBin-1]->Write();
-		//graph_sigma2[rapBin-1][ptBin-1]->SetName(Form("graph_sigma2_%d_%d",rapBin,ptBin)); graph_sigma2[rapBin-1][ptBin-1]->Write();
+		graph_sigma2[rapBin-1][ptBin-1]->SetName(Form("graph_sigma2_%d_%d",rapBin,ptBin)); graph_sigma2[rapBin-1][ptBin-1]->Write();
 		graph_bkgRatio3Sig[rapBin-1][ptBin-1]->SetName(Form("graph_bkgRatio3Sig_%d_%d",rapBin,ptBin)); graph_bkgRatio3Sig[rapBin-1][ptBin-1]->Write();
 		graph_evtBkgSB[rapBin-1][ptBin-1]->SetName(Form("graph_evtBkgSB_%d_%d",rapBin,ptBin)); graph_evtBkgSB[rapBin-1][ptBin-1]->Write();
 		graph_fracLSB[rapBin-1][ptBin-1]->SetName(Form("graph_fracLSB_%d_%d",rapBin,ptBin)); graph_fracLSB[rapBin-1][ptBin-1]->Write();
@@ -1901,7 +1955,7 @@ void PlotLifePar(int  nState) {
 		graph_fracBkgDSD_SBL[0][rapBin-1][ptBin-1]->GetXaxis()->SetTitle("N_{ch}");
 		graph_fracBkgDSD_SBL[0][rapBin-1][ptBin-1]->GetYaxis()->SetTitle("fraction of DS");
 		graph_fracBkgDSD_SBL[0][rapBin-1][ptBin-1]->GetXaxis()->SetLimits(Xmin, Xmax);
-		if(nState==4) graph_fracBkgDSD_SBL[0][rapBin-1][ptBin-1]->GetYaxis()->SetRangeUser(0.1,0.7);
+		if(nState==4) graph_fracBkgDSD_SBL[0][rapBin-1][ptBin-1]->GetYaxis()->SetRangeUser(0.0,0.7);
 		if(nState==5) graph_fracBkgDSD_SBL[0][rapBin-1][ptBin-1]->GetYaxis()->SetRangeUser(0.2,1.0);
 		graph_fracBkgDSD_SBL[0][rapBin-1][ptBin-1]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
 		graph_fracBkgDSD_SBL[0][rapBin-1][ptBin-1]->SetMarkerColor(onia::colour_rapForPTBins[2]);
@@ -1942,23 +1996,29 @@ void PlotLifePar(int  nState) {
 //	LifetimeLegendLR_2rap->SetTextFont(42);
 	LifetimeLegendLR_2rap->SetTextSize(legendsize);
 	LifetimeLegendLR_2rap->SetBorderSize(0.);
-	LifetimeLegendLR_2rap->AddEntry(graph_bkgTauSSDL[0][0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 25 GeV L(R)SB","lp");
-	LifetimeLegendLR_2rap->AddEntry(graph_bkgTauSSDL[0][0][1],"0.0 < |y| < 1.2, 25 < p_{T} < 50 GeV L(R)SB","lp");
-	if(nState==6)
-		LifetimeLegendLR_2rap->AddEntry(graph_bkgTauSSDL[0][0][2],"1.2 < |y| < 1.5 L(R)SB","lp");
-
+	
+	if(nState==4) {
+		LifetimeLegendLR_2rap->AddEntry(graph_bkgTauSSDL[0][0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 20 GeV L(R)SB","lp");
+		LifetimeLegendLR_2rap->AddEntry(graph_bkgTauSSDL[0][0][1],"0.0 < |y| < 1.2, 20 < p_{T} < 35 GeV L(R)SB","lp");
+	}
 	TLegend* LifetimeLegend_2rap=new TLegend(blX,blY,trX,trY);
 	LifetimeLegend_2rap->SetFillColor(kWhite);
 //	LifetimeLegend_2rap->SetTextFont(42);
 	LifetimeLegend_2rap->SetTextSize(legendsize);
 	LifetimeLegend_2rap->SetBorderSize(0.);
-	LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[0][0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 25 GeV LSB","lp");
-	LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[1][0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 25 GeV RSB","lp");
-	LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[0][0][1],"0.0 < |y| < 1.2, 25 < p_{T} < 50 GeV LSB","lp");
-	LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[1][0][1],"0.0 < |y| < 1.2, 25 < p_{T} < 50 GeV RSB","lp");
-	if(nState==6){
-		LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[0][0][2],"1.2 < |y| < 1.5 LSB","lp");
-		LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[1][0][2],"1.2 < |y| < 1.5 RSB","lp");
+	
+	if(nState==4){
+		LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[0][0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 20 GeV LSB","lp");
+		LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[1][0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 20 GeV RSB","lp");
+		LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[0][0][1],"0.0 < |y| < 1.2, 20 < p_{T} < 35 GeV LSB","lp");
+		LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[1][0][1],"0.0 < |y| < 1.2, 20 < p_{T} < 35 GeV RSB","lp");
+	}
+	
+	if(nState==5){
+		LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[0][0][0],"0.0 < |y| < 1.5, 14 < p_{T} < 20 GeV LSB","lp");
+		LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[1][0][0],"0.0 < |y| < 1.5, 14 < p_{T} < 20 GeV RSB","lp");
+		LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[0][0][1],"0.0 < |y| < 1.5, 18 < p_{T} < 35 GeV LSB","lp");
+		LifetimeLegend_2rap->AddEntry(graph_bkgTauSSDR[1][0][1],"0.0 < |y| < 1.5, 18 < p_{T} < 35 GeV RSB","lp");
 	}
 
 	TLegend* LifetimeLegend_SR_2rap=new TLegend(blX,blY,trX,trY);
@@ -1966,11 +2026,14 @@ void PlotLifePar(int  nState) {
 //	LifetimeLegend_SR_2rap->SetTextFont(42);
 	LifetimeLegend_SR_2rap->SetTextSize(legendsize);
 	LifetimeLegend_SR_2rap->SetBorderSize(0.);
-	LifetimeLegend_SR_2rap->AddEntry(graph_fracGauss2[0][0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 25 GeV","lp");
-	LifetimeLegend_SR_2rap->AddEntry(graph_fracGauss2[0][0][1],"0.0 < |y| < 1.2, 25 < p_{T} < 50 GeV","lp");
-	if(nState==6)
-		LifetimeLegend_SR_2rap->AddEntry(graph_fracGauss2[0][0][2],"1.2 < |y| < 1.5","lp");
-
+	if(nState==5){
+		LifetimeLegend_SR_2rap->AddEntry(graph_fracGauss2[0][0][0],"0.0 < |y| < 1.5, 14 < p_{T} < 20 GeV","lp");
+		LifetimeLegend_SR_2rap->AddEntry(graph_fracGauss2[0][0][1],"0.0 < |y| < 1.5, 18 < p_{T} < 35 GeV","lp");
+	}
+	if(nState==4){
+		LifetimeLegend_SR_2rap->AddEntry(graph_fracGauss2[0][0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 20 GeV","lp");
+		LifetimeLegend_SR_2rap->AddEntry(graph_fracGauss2[0][0][1],"0.0 < |y| < 1.2, 20 < p_{T} < 35 GeV","lp");
+	}
 
 	//
 	graph_fracGauss2[0][0][0]->SetMarkerStyle(21);
@@ -1979,15 +2042,15 @@ void PlotLifePar(int  nState) {
 	graph_fracGauss2[0][0][1]->SetMarkerStyle(20);
 	graph_fracGauss2[0][0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracGauss2[0][0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_fracGauss2[0][0][2]->SetMarkerStyle(22);
 		graph_fracGauss2[0][0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_fracGauss2[0][0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-	graph_fracGauss2[0][0][0]->Draw("AP");
+*/	graph_fracGauss2[0][0][0]->Draw("AP");
 	graph_fracGauss2[0][0][1]->Draw("P");
-	if(nState==6)
-		graph_fracGauss2[0][0][2]->Draw("P");
+//	if(nState==4)
+//		graph_fracGauss2[0][0][2]->Draw("P");
 	LifetimeLegend_SR_2rap->Draw();
 	c1->SaveAs(Form("%s/frac2ndGauss.pdf",savePath.str().c_str()));
 
@@ -2003,7 +2066,7 @@ void PlotLifePar(int  nState) {
 	graph_bkgTauSSDR[1][0][1]->SetMarkerStyle(24);
 	graph_bkgTauSSDR[1][0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_bkgTauSSDR[1][0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_bkgTauSSDR[0][0][2]->SetMarkerStyle(22);
 		graph_bkgTauSSDR[0][0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_bkgTauSSDR[0][0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
@@ -2011,16 +2074,16 @@ void PlotLifePar(int  nState) {
 		graph_bkgTauSSDR[1][0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_bkgTauSSDR[1][0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-
+*/
 	graph_bkgTauSSDR[0][0][0]->Draw("AP");
 	graph_bkgTauSSDR[0][0][1]->Draw("P");
 	graph_bkgTauSSDR[1][0][0]->Draw("P");
 	graph_bkgTauSSDR[1][0][1]->Draw("P");
-	if(nState==6){
+/*	if(nState==4){
 		graph_bkgTauSSDR[0][0][2]->Draw("P");
 		graph_bkgTauSSDR[1][0][2]->Draw("P");
 	}
-	LifetimeLegend_2rap->Draw();
+*/	LifetimeLegend_2rap->Draw();
 
 	c1->SaveAs(Form("%s/bkgTauSSR.pdf",savePath.str().c_str()));
 
@@ -2031,15 +2094,15 @@ void PlotLifePar(int  nState) {
 	graph_bkgTauSSDL[0][0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_bkgTauSSDL[0][0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_bkgTauSSDL[0][0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_bkgTauSSDL[0][0][2]->SetMarkerStyle(onia::marker_rapForPTBins[4]);
 		graph_bkgTauSSDL[0][0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_bkgTauSSDL[0][0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-	graph_bkgTauSSDL[0][0][0]->Draw("AP");
+*/	graph_bkgTauSSDL[0][0][0]->Draw("AP");
 	graph_bkgTauSSDL[0][0][1]->Draw("P");
-	if(nState==6)
-		graph_bkgTauSSDL[0][0][2]->Draw("P");
+//	if(nState==4)
+//		graph_bkgTauSSDL[0][0][2]->Draw("P");
 	LifetimeLegendLR_2rap->SetFillStyle(0);	
 	LifetimeLegendLR_2rap->Draw();
 	c1->SaveAs(Form("%s/bkgTauSSL.pdf",savePath.str().c_str()));
@@ -2050,15 +2113,15 @@ void PlotLifePar(int  nState) {
 	graph_bkgTauDSD[0][0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_bkgTauDSD[0][0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_bkgTauDSD[0][0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_bkgTauDSD[0][0][2]->SetMarkerStyle(onia::marker_rapForPTBins[4]);
 		graph_bkgTauDSD[0][0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_bkgTauDSD[0][0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-	graph_bkgTauDSD[0][0][0]->Draw("AP");
+*/	graph_bkgTauDSD[0][0][0]->Draw("AP");
 	graph_bkgTauDSD[0][0][1]->Draw("P");
-	if(nState==6)
-		graph_bkgTauDSD[0][0][2]->Draw("P");
+//	if(nState==4)
+//		graph_bkgTauDSD[0][0][2]->Draw("P");
 	LifetimeLegendLR_2rap->Draw();
 	c1->SaveAs(Form("%s/bkgTauDS.pdf",savePath.str().c_str()));
 
@@ -2074,7 +2137,7 @@ void PlotLifePar(int  nState) {
 	graph_fracBkgSSDL_SBR[0][0][1]->SetMarkerStyle(24);
 	graph_fracBkgSSDL_SBR[0][0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracBkgSSDL_SBR[0][0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_fracBkgSSDL_SBL[0][0][2]->SetMarkerStyle(22);
 		graph_fracBkgSSDL_SBL[0][0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_fracBkgSSDL_SBL[0][0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
@@ -2082,17 +2145,17 @@ void PlotLifePar(int  nState) {
 		graph_fracBkgSSDL_SBR[0][0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_fracBkgSSDL_SBR[0][0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-	graph_fracBkgSSDL_SBL[0][0][0]->Draw("AP");
+*/	graph_fracBkgSSDL_SBL[0][0][0]->Draw("AP");
 	graph_fracBkgSSDL_SBL[0][0][1]->Draw("P");
 	graph_fracBkgSSDL_SBL[0][0][0]->Draw("AP");
 	graph_fracBkgSSDL_SBL[0][0][1]->Draw("P");
 	graph_fracBkgSSDL_SBR[0][0][0]->Draw("P");
 	graph_fracBkgSSDL_SBR[0][0][1]->Draw("P");
-	if(nState==6){
+/*	if(nState==4){
 		graph_fracBkgSSDL_SBL[0][0][2]->Draw("P");
 		graph_fracBkgSSDL_SBR[0][0][2]->Draw("P");
 	}
-	LifetimeLegend_2rap->Draw();
+*/	LifetimeLegend_2rap->Draw();
 	c1->SaveAs(Form("%s/fBkgSSL.pdf",savePath.str().c_str()));
 
 	graph_fracBkgSSDR_SBL[0][0][0]->SetMarkerStyle(21);
@@ -2107,7 +2170,7 @@ void PlotLifePar(int  nState) {
 	graph_fracBkgSSDR_SBR[0][0][1]->SetMarkerStyle(24);
 	graph_fracBkgSSDR_SBR[0][0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracBkgSSDR_SBR[0][0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_fracBkgSSDR_SBL[0][0][2]->SetMarkerStyle(22);
 		graph_fracBkgSSDR_SBL[0][0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_fracBkgSSDR_SBL[0][0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
@@ -2115,15 +2178,15 @@ void PlotLifePar(int  nState) {
 		graph_fracBkgSSDR_SBR[0][0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_fracBkgSSDR_SBR[0][0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-	graph_fracBkgSSDR_SBL[0][0][0]->Draw("AP");
+*/	graph_fracBkgSSDR_SBL[0][0][0]->Draw("AP");
 	graph_fracBkgSSDR_SBL[0][0][1]->Draw("P");
 	graph_fracBkgSSDR_SBR[0][0][0]->Draw("P");
 	graph_fracBkgSSDR_SBR[0][0][1]->Draw("P");
-	if(nState==6){
+/*	if(nState==4){
 		graph_fracBkgSSDR_SBL[0][0][2]->Draw("P");
 		graph_fracBkgSSDR_SBR[0][0][2]->Draw("P");
 	}
-	LifetimeLegend_2rap->SetFillStyle(0);
+*/	LifetimeLegend_2rap->SetFillStyle(0);
 	LifetimeLegend_2rap->Draw();
 	c1->SaveAs(Form("%s/fBkgSSR.pdf",savePath.str().c_str()));
 
@@ -2139,7 +2202,7 @@ void PlotLifePar(int  nState) {
 	graph_fracBkgDSD_SBR[0][0][1]->SetMarkerStyle(24);
 	graph_fracBkgDSD_SBR[0][0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_fracBkgDSD_SBR[0][0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	if(nState==6){
+/*	if(nState==4){
 		graph_fracBkgDSD_SBL[0][0][2]->SetMarkerStyle(22);
 		graph_fracBkgDSD_SBL[0][0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_fracBkgDSD_SBL[0][0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
@@ -2147,15 +2210,15 @@ void PlotLifePar(int  nState) {
 		graph_fracBkgDSD_SBR[0][0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 		graph_fracBkgDSD_SBR[0][0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 	}
-	graph_fracBkgDSD_SBL[0][0][0]->Draw("AP");
+*/	graph_fracBkgDSD_SBL[0][0][0]->Draw("AP");
 	graph_fracBkgDSD_SBL[0][0][1]->Draw("P");
 	graph_fracBkgDSD_SBR[0][0][0]->Draw("P");
 	graph_fracBkgDSD_SBR[0][0][1]->Draw("P");
-	if(nState==6){
+/*	if(nState==4){
 		graph_fracBkgDSD_SBL[0][0][2]->Draw("P");
 		graph_fracBkgDSD_SBR[0][0][2]->Draw("P");
 	}
-	LifetimeLegend_2rap->Draw();
+*/	LifetimeLegend_2rap->Draw();
 	c1->SaveAs(Form("%s/fBkgDS.pdf",savePath.str().c_str()));
 }
 
@@ -2312,16 +2375,16 @@ void PlotBFrac_1S(int nState){
 //	LifetimeLegend->SetTextFont(42);
 	LifetimeLegend->SetTextSize(legendsize);
 	LifetimeLegend->SetBorderSize(0.);
-	LifetimeLegend->AddEntry(graph_BFrac[0][0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 25 GeV","lp");
-	LifetimeLegend->AddEntry(graph_BFrac[0][0][1],"0.0 < |y| < 1.2, 25 < p_{T} < 50 GeV","lp");
+	LifetimeLegend->AddEntry(graph_BFrac[0][0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 20 GeV","lp");
+	LifetimeLegend->AddEntry(graph_BFrac[0][0][1],"0.0 < |y| < 1.2, 20 < p_{T} < 35 GeV","lp");
 
 	TLegend* LifetimeLegend2Steps=new TLegend(blX,blY,trX,trY);
 	LifetimeLegend2Steps->SetFillColor(kWhite);
 //	LifetimeLegend2Steps->SetTextFont(42);
 	LifetimeLegend2Steps->SetTextSize(legendsize);
 	LifetimeLegend2Steps->SetBorderSize(0.);
-	LifetimeLegend2Steps->AddEntry(graph_BFrac[0][0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 25 GeV","lp");
-	LifetimeLegend2Steps->AddEntry(graph_BFrac[0][0][1],"0.0 < |y| < 1.2, 25 < p_{T} < 50 GeV","lp");
+	LifetimeLegend2Steps->AddEntry(graph_BFrac[0][0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 20 GeV","lp");
+	LifetimeLegend2Steps->AddEntry(graph_BFrac[0][0][1],"0.0 < |y| < 1.2, 20 < p_{T} < 35 GeV","lp");
 
 	gStyle->SetPadBottomMargin(0.11); //0.12
 	gStyle->SetPadLeftMargin(0.08); //0.12
@@ -2386,9 +2449,20 @@ void PlotBFrac_1S(int nState){
 	graph_BFrac[0][0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_BFrac[0][0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_BFrac[0][0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-
+/*	if(nState==4) {
+	graph_BFrac[0][0][2]->SetTitle("");
+	graph_BFrac[0][0][2]->GetXaxis()->SetTitle("N_{ch}");
+	graph_BFrac[0][0][2]->GetYaxis()->SetTitle("B fraction");
+	graph_BFrac[0][0][2]->GetYaxis()->SetRangeUser(Ymin, Ymax);
+	graph_BFrac[0][0][2]->GetXaxis()->SetLimits(Xmin, Xmax);
+	graph_BFrac[0][0][2]->SetMarkerStyle(onia::marker_rapForPTBins[4]);
+	graph_BFrac[0][0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
+	graph_BFrac[0][0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
+	}
+*/	
 	graph_BFrac[0][0][0]->Draw("AP");
 	graph_BFrac[0][0][1]->Draw("P");
+//	if(nState==4) graph_BFrac[0][0][2]->Draw("P");
 	LifetimeLegend2Steps->Draw();
 	left=lvalue; top=tvalue;
 	latex->DrawLatex(left,top-2,"J/#psi");
@@ -2412,13 +2486,21 @@ void PlotBFrac_1S(int nState){
 	graph_FracNonPrompt[0][0][1]->GetYaxis()->SetTitle("NP fraction");
 	graph_FracNonPrompt[0][0][1]->GetYaxis()->SetRangeUser(.1, .8);
 	graph_FracNonPrompt[0][0][1]->GetXaxis()->SetLimits(Xmin, Xmax);
-
 	graph_FracNonPrompt[0][0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_FracNonPrompt[0][0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
 	graph_FracNonPrompt[0][0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
+//	graph_FracNonPrompt[0][0][2]->SetTitle("");
+//	graph_FracNonPrompt[0][0][2]->GetXaxis()->SetTitle("N_{ch}");
+//	graph_FracNonPrompt[0][0][2]->GetYaxis()->SetTitle("NP fraction");
+//	graph_FracNonPrompt[0][0][2]->GetYaxis()->SetRangeUser(.1, .8);
+//	graph_FracNonPrompt[0][0][2]->GetXaxis()->SetLimits(Xmin, Xmax);
+//	graph_FracNonPrompt[0][0][2]->SetMarkerStyle(onia::marker_rapForPTBins[4]);
+//	graph_FracNonPrompt[0][0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
+//	graph_FracNonPrompt[0][0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 
 	graph_FracNonPrompt[0][0][0]->Draw("AP");
 	graph_FracNonPrompt[0][0][1]->Draw("P");
+//	graph_FracNonPrompt[0][0][2]->Draw("P");
 	LifetimeLegend2Steps->Draw();
 	left=lvalue; top=tvalue;
 	latex->DrawLatex(left,top-2,"J/#psi");
@@ -2443,11 +2525,20 @@ void PlotBFrac_1S(int nState){
 	graph_FracBkg[0][0][1]->GetXaxis()->SetLimits(Xmin, Xmax);
 	graph_FracBkg[0][0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
 	graph_FracBkg[0][0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
+//	graph_FracBkg[0][0][2]->SetTitle("");
+//	graph_FracBkg[0][0][2]->GetXaxis()->SetTitle("N_{ch}");
+//	graph_FracBkg[0][0][2]->GetYaxis()->SetTitle("Bg fraction");
+//	graph_FracBkg[0][0][2]->GetYaxis()->SetRangeUser(0., .7);
+///	graph_FracBkg[0][0][2]->GetXaxis()->SetLimits(Xmin, Xmax);
+//	graph_FracBkg[0][0][2]->SetMarkerStyle(onia::marker_rapForPTBins[4]);
+//	graph_FracBkg[0][0][2]->SetMarkerColor(onia::colour_rapForPTBins[4]);
 
 	graph_FracBkg[0][0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
+//	graph_FracBkg[0][0][2]->SetLineColor(onia::colour_rapForPTBins[4]);
 
 	graph_FracBkg[0][0][0]->Draw("AP");
 	graph_FracBkg[0][0][1]->Draw("P");
+//	graph_FracBkg[0][0][2]->Draw("P");
 	LifetimeLegend2Steps->Draw();
 	left=lvalue; top=tvalue;
 	latex->DrawLatex(left,top-2,"J/#psi");
@@ -2457,188 +2548,31 @@ void PlotBFrac_1S(int nState){
 	latex->DrawLatex(left,top,"pp  #sqrt{s} = 7 TeV");
 	c1->SaveAs(Form("%s/FracBkg.pdf",savePath.str().c_str()));
 
-	// Jpsi cross-section results //
-/*	const int PTBins1 = 10, PTBins2 = 6;
-	double pTBinRap1[PTBins1+1] = {8., 9., 10., 11., 12., 13.5, 15., 18., 30., 45., 70.}; //rap 0.0 - 0.9
-	double pTBinRap2[PTBins2+1] = {8., 9., 10., 12., 15., 30., 45.}; //rap 0.9 - 1.2
 
-	double pTBinRap1_weight[PTBins1] = { 8.569, 9.515, 10.494, 11.485, 12.711, 14.206, 16.329, 21.77, 35.03, 52.7}; //rap 0.0 - 0.9 
-	double pTBinRap2_weight[PTBins2] = {8.524, 9.491, 10.921, 13.312, 18.95, 34.7}; ////rap 0.9 - 1.2
-
-	double BFracRap1[PTBins1] = { 0.271, 0.285, 0.320, 0.345, 0.373, 0.417, 0.454, 0.535, 0.633, 0.646 };
-	double BFracErrRap1[PTBins1] = { 0.006, 0.005, 0.005, 0.005, 0.005, 0.006, 0.006, 0.006, 0.015, 0.038 };
-	double BFracRap2[PTBins1] = { 0.265, 0.281, 0.324, 0.380, 0.481, 0.616 };
-	double BFracErrRap2[PTBins1] = { 0.007, 0.007, 0.006, 0.006, 0.007, 0.029 };
-
-	double pTRap1[PTBins1];
-	double pTRap1ErrLow[PTBins1];
-	double pTRap1ErrHigh[PTBins1];
-	double pTRap2[PTBins2];
-
-	double pTRap2ErrLow[PTBins2];
-	double pTRap2ErrHigh[PTBins2];
-	for(int pt=0; pt<PTBins1; pt++){
-		pTRap1[pt] = pTBinRap1_weight[pt];
-		pTRap1ErrLow[pt] = pTRap1[pt]-pTBinRap1[pt];
-		pTRap1ErrHigh[pt] = pTBinRap1[pt+1]-pTRap1[pt];
-	}
-	for(int pt=0; pt<PTBins2; pt++){
-		pTRap2[pt] = pTBinRap2_weight[pt];
-		pTRap2ErrLow[pt] = pTRap2[pt]-pTBinRap2[pt];
-		pTRap2ErrHigh[pt] = pTBinRap2[pt+1]-pTRap2[pt];
-	}
-
-	TGraphAsymmErrors *graph_BFracRap1 = new TGraphAsymmErrors(PTBins1,
-			pTRap1, BFracRap1, pTRap1ErrLow, pTRap1ErrHigh, BFracErrRap1, BFracErrRap1);
-	TGraphAsymmErrors *graph_BFracRap2 = new TGraphAsymmErrors(PTBins2,
-			pTRap2, BFracRap2, pTRap2ErrLow, pTRap2ErrHigh, BFracErrRap2, BFracErrRap2);
-
-	graph_BFracRap1->SetTitle("");
-	graph_BFracRap1->GetXaxis()->SetTitle("p_{T} (GeV)");
-	graph_BFracRap1->GetYaxis()->SetTitle("B fraction");
-	graph_BFracRap1->GetYaxis()->SetRangeUser(Ymin, Ymax);
-	graph_BFracRap1->GetXaxis()->SetLimits(Xmin, Xmax);
-	graph_BFracRap1->SetMarkerStyle(onia::marker_rapForPTBins[2]);
-	graph_BFracRap1->SetMarkerColor(onia::colour_rapForPTBins[2]);
-	graph_BFracRap1->SetLineColor(onia::colour_rapForPTBins[2]);
-
-	graph_BFracRap2->SetTitle("");
-	graph_BFracRap2->GetXaxis()->SetTitle("p_{T} (GeV)");
-	graph_BFracRap2->GetYaxis()->SetTitle("B fraction");
-
-	graph_BFracRap2->GetYaxis()->SetRangeUser(Ymin, Ymax);
-	graph_BFracRap2->GetXaxis()->SetLimits(Xmin, Xmax);
-	graph_BFracRap2->SetMarkerStyle(onia::marker_rapForPTBins[3]);
-	graph_BFracRap2->SetMarkerColor(onia::colour_rapForPTBins[3]);
-	graph_BFracRap2->SetLineColor(onia::colour_rapForPTBins[3]);
-
-
-	TLegend* LifetimeLegendCrossSection=new TLegend(blX,blY,trX,trY);
-	LifetimeLegendCrossSection->SetFillColor(kWhite);
-//	LifetimeLegendCrossSection->SetTextFont(42);
-	LifetimeLegendCrossSection->SetTextSize(legendsize);
-	LifetimeLegendCrossSection->SetBorderSize(0.);
-	LifetimeLegendCrossSection->AddEntry(graph_BFracRap1,"|y| < 0.9 (BPH-10-014)","lp");
-	LifetimeLegendCrossSection->AddEntry(graph_BFracRap2,"0.9 < |y| < 1.2 (BPH-10-014)","lp");
-
-	TLegend* LifetimeLegendCrossSection2Steps=new TLegend(blX,blY,trX,trY);
-	LifetimeLegendCrossSection2Steps->SetFillColor(kWhite);
-//	LifetimeLegendCrossSection2Steps->SetTextFont(42);
-	LifetimeLegendCrossSection2Steps->SetTextSize(legendsize);
-	LifetimeLegendCrossSection2Steps->SetBorderSize(0.);
-	LifetimeLegendCrossSection2Steps->AddEntry(graph_BFrac[0][0],"|y| < 0.6","lp");
-	LifetimeLegendCrossSection2Steps->AddEntry(graph_BFrac[0][1],"0.6 < |y| < 1.2","lp");
-	LifetimeLegendCrossSection2Steps->AddEntry(graph_BFracRap1,"|y| < 0.9 (BPH-10-014)","lp");
-	LifetimeLegendCrossSection2Steps->AddEntry(graph_BFracRap2,"0.9 < |y| < 1.2 (BPH-10-014)","lp");
-
-	TLegend* LifetimeLegendCrossSection2Steps_rap1=new TLegend(blX,blY,trX,trY);
-	LifetimeLegendCrossSection2Steps_rap1->SetFillColor(kWhite);
-//	LifetimeLegendCrossSection2Steps_rap1->SetTextFont(42);
-	LifetimeLegendCrossSection2Steps_rap1->SetTextSize(legendsize);
-	LifetimeLegendCrossSection2Steps_rap1->SetBorderSize(0.);
-	LifetimeLegendCrossSection2Steps_rap1->AddEntry(graph_BFrac[0][0],"|y| < 0.6","lp");
-
-	LifetimeLegendCrossSection2Steps_rap1->AddEntry(graph_BFracRap1,"|y| < 0.9 (BPH-10-014)","lp");
-
-	TLegend* LifetimeLegendCrossSection2Steps_rap2=new TLegend(blX,blY,trX,trY);
-	LifetimeLegendCrossSection2Steps_rap2->SetFillColor(kWhite);
-//	LifetimeLegendCrossSection2Steps_rap2->SetTextFont(42);
-	LifetimeLegendCrossSection2Steps_rap2->SetTextSize(legendsize);
-	LifetimeLegendCrossSection2Steps_rap2->SetBorderSize(0.);
-	LifetimeLegendCrossSection2Steps_rap2->AddEntry(graph_BFrac[0][1],"0.6 < |y| < 1.2","lp");
-	LifetimeLegendCrossSection2Steps_rap2->AddEntry(graph_BFracRap2,"0.9 < |y| < 1.2 (BPH-10-014)","lp");
-
-	graph_BFracRap1->Draw("AP");
-	graph_BFracRap2->Draw("P");
-	LifetimeLegendCrossSection->Draw();
-	left=lvalue; top=tvalue;
-	latex->DrawLatex(left,top-2,"J/#psi");
-	top -= step;
-	latex->DrawLatex(left,top,"CMS Preliminary");
-	top -= step;
-	latex->DrawLatex(left,top,"pp  #sqrt{s} = 7 TeV");
-	c1->SaveAs(Form("%s/BFrac_BPH-10-014.pdf",savePath.str().c_str()));
-
-	graph_BFrac[0][0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
-	graph_BFrac[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
-	graph_BFrac[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
-	graph_BFrac[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
-	graph_BFrac[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
-	graph_BFrac[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	graph_BFracRap1->SetMarkerStyle(onia::marker_rapForPTBins[4]);
-	graph_BFracRap1->SetMarkerColor(onia::colour_rapForPTBins[4]);
-	graph_BFracRap1->SetLineColor(onia::colour_rapForPTBins[4]);
-	graph_BFracRap2->SetMarkerStyle(onia::marker_rapForPTBins[5]);
-	graph_BFracRap2->SetMarkerColor(onia::colour_rapForPTBins[5]);
-	graph_BFracRap2->SetLineColor(onia::colour_rapForPTBins[5]);
-
-	graph_BFrac[0][0]->Draw("AP");
-	graph_BFrac[0][1]->Draw("P");
-	graph_BFracRap1->Draw("P");
-	graph_BFracRap2->Draw("P");
-	LifetimeLegendCrossSection2Steps->Draw();
-	left=lvalue; top=tvalue;
-	latex->DrawLatex(left,top-2,"J/#psi");
-	top -= step;
-	latex->DrawLatex(left,top,"CMS Preliminary");
-	top -= step;
-	latex->DrawLatex(left,top,"pp  #sqrt{s} = 7 TeV");
-	c1->SaveAs(Form("%s/BFrac_BPH-10-014_compare.pdf",savePath.str().c_str()));
-
-	graph_BFrac[0][0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
-	graph_BFrac[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
-	graph_BFrac[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
-	graph_BFrac[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
-	graph_BFrac[0][1]->SetMarkerColor(onia::colour_rapForPTBins[2]);
-	graph_BFrac[0][1]->SetLineColor(onia::colour_rapForPTBins[2]);
-	graph_BFracRap1->SetMarkerStyle(onia::marker_rapForPTBins[3]);
-	graph_BFracRap1->SetMarkerColor(onia::colour_rapForPTBins[3]);
-	graph_BFracRap1->SetLineColor(onia::colour_rapForPTBins[3]);
-
-	graph_BFracRap2->SetMarkerStyle(onia::marker_rapForPTBins[3]);
-	graph_BFracRap2->SetMarkerColor(onia::colour_rapForPTBins[3]);
-	graph_BFracRap2->SetLineColor(onia::colour_rapForPTBins[3]);
-
-	graph_BFrac[0][0]->Draw("AP");
-	graph_BFracRap1->Draw("P");
-	LifetimeLegendCrossSection2Steps_rap1->Draw();
-	left=lvalue; top=tvalue;
-	latex->DrawLatex(left,top-2,"J/#psi");
-	top -= step;
-	latex->DrawLatex(left,top,"CMS Preliminary");
-	top -= step;
-	latex->DrawLatex(left,top,"pp  #sqrt{s} = 7 TeV");
-	c1->SaveAs(Form("%s/BFrac_BPH-10-014_compare_rap1.pdf",savePath.str().c_str()));
-
-	graph_BFrac[0][1]->Draw("AP");
-	graph_BFracRap2->Draw("P");
-	LifetimeLegendCrossSection2Steps_rap2->Draw();
-	left=lvalue; top=tvalue;
-	latex->DrawLatex(left,top-2,"J/#psi");
-	top -= step;
-	latex->DrawLatex(left,top,"CMS Preliminary");
-	top -= step;
-	latex->DrawLatex(left,top,"pp  #sqrt{s} = 7 TeV");
-	c1->SaveAs(Form("%s/BFrac_BPH-10-014_compare_rap2.pdf",savePath.str().c_str()));
-*/
 	///
 	TFile *outfile  = new TFile(Form("%s/BFrac_%dS.root",savePath.str().c_str(),nState-3),"RECREATE");
 
-	graph_BFrac[0][0][0]->SetName("graph_BFrac_rap1");
-	graph_BFrac[0][0][1]->SetName("graph_BFrac_rap2");
-	graph_FracBkg[0][0][0]->SetName("graph_FracBkg_rap1");
-	graph_FracBkg[0][0][1]->SetName("graph_FracBkg_rap2");
-	graph_FracNonPrompt[0][0][0]->SetName("graph_FracNonPrompt_rap1");
-	graph_FracNonPrompt[0][0][1]->SetName("graph_FracNonPrompt_rap2");
+	graph_BFrac[0][0][0]->SetName("graph_BFrac_rap1_pt1");
+	graph_BFrac[0][0][1]->SetName("graph_BFrac_rap1_pt2");
+//	graph_BFrac[0][0][2]->SetName("graph_BFrac_rap1_pt3");
+	graph_FracBkg[0][0][0]->SetName("graph_FracBkg_rap1_pt1");
+	graph_FracBkg[0][0][1]->SetName("graph_FracBkg_rap1_pt2");
+//	graph_FracBkg[0][0][2]->SetName("graph_FracBkg_rap1_pt3");
+	graph_FracNonPrompt[0][0][0]->SetName("graph_FracNonPrompt_rap1_pt1");
+	graph_FracNonPrompt[0][0][1]->SetName("graph_FracNonPrompt_rap1_pt2");
+//	graph_FracNonPrompt[0][0][2]->SetName("graph_FracNonPrompt_rap1_pt3");
 //	graph_BFracRap1->SetName("graph_BPH_10_014_BFrac_rap1");
 //	graph_BFracRap2->SetName("graph_BPH_10_014_BFrac_rap2");
 
 	graph_BFrac[0][0][0]->Write();
 	graph_BFrac[0][0][1]->Write();
+//	graph_BFrac[0][0][2]->Write();
 	graph_FracBkg[0][0][0]->Write();
 	graph_FracBkg[0][0][1]->Write();
+//	graph_FracBkg[0][0][2]->Write();
 	graph_FracNonPrompt[0][0][0]->Write();
 	graph_FracNonPrompt[0][0][1]->Write();
+//	graph_FracNonPrompt[0][0][2]->Write();
 //	graph_BFracRap1->Write();
 //	graph_BFracRap2->Write();
 	outfile->Close();
@@ -2793,16 +2727,16 @@ void PlotBFrac_2S(int nState){
 //	LifetimeLegend->SetTextFont(42);
 	LifetimeLegend->SetTextSize(legendsize);
 	LifetimeLegend->SetBorderSize(0.);
-	LifetimeLegend->AddEntry(graph_BFrac[0][0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 25 GeV","lp");
-	LifetimeLegend->AddEntry(graph_BFrac[0][0][1],"0.0 < |y| < 1.2, 25 < p_{T} < 50 GeV","lp");
+	LifetimeLegend->AddEntry(graph_BFrac[0][0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 20 GeV","lp");
+	LifetimeLegend->AddEntry(graph_BFrac[0][0][1],"0.0 < |y| < 1.2, 18 < p_{T} < 35 GeV","lp");
 
 	TLegend* LifetimeLegend2Steps=new TLegend(blX,blY,trX,trY);
 	LifetimeLegend2Steps->SetFillColor(kWhite);
 //	LifetimeLegend2Steps->SetTextFont(42);
 	LifetimeLegend2Steps->SetTextSize(legendsize);
 	LifetimeLegend2Steps->SetBorderSize(0.);
-	LifetimeLegend2Steps->AddEntry(graph_BFrac[0][0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 25 GeV","lp");
-	LifetimeLegend2Steps->AddEntry(graph_BFrac[0][0][1],"0.0 < |y| < 1.2, 25 < p_{T} < 50 GeV","lp");
+	LifetimeLegend2Steps->AddEntry(graph_BFrac[0][0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 20 GeV","lp");
+	LifetimeLegend2Steps->AddEntry(graph_BFrac[0][0][1],"0.0 < |y| < 1.2, 18 < p_{T} < 35 GeV","lp");
 
 	gStyle->SetPadBottomMargin(0.11); //0.12
 	gStyle->SetPadLeftMargin(0.08); //0.12
@@ -2937,238 +2871,16 @@ void PlotBFrac_2S(int nState){
 	top -= step;
 	latex->DrawLatex(left,top,"pp  #sqrt{s} = 7 TeV");
 	c1->SaveAs(Form("%s/FracBkg.pdf",savePath.str().c_str()));
-	//// Jpsi cross-section results //
-	//const int PTBins1 = 10, PTBins2 = 6;
-	//double pTBinRap1[PTBins1+1] = {8., 9., 10., 11., 12., 13.5, 15., 18., 30., 45., 70.}; //rap 0.0 - 0.9
-	//double pTBinRap2[PTBins2+1] = {8., 9., 10., 12., 15., 30., 45.}; //rap 0.9 - 1.2
 
-	//double pTBinRap1_weight[PTBins1] = { 8.569, 9.515, 10.494, 11.485, 12.711, 14.206, 16.329, 21.77, 35.03, 52.7}; //rap 0.0 - 0.9 
-	//double pTBinRap2_weight[PTBins2] = {8.524, 9.491, 10.921, 13.312, 18.95, 34.7}; ////rap 0.9 - 1.2
-
-	//double BFracRap1[PTBins1] = { 0.271, 0.285, 0.320, 0.345, 0.373, 0.417, 0.454, 0.535, 0.633, 0.646 };
-	//double BFracErrRap1[PTBins1] = { 0.006, 0.005, 0.005, 0.005, 0.005, 0.006, 0.006, 0.006, 0.015, 0.038 };
-	//double BFracRap2[PTBins1] = { 0.265, 0.281, 0.324, 0.380, 0.481, 0.616 };
-	//double BFracErrRap2[PTBins1] = { 0.007, 0.007, 0.006, 0.006, 0.007, 0.029 };
-
-	//Psi' cross-section results //
-	//const int PTBins1 = 9, PTBins2 = 7, PTBins3 = 7;
-/*	const int PTBins1 = 9, PTBins2 = 6, PTBins3 = 7;
-	double pTBinRap1[PTBins1+1] = {6.5, 8.0, 9.0, 10.0, 11.0, 12.0, 13.5, 15.0, 18.0, 30.0}; //rap 0.0 - 1.2
-	//double pTBinRap2[PTBins2+1] = {5.5, 6.5, 8.0, 9.0, 10.0, 12.0, 15.0, 30.0}; //rap 1.2 - 1.6
-	double pTBinRap2[PTBins2+1] = {6.5, 8.0, 9.0, 10.0, 12.0, 15.0, 30.0}; //rap 1.2 - 1.6
-	double pTBinRap3[PTBins3+1] = {5.5, 6.5, 8.0, 9.0, 10.0, 12.0, 15.0, 30.0}; //rap 1.6 - 2.4
-
-	double pTBinRap1_weight[PTBins1] = {7.60, 8.54, 9.50, 10.50, 11.48, 12.72, 14.23, 16.30, 21.92}; //rap 0.0 - 1.2
-	//double pTBinRap2_weight[PTBins2] = {6.15, 7.36, 8.49, 9.50, 10.97, 13.32, 19.07}; //rap 1.2 - 1.6
-	double pTBinRap2_weight[PTBins2] = {7.36, 8.49, 9.50, 10.97, 13.32, 19.07}; //rap 1.2 - 1.6
-	double pTBinRap3_weight[PTBins3] = {6.20, 7.25, 8.48, 9.52, 10.88, 13.38, 19.01}; //rap 1.6 - 2.4
-
-	double BFracRap1[PTBins1] = {0.326, 0.350, 0.335, 0.378, 0.394, 0.431, 0.456, 0.487, 0.572};
-	double BFracErrRap1[PTBins1] = {0.041, 0.025, 0.021, 0.023, 0.024, 0.022, 0.025, 0.024, 0.025};
-	//double BFracRap2[PTBins2] = {0.246, 0.308, 0.309, 0.32, 0.366, 0.375, 0.51};
-	//double BFracErrRap2[PTBins2] = {0.093, 0.030, 0.035, 0.03, 0.029, 0.032, 0.03};
-	double BFracRap2[PTBins2] = {0.308, 0.309, 0.32, 0.366, 0.375, 0.51};
-	double BFracErrRap2[PTBins2] = {0.030, 0.035, 0.03, 0.029, 0.032, 0.03};
-	double BFracRap3[PTBins3] = {0.21, 0.19, 0.30, 0.30, 0.37, 0.372, 0.45};
-	double BFracErrRap3[PTBins3] = {0.06, 0.03, 0.04, 0.04, 0.03, 0.035, 0.04};
-
-	double pTRap1[PTBins1];
-	double pTRap1ErrLow[PTBins1];
-	double pTRap1ErrHigh[PTBins1];
-	double pTRap2[PTBins2];
-	double pTRap2ErrLow[PTBins2];
-	double pTRap2ErrHigh[PTBins2];
-	double pTRap3[PTBins3];
-	double pTRap3ErrLow[PTBins3];
-	double pTRap3ErrHigh[PTBins3];
-
-	for(int pt=0; pt<PTBins1; pt++){
-		pTRap1[pt] = pTBinRap1_weight[pt];
-		pTRap1ErrLow[pt] = pTRap1[pt]-pTBinRap1[pt];
-		pTRap1ErrHigh[pt] = pTBinRap1[pt+1]-pTRap1[pt];
-	}
-	for(int pt=0; pt<PTBins2; pt++){
-		pTRap2[pt] = pTBinRap2_weight[pt];
-		pTRap2ErrLow[pt] = pTRap2[pt]-pTBinRap2[pt];
-		pTRap2ErrHigh[pt] = pTBinRap2[pt+1]-pTRap2[pt];
-	}
-	for(int pt=0; pt<PTBins3; pt++){
-		pTRap3[pt] = pTBinRap3_weight[pt];
-		pTRap3ErrLow[pt] = pTRap3[pt]-pTBinRap3[pt];
-		pTRap3ErrHigh[pt] = pTBinRap3[pt+1]-pTRap3[pt];
-	}
-
-	TGraphAsymmErrors *graph_BFracRap1 = new TGraphAsymmErrors(PTBins1,
-			pTRap1, BFracRap1, pTRap1ErrLow, pTRap1ErrHigh, BFracErrRap1, BFracErrRap1);
-	TGraphAsymmErrors *graph_BFracRap2 = new TGraphAsymmErrors(PTBins2,
-			pTRap2, BFracRap2, pTRap2ErrLow, pTRap2ErrHigh, BFracErrRap2, BFracErrRap2);
-	TGraphAsymmErrors *graph_BFracRap3 = new TGraphAsymmErrors(PTBins3,
-			pTRap3, BFracRap3, pTRap3ErrLow, pTRap3ErrHigh, BFracErrRap3, BFracErrRap3);
-
-	graph_BFracRap1->SetTitle("");
-	graph_BFracRap1->GetXaxis()->SetTitle("p_{T} (GeV)");
-	graph_BFracRap1->GetYaxis()->SetTitle("B fraction");
-
-	graph_BFracRap1->GetYaxis()->SetRangeUser(Ymin, Ymax);
-	graph_BFracRap1->GetXaxis()->SetLimits(Xmin, Xmax);
-	graph_BFracRap1->SetMarkerStyle(onia::marker_rapForPTBins[2]);
-	graph_BFracRap1->SetMarkerColor(onia::colour_rapForPTBins[2]);
-	graph_BFracRap1->SetLineColor(onia::colour_rapForPTBins[2]);
-
-	graph_BFracRap2->SetTitle("");
-	graph_BFracRap2->GetXaxis()->SetTitle("p_{T} (GeV)");
-	graph_BFracRap2->GetYaxis()->SetTitle("B fraction");
-	graph_BFracRap2->GetYaxis()->SetRangeUser(Ymin, Ymax);
-	graph_BFracRap2->GetXaxis()->SetLimits(Xmin, Xmax);
-	graph_BFracRap2->SetMarkerStyle(onia::marker_rapForPTBins[3]);
-	graph_BFracRap2->SetMarkerColor(onia::colour_rapForPTBins[3]);
-	graph_BFracRap2->SetLineColor(onia::colour_rapForPTBins[3]);
-
-	graph_BFracRap3->SetTitle("");
-	graph_BFracRap3->GetXaxis()->SetTitle("p_{T} (GeV)");
-	graph_BFracRap3->GetYaxis()->SetTitle("B fraction");
-	graph_BFracRap3->GetYaxis()->SetRangeUser(Ymin, Ymax);
-	graph_BFracRap3->GetXaxis()->SetLimits(Xmin, Xmax);
-	graph_BFracRap3->SetMarkerStyle(onia::marker_rapForPTBins[4]);
-	graph_BFracRap3->SetMarkerColor(onia::colour_rapForPTBins[4]);
-	graph_BFracRap3->SetLineColor(onia::colour_rapForPTBins[4]);
-
-
-	TLegend* LifetimeLegendCrossSection=new TLegend(blX,blY,trX,trY);
-	LifetimeLegendCrossSection->SetFillColor(kWhite);
-//	LifetimeLegendCrossSection->SetTextFont(42);
-	LifetimeLegendCrossSection->SetTextSize(legendsize);
-	LifetimeLegendCrossSection->SetBorderSize(0.);
-	LifetimeLegendCrossSection->AddEntry(graph_BFracRap1,"|y| < 1.2 (BPH-10-014)","lp");
-	LifetimeLegendCrossSection->AddEntry(graph_BFracRap2,"1.2 < |y| < 1.6 (BPH-10-014)","lp");
-	LifetimeLegendCrossSection->AddEntry(graph_BFracRap3,"1.6 < |y| < 2.4 (BPH-10-014)","lp");
-
-	TLegend* LifetimeLegendCrossSection2Steps=new TLegend(blX,blY,trX,trY);
-	LifetimeLegendCrossSection2Steps->SetFillColor(kWhite);
-//	LifetimeLegendCrossSection2Steps->SetTextFont(42);
-	LifetimeLegendCrossSection2Steps->SetTextSize(legendsize);
-	LifetimeLegendCrossSection2Steps->SetBorderSize(0.);
-	LifetimeLegendCrossSection2Steps->AddEntry(graph_BFrac[0][0],"|y| < 0.6","lp");
-	LifetimeLegendCrossSection2Steps->AddEntry(graph_BFrac[0][1],"0.6 < |y| < 1.2","lp");
-	LifetimeLegendCrossSection2Steps->AddEntry(graph_BFrac[0][2],"1.2 < |y| < 1.5","lp");
-	LifetimeLegendCrossSection2Steps->AddEntry(graph_BFracRap1,"|y| < 1.2 (BPH-10-014)","lp");
-	LifetimeLegendCrossSection2Steps->AddEntry(graph_BFracRap2,"1.2 < |y| < 1.6 (BPH-10-014)","lp");
-	//LifetimeLegendCrossSection2Steps->AddEntry(graph_BFracRap3,"1.6 < |y| < 2.4 (BPH-10-014)","lp");
-
-	TLegend* LifetimeLegendCrossSection2Steps_rap1=new TLegend(blX,blY,trX,trY);
-	LifetimeLegendCrossSection2Steps_rap1->SetFillColor(kWhite);
-//	LifetimeLegendCrossSection2Steps_rap1->SetTextFont(42);
-	LifetimeLegendCrossSection2Steps_rap1->SetTextSize(legendsize);
-	LifetimeLegendCrossSection2Steps_rap1->SetBorderSize(0.);
-	LifetimeLegendCrossSection2Steps_rap1->AddEntry(graph_BFrac[0][0],"|y| < 0.6","lp");
-	LifetimeLegendCrossSection2Steps_rap1->AddEntry(graph_BFrac[0][1],"0.6 < |y| < 1.2","lp");
-	LifetimeLegendCrossSection2Steps_rap1->AddEntry(graph_BFracRap1,"|y| < 1.2 (BPH-10-014)","lp");
-
-
-	TLegend* LifetimeLegendCrossSection2Steps_rap2=new TLegend(blX,blY,trX,trY);
-	LifetimeLegendCrossSection2Steps_rap2->SetFillColor(kWhite);
-//	LifetimeLegendCrossSection2Steps_rap2->SetTextFont(42);
-	LifetimeLegendCrossSection2Steps_rap2->SetTextSize(legendsize);
-	LifetimeLegendCrossSection2Steps_rap2->SetBorderSize(0.);
-	LifetimeLegendCrossSection2Steps_rap2->AddEntry(graph_BFrac[0][2],"1.2 < |y| < 1.5","lp");
-	LifetimeLegendCrossSection2Steps_rap2->AddEntry(graph_BFracRap2,"1.2 < |y| < 1.8 (BPH-10-014)","lp");
-
-	graph_BFracRap1->Draw("AP");
-	graph_BFracRap2->Draw("P");
-	graph_BFracRap3->Draw("P");
-	LifetimeLegendCrossSection->Draw();
-	left=lvalue; top=tvalue;
-	latex->DrawLatex(left,top,"#psi(2S)");
-	top -= step;
-	latex->DrawLatex(left,top,"CMS Preliminary");
-	top -= step;
-	latex->DrawLatex(left,top,"pp  #sqrt{s} = 7 TeV");
-	c1->SaveAs(Form("%s/BFrac_BPH-10-014.pdf",savePath.str().c_str()));
-
-	graph_BFrac[0][0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
-	graph_BFrac[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
-	graph_BFrac[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
-	graph_BFrac[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
-	graph_BFrac[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
-	graph_BFrac[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-	graph_BFrac[0][2]->SetMarkerStyle(onia::marker_rapForPTBins[1]);
-	graph_BFrac[0][2]->SetMarkerColor(onia::colour_rapForPTBins[1]);
-	graph_BFrac[0][2]->SetLineColor(onia::colour_rapForPTBins[1]);
-
-	graph_BFracRap1->SetMarkerStyle(onia::marker_rapForPTBins[4]);
-	graph_BFracRap1->SetMarkerColor(onia::colour_rapForPTBins[4]);
-	graph_BFracRap1->SetLineColor(onia::colour_rapForPTBins[4]);
-	graph_BFracRap2->SetMarkerStyle(onia::marker_rapForPTBins[5]);
-	graph_BFracRap2->SetMarkerColor(onia::colour_rapForPTBins[5]);
-	graph_BFracRap2->SetLineColor(onia::colour_rapForPTBins[5]);
-
-	graph_BFrac[0][0]->Draw("AP");
-	graph_BFrac[0][1]->Draw("P");
-	graph_BFrac[0][2]->Draw("P");
-	graph_BFracRap1->Draw("P");
-	graph_BFracRap2->Draw("P");
-	LifetimeLegendCrossSection2Steps->Draw();
-	left=lvalue; top=tvalue;
-	latex->DrawLatex(left,top,"#psi(2S)");
-	top -= step;
-	latex->DrawLatex(left,top,"CMS Preliminary");
-	top -= step;
-	latex->DrawLatex(left,top,"pp  #sqrt{s} = 7 TeV");
-	c1->SaveAs(Form("%s/BFrac_BPH-10-014_compare.pdf",savePath.str().c_str()));
-
-	graph_BFrac[0][0]->SetMarkerStyle(onia::marker_rapForPTBins[2]);
-	graph_BFrac[0][0]->SetMarkerColor(onia::colour_rapForPTBins[2]);
-	graph_BFrac[0][0]->SetLineColor(onia::colour_rapForPTBins[2]);
-	graph_BFrac[0][1]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
-	graph_BFrac[0][1]->SetMarkerColor(onia::colour_rapForPTBins[3]);
-	graph_BFrac[0][1]->SetLineColor(onia::colour_rapForPTBins[3]);
-
-	graph_BFrac[0][2]->SetMarkerStyle(onia::marker_rapForPTBins[3]);
-	graph_BFrac[0][2]->SetMarkerColor(onia::colour_rapForPTBins[3]);
-
-	graph_BFrac[0][2]->SetLineColor(onia::colour_rapForPTBins[3]);
-
-	graph_BFracRap1->SetMarkerStyle(onia::marker_rapForPTBins[4]);
-	graph_BFracRap1->SetMarkerColor(onia::colour_rapForPTBins[4]);
-	graph_BFracRap1->SetLineColor(onia::colour_rapForPTBins[4]);
-
-	graph_BFracRap2->SetMarkerStyle(onia::marker_rapForPTBins[4]);
-	graph_BFracRap2->SetMarkerColor(onia::colour_rapForPTBins[4]);
-	graph_BFracRap2->SetLineColor(onia::colour_rapForPTBins[4]);
-
-	graph_BFrac[0][0]->Draw("AP");
-	graph_BFrac[0][1]->Draw("P");
-	graph_BFracRap1->Draw("P");
-	LifetimeLegendCrossSection2Steps_rap1->Draw();
-	left=lvalue; top=tvalue;
-	latex->DrawLatex(left,top,"#psi(2S)");
-	top -= step;
-	latex->DrawLatex(left,top,"CMS Preliminary");
-	top -= step;
-	latex->DrawLatex(left,top,"pp  #sqrt{s} = 7 TeV");
-	c1->SaveAs(Form("%s/BFrac_BPH-10-014_compare_rap1.pdf",savePath.str().c_str()));
-
-	graph_BFrac[0][2]->Draw("AP");
-	graph_BFracRap2->Draw("P");
-	LifetimeLegendCrossSection2Steps_rap2->Draw();
-	left=lvalue; top=tvalue;
-	latex->DrawLatex(left,top,"#psi(2S)");
-	top -= step;
-	latex->DrawLatex(left,top,"CMS Preliminary");
-	top -= step;
-
-	latex->DrawLatex(left,top,"pp  #sqrt{s} = 7 TeV");
-	c1->SaveAs(Form("%s/BFrac_BPH-10-014_compare_rap2.pdf",savePath.str().c_str()));
-*/
 	///
 	TFile *outfile  = new TFile(Form("%s/BFrac_%dS.root",savePath.str().c_str(),nState-3),"RECREATE");
 
-	graph_BFrac[0][0][0]->SetName("graph_BFrac_rap1");
-	graph_BFrac[0][0][1]->SetName("graph_BFrac_rap2");
-	graph_FracBkg[0][0][0]->SetName("graph_FracBkg_rap1");
-	graph_FracBkg[0][0][1]->SetName("graph_FracBkg_rap2");
-	graph_FracNonPrompt[0][0][0]->SetName("graph_FracNonPrompt_rap1");
-	graph_FracNonPrompt[0][0][1]->SetName("graph_FracNonPrompt_rap2");
+	graph_BFrac[0][0][0]->SetName("graph_BFrac_rap1_pt1");
+	graph_BFrac[0][0][1]->SetName("graph_BFrac_rap1_pt2");
+	graph_FracBkg[0][0][0]->SetName("graph_FracBkg_rap1_pt1");
+	graph_FracBkg[0][0][1]->SetName("graph_FracBkg_rap1_pt2");
+	graph_FracNonPrompt[0][0][0]->SetName("graph_FracNonPrompt_rap1_pt1");
+	graph_FracNonPrompt[0][0][1]->SetName("graph_FracNonPrompt_rap1_pt2");
 //	graph_BFracRap1->SetName("graph_BPH_10_014_BFrac_rap1");
 //	graph_BFracRap2->SetName("graph_BPH_10_014_BFrac_rap2");
 
@@ -3185,14 +2897,13 @@ void PlotBFrac_2S(int nState){
 
 //===============================================
 //no need to edit
-void evaluateCtauCut(double nSigma, int nState, int type, bool doCtauUncer){ // type=0: PR(-ctau,ctau); type=1: NP(ctau,+infinity)
-	evaluate(nSigma, nState, type, doCtauUncer); 
+void evaluateCtauCut(double nSigma, int nState, int type, bool doCtauUncer, bool fitmass2gaus){ // type=0: PR(-ctau,ctau); type=1: NP(ctau,+infinity)
+	evaluate(nSigma, nState, type, doCtauUncer, fitmass2gaus); 
 	plotEval(nSigma, nState, type);
 }
 
 //===============================================
-//no need to edit
-void evaluate(double nSigma, int nState, int type, bool doCtauUncer){ // type=0: PR(-ctau,ctau); type=1: NP(ctau,+infinity)
+void evaluate(double nSigma, int nState, int type, bool doCtauUncer, bool fitmass2gaus){ // type=0: PR(-ctau,ctau); type=1: NP(ctau,+infinity)
 	cout<<"nSigma: "<<nSigma<<endl;
 	cout<<"Psi: "<<nState<<"S"<<endl;
 	cout<<"type: "<<type<<endl;
@@ -3347,25 +3058,53 @@ void evaluate(double nSigma, int nState, int type, bool doCtauUncer){ // type=0:
 			cpmErrHigh[rapBin-1][ptBin-1][cpmBin-1] =  cpmMax-cpm[rapBin-1][ptBin-1][cpmBin-1];
 
 			//////////////////////////////////////////Get Mean  and SigmaWei Value from MassFit////////////////////
-			//RooRealVar *CBmass=(RooRealVar *)ws->var("CBmass");
-			//RooRealVar *CBsigma=(RooRealVar *)ws->var("CBsigma");
-			//RooRealVar *CBsigma2=(RooRealVar *)ws->var("CBsigma2");
-			//RooRealVar *fracCB1_=(RooRealVar *)ws->var("fracCB1");
-			RooRealVar *JpsiRap = ws->var("JpsiRap");
-			RooRealVar *CBmass =  ws->var("CBmass_p0");
-			RooRealVar *CBsigma_p0 = ws->var("CBsigma_p0");
-			RooRealVar *CBsigma_p1 = ws->var("CBsigma_p1");
-			RooRealVar *CBsigma_p2 = ws->var("CBsigma_p2");
+			double Sigma;
+			double Sigma2;
+			double fracCB1;
+			double cbsigp0;
+			double cbsigp1;
+			double cbsigp2;
+			double jpsirap;
+			double SigmaWei;
+			RooRealVar *CBmass;
+			RooRealVar *CBsigma;
+			RooRealVar *CBsigma2;
+			RooRealVar *fracCB1_;
+			RooRealVar *JpsiRap;
+			RooRealVar *CBsigma_p0;
+			RooRealVar *CBsigma_p1;
+			RooRealVar *CBsigma_p2;
+			
+			
+			if(fitmass2gaus){
+			CBmass=(RooRealVar *)ws->var("CBmass");
+			CBsigma=(RooRealVar *)ws->var("CBsigma");
+			cout<<"cbsigma is "<<CBsigma<<endl;
+			CBsigma2=(RooRealVar *)ws->var("CBsigma2");
+			fracCB1_=(RooRealVar *)ws->var("fracCB1");
+			Sigma = CBsigma->getVal();
+			Sigma2 = CBsigma2->getVal();
+			fracCB1 = fracCB1_->getVal();
+			SigmaWei = sqrt(pow(Sigma,2)*fracCB1+pow(Sigma2,2)*(1-fracCB1));
+			}
+			
+			if(!fitmass2gaus){
+			JpsiRap = ws->var("JpsiRap");
+			CBmass =  ws->var("CBmass_p0");
+			CBsigma_p0 = ws->var("CBsigma_p0");
+			CBsigma_p1 = ws->var("CBsigma_p1");
+			CBsigma_p2 = ws->var("CBsigma_p2");
+			cbsigp0 = CBsigma_p0->getVal();
+			cbsigp1 = CBsigma_p1->getVal();
+			cbsigp2 = CBsigma_p2->getVal();
+			jpsirap = JpsiRap->getVal();
+			SigmaWei = cbsigp0 + cbsigp1*jpsirap + cbsigp2*pow(jpsirap,2);
+			}
+			
 			double Mean = CBmass->getVal();
 			double MeanErr = CBmass->getError();
-			//double Sigma = CBsigma->getVal();
-			//double Sigma2 = CBsigma2->getVal();
-			//double fracCB1 = fracCB1_->getVal();
-			double cbsigp0 = CBsigma_p0->getVal();
-			double cbsigp1 = CBsigma_p1->getVal();
-			double cbsigp2 = CBsigma_p2->getVal();
-			double jpsirap = JpsiRap->getVal();
-			double SigmaWei = cbsigp0 + cbsigp1*jpsirap + cbsigp2*pow(jpsirap,2);
+
+			
 			double sigMaxMass = Mean+SigmaWei*onia::nSigMass;
 			double sigMinMass = Mean-SigmaWei*onia::nSigMass;
 			double sbHighMass = Mean+SigmaWei*onia::nSigBkgHigh;
@@ -3376,9 +3115,7 @@ void evaluate(double nSigma, int nState, int type, bool doCtauUncer){ // type=0:
 			cutSR      << "JpsiMass > "<<sigMinMass<<" && JpsiMass < "<<sigMaxMass;
 			cout<<"cutSR: "<<cutSR.str().c_str()<<endl;
 
-			cout<<"ws is "<<ws<<endl;
 			RooDataSet *data   = (RooDataSet*)ws->data(binName.str().c_str());
-			cout<<"data is "<<data<<endl;
 			RooDataSet *dataSR = (RooDataSet*)data->reduce(
 					Cut(cutSR.str().c_str()),
 					Name(binNameSR.str().c_str()),
@@ -3920,7 +3657,6 @@ void evaluate(double nSigma, int nState, int type, bool doCtauUncer){ // type=0:
 	return;
 }
 
-
 //========================================
 //no need to edit
 void plotEval(double nSigma, int nState, int type){ 
@@ -3978,27 +3714,6 @@ void plotEval(double nSigma, int nState, int type){
 
 		graph_sigmaP_L[rapBin-1][ptBin-1] = (TGraphAsymmErrors*)infile->Get(Form("graph_sigmaP_L_%d_%d",rapBin-1,ptBin-1));
 		graph_sigmaP_L[rapBin-1][ptBin-1] -> GetXaxis()->SetLimits(0.,100.);
-
-		if(nState==5){ // for Psi2S, remove first pT bin
-			//graph_FracPR[rapBin-1][ptBin-1] -> RemovePoint(0);
-			//graph_FracNP[rapBin-1][ptBin-1] -> RemovePoint(0);
-			//graph_FracBG[rapBin-1][ptBin-1] -> RemovePoint(0);
-			//graph_FracPRErr[rapBin-1][ptBin-1] -> RemovePoint(0);
-			//graph_FracNPErr[rapBin-1][ptBin-1] -> RemovePoint(0);
-			//graph_FracBGErr[rapBin-1][ptBin-1] -> RemovePoint(0);
-			//graph_FracPRRelativeErr[rapBin-1][ptBin-1] -> RemovePoint(0);
-			//graph_FracNPRelativeErr[rapBin-1][ptBin-1] -> RemovePoint(0);
-			//graph_FracBGRelativeErr[rapBin-1][ptBin-1] -> RemovePoint(0);
-
-			//graph_CtauCut[rapBin-1][ptBin-1] -> RemovePoint(0);
-			//graph_PRprob[rapBin-1][ptBin-1] -> RemovePoint(0);
-			//graph_sigmaP[rapBin-1][ptBin-1] -> RemovePoint(0);
-			//graph_sigmaP_L[rapBin-1][ptBin-1] -> RemovePoint(0);
-
-			//graph_evtPR[rapBin-1][ptBin-1] -> RemovePoint(0);  
-			//graph_evtNP[rapBin-1][ptBin-1] -> RemovePoint(0);
-			//graph_evtBG[rapBin-1][ptBin-1] -> RemovePoint(0);
-		}
 
 		//graph_FracNP[rapBin-1][ptBin-1] -> SetMarkerColor(kRed+1);
 
@@ -4070,7 +3785,7 @@ void plotEval(double nSigma, int nState, int type){
 	legend_rap2->SetBorderSize(0.);
 	legend_rap2->AddEntry(graph_FracPR[0][1],"Prompt","p");
 	legend_rap2->AddEntry(graph_FracNP[0][1],"Nonprompt","p");
-	legend_rap2->AddEntry(graph_FracBG[0][1],"Nonprompt","p");
+	legend_rap2->AddEntry(graph_FracBG[0][1],"Background","p");
 	//legend_rap2->AddEntry(graph_FracBGNP[1],"Bg+NP","lp");
 
 	TLegend* legend_rap3=new TLegend(blX,blY,trX,trY);
@@ -4078,10 +3793,10 @@ void plotEval(double nSigma, int nState, int type){
 //	legend_rap3->SetTextFont(42);
 	legend_rap3->SetTextSize(legendsize);
 	legend_rap3->SetBorderSize(0.);
-	if(nState==6){
-		legend_rap3->AddEntry(graph_FracPR[0][2],"Prompt","p");
-		legend_rap3->AddEntry(graph_FracNP[0][2],"Nonprompt","p");
-		legend_rap3->AddEntry(graph_FracBG[0][2],"Nonprompt","p");
+	if(nState==4){
+//		legend_rap3->AddEntry(graph_FracPR[0][2],"Prompt","p");
+//		legend_rap3->AddEntry(graph_FracNP[0][2],"Nonprompt","p");
+//		legend_rap3->AddEntry(graph_FracBG[0][2],"Nonprompt","p");
 		//legend_rap3->AddEntry(graph_FracBGNP[2],"Bg+NP","lp");
 	}
 
@@ -4091,21 +3806,21 @@ void plotEval(double nSigma, int nState, int type){
 	//graph_FracBGNP[0]->Draw("P");
 	legend_rap1->Draw();
 	top=topVal;
-	if(nState==4) latex->DrawLatex(left,top, "J/#psi");
-	if(nState==5) latex->DrawLatex(left,top, "#psi(2S)");
-	top -= stepLatex;
-	latex->DrawLatex(left,top, "0.0 < |y| < 1.2, 14 < p_{T} < 25 GeV");
-	c1->SaveAs(Form("%s/fraction_rap1_pt1.pdf",savePath.str().c_str()));
+	if(nState==4) { latex->DrawLatex(left,top, "J/#psi"); top -= stepLatex; latex->DrawLatex(left,top, "0.0 < |y| < 1.2, 14 < p_{T} < 20 GeV"); }
+	if(nState==5) { latex->DrawLatex(left,top, "#psi(2S)"); top -= stepLatex; latex->DrawLatex(left,top, "0.0 < |y| < 1.5, 14 < p_{T} < 20 GeV"); }
+	
+	
+	if(type==0) c1->SaveAs(Form("%s/PR_fraction_rap1_pt1.pdf",savePath.str().c_str()));
+	if(type==1) c1->SaveAs(Form("%s/NP_fraction_rap1_pt1.pdf",savePath.str().c_str()));
 
 	graph_FracPRErr[0][0]->Draw("AP");
 	graph_FracNPErr[0][0]->Draw("P");
 	graph_FracBGErr[0][0]->Draw("P");
 	legend_rap1->Draw();
 	top=topVal;
-	if(nState==4) latex->DrawLatex(left,top, "J/#psi");
-	if(nState==5) latex->DrawLatex(left,top, "#psi(2S)");
-	top -= stepLatex;
-	latex->DrawLatex(left,top, "0.0 < |y| < 1.2, 14 < p_{T} < 25 GeV");
+	if(nState==4) { latex->DrawLatex(left,top, "J/#psi"); top -= stepLatex; latex->DrawLatex(left,top, "0.0 < |y| < 1.2, 14 < p_{T} < 20 GeV"); }
+	if(nState==5) { latex->DrawLatex(left,top, "#psi(2S)"); top -= stepLatex; latex->DrawLatex(left,top, "0.0 < |y| < 1.5, 14 < p_{T} < 20 GeV"); }
+	
 	c1->SaveAs(Form("%s/fractionErr_rap1_pt1.pdf",savePath.str().c_str()));
 
 	graph_FracPRRelativeErr[0][0]->Draw("AP");
@@ -4113,11 +3828,9 @@ void plotEval(double nSigma, int nState, int type){
 	graph_FracBGRelativeErr[0][0]->Draw("P");
 	legend_rap1->Draw();
 	top=topVal;
-	if(nState==4) latex->DrawLatex(left,top, "J/#psi");
-	if(nState==5) latex->DrawLatex(left,top, "#psi(2S)");
-
-	top -= stepLatex;
-	latex->DrawLatex(left,top, "0.0 < |y| < 1.2, 14 < p_{T} < 25 GeV");
+	if(nState==4) { latex->DrawLatex(left,top, "J/#psi"); top -= stepLatex; latex->DrawLatex(left,top, "0.0 < |y| < 1.2, 14 < p_{T} < 20 GeV"); }
+	if(nState==5) { latex->DrawLatex(left,top, "#psi(2S)"); top -= stepLatex; latex->DrawLatex(left,top, "0.0 < |y| < 1.5, 14 < p_{T} < 20 GeV"); }
+	
 	c1->SaveAs(Form("%s/fractionRelativeErr_rap1_pt1.pdf",savePath.str().c_str()));
 
 	graph_FracPR[0][1]->Draw("AP");
@@ -4126,21 +3839,21 @@ void plotEval(double nSigma, int nState, int type){
 	//graph_FracBGNP[1]->Draw("P");
 	legend_rap2->Draw();
 	top=topVal;
-	if(nState==4) latex->DrawLatex(left,top, "J/#psi");
-	if(nState==5) latex->DrawLatex(left,top, "#psi(2S)");
-	top -= stepLatex;
-	latex->DrawLatex(left,top, "0.0 < |y| < 1.2, 25 < p_{T} < 50 GeV");
-	c1->SaveAs(Form("%s/fraction_rap1_pt2.pdf",savePath.str().c_str()));
+	if(nState==4) { latex->DrawLatex(left,top, "J/#psi"); top -= stepLatex; latex->DrawLatex(left,top, "0.0 < |y| < 1.2, 20 < p_{T} < 35 GeV"); }
+	if(nState==5) { latex->DrawLatex(left,top, "#psi(2S)"); top -= stepLatex; latex->DrawLatex(left,top, "0.0 < |y| < 1.5, 20 < p_{T} < 35 GeV"); }
+	
+	
+	if(type==0) c1->SaveAs(Form("%s/PR_fraction_rap1_pt2.pdf",savePath.str().c_str()));
+	if(type==1) c1->SaveAs(Form("%s/NP_fraction_rap1_pt2.pdf",savePath.str().c_str()));
 
 	graph_FracPRErr[0][1]->Draw("AP");
 	graph_FracNPErr[0][1]->Draw("P");
 	graph_FracBGErr[0][1]->Draw("P");
 	legend_rap2->Draw();
 	top=topVal;
-	if(nState==4) latex->DrawLatex(left,top, "J/#psi");
-	if(nState==5) latex->DrawLatex(left,top, "#psi(2S)");
-	top -= stepLatex;
-	latex->DrawLatex(left,top, "0.0 < |y| < 1.2, 25 < p_{T} < 50 GeV");
+	if(nState==4) { latex->DrawLatex(left,top, "J/#psi"); top -= stepLatex; latex->DrawLatex(left,top, "0.0 < |y| < 1.2, 20 < p_{T} < 35 GeV"); }
+	if(nState==5) { latex->DrawLatex(left,top, "#psi(2S)"); top -= stepLatex; latex->DrawLatex(left,top, "0.0 < |y| < 1.5, 20 < p_{T} < 35 GeV"); }
+	
 	c1->SaveAs(Form("%s/fractionErr_rap1_pt2.pdf",savePath.str().c_str()));
 
 	graph_FracPRRelativeErr[0][1]->Draw("AP");
@@ -4148,78 +3861,90 @@ void plotEval(double nSigma, int nState, int type){
 	graph_FracBGRelativeErr[0][1]->Draw("P");
 	legend_rap2->Draw();
 	top=topVal;
-	if(nState==4) latex->DrawLatex(left,top, "J/#psi");
-	if(nState==5) latex->DrawLatex(left,top, "#psi(2S)");
-	top -= stepLatex;
-	latex->DrawLatex(left,top, "0.0 < |y| < 1.2, 25 < p_{T} < 50 GeV");
+	if(nState==4) { latex->DrawLatex(left,top, "J/#psi"); top -= stepLatex; latex->DrawLatex(left,top, "0.0 < |y| < 1.2, 20 < p_{T} < 35 GeV"); }
+	if(nState==5) { latex->DrawLatex(left,top, "#psi(2S)"); top -= stepLatex; latex->DrawLatex(left,top, "0.0 < |y| < 1.5, 20 < p_{T} < 35 GeV"); }
 	c1->SaveAs(Form("%s/fractionRelativeErr_rap1_pt2.pdf",savePath.str().c_str()));
 
-	if(nState==6){
-		graph_FracPR[0][2]->Draw("AP");
-		graph_FracNP[0][2]->Draw("P");
-		graph_FracBG[0][2]->Draw("P");
+/*	if(nState==4){
+//		graph_FracPR[0][2]->Draw("AP");
+//		graph_FracNP[0][2]->Draw("P");
+//		graph_FracBG[0][2]->Draw("P");
 		legend_rap3->Draw();
 		top=topVal;
-		latex->DrawLatex(left,top, "#psi(2S)");
+		latex->DrawLatex(left,top, "J/#psi");
 		top -= stepLatex;
-		latex->DrawLatex(left,top, "1.2 < |y| < 1.5");
-		c1->SaveAs(Form("%s/fraction_rap3.pdf",savePath.str().c_str()));
+		latex->DrawLatex(left,top, "0.0 < |y| < 1.2, 22 < p_{T} < 50 GeV");
+		c1->SaveAs(Form("%s/fraction_rap1_pt3.pdf",savePath.str().c_str()));
 
-		graph_FracPRErr[0][2]->Draw("AP");
-		graph_FracNPErr[0][2]->Draw("P");
-		graph_FracBGErr[0][2]->Draw("P");
+//		graph_FracPRErr[0][2]->Draw("AP");
+//		graph_FracNPErr[0][2]->Draw("P");
+//		graph_FracBGErr[0][2]->Draw("P");
 		legend_rap3->Draw();
 		top=topVal;
-		latex->DrawLatex(left,top, "#psi(2S)");
+		latex->DrawLatex(left,top, "J/#psi");
 		top -= stepLatex;
-		latex->DrawLatex(left,top, "1.2 < |y| < 1.5");
-		c1->SaveAs(Form("%s/fractionErr_rap3.pdf",savePath.str().c_str()));
+		latex->DrawLatex(left,top, "0.0 < |y| < 1.2, 22 < p_{T} < 50 GeV");
+		c1->SaveAs(Form("%s/fractionErr_rap1_pt3.pdf",savePath.str().c_str()));
 
-		graph_FracPRRelativeErr[0][2]->Draw("AP");
-		graph_FracNPRelativeErr[0][2]->Draw("P");
-		graph_FracBGRelativeErr[0][2]->Draw("P");
+//		graph_FracPRRelativeErr[0][2]->Draw("AP");
+//		graph_FracNPRelativeErr[0][2]->Draw("P");
+//		graph_FracBGRelativeErr[0][2]->Draw("P");
 		legend_rap3->Draw();
 		top=topVal;
-		latex->DrawLatex(left,top, "#psi(2S)");
+		latex->DrawLatex(left,top, "J/#psi");
 		top -= stepLatex;
-		latex->DrawLatex(left,top, "1.2 < |y| < 1.5");
-		c1->SaveAs(Form("%s/fractionRelativeErr_rap3.pdf",savePath.str().c_str()));
+		latex->DrawLatex(left,top, "0.0 < |y| < 1.2, 22 < p_{T} < 50 GeV");
+		c1->SaveAs(Form("%s/fractionRelativeErr_rap1_pt3.pdf",savePath.str().c_str()));
 	}
-
+*/
 	TLegend* legend_ctauCut=new TLegend(blX,blY,trX,trY);
 	legend_ctauCut->SetFillColor(kWhite);
 //	legend_ctauCut->SetTextFont(42);
 	legend_ctauCut->SetTextSize(legendsize);
 	legend_ctauCut->SetBorderSize(0.);
-	legend_ctauCut->AddEntry(graph_CtauCut[0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 25 GeV","lp");
-	legend_ctauCut->AddEntry(graph_CtauCut[0][1],"0.0 < |y| < 1.2, 25 < p_{T} < 50 GeV","lp");
-	if(nState==6)
-		legend_ctauCut->AddEntry(graph_CtauCut[0][2],"1.2 < |y| < 1.5","lp");
-
+	if(nState==5){
+		legend_ctauCut->AddEntry(graph_CtauCut[0][0],"0.0 < |y| < 1.5, 14 < p_{T} < 20 GeV","lp");
+		legend_ctauCut->AddEntry(graph_CtauCut[0][1],"0.0 < |y| < 1.5, 20 < p_{T} < 35 GeV","lp");
+	}
+	
+	if(nState==4){
+		legend_ctauCut->AddEntry(graph_CtauCut[0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 20 GeV","lp");
+		legend_ctauCut->AddEntry(graph_CtauCut[0][1],"0.0 < |y| < 1.2, 20 < p_{T} < 35 GeV","lp");
+//		legend_ctauCut->AddEntry(graph_CtauCut[0][2],"0.0 < |y| < 1.2, 22 < p_{T} < 35 GeV","lp");
+	}
+	
 	TLegend* legend_promptProb=new TLegend(blX,blY,trX,trY);
 	legend_promptProb->SetFillColor(kWhite);
 //	legend_promptProb->SetTextFont(42);
 	legend_promptProb->SetTextSize(legendsize);
 	legend_promptProb->SetBorderSize(0.);
-	legend_promptProb->AddEntry(graph_PRprob[0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 25 GeV","lp");
-	legend_promptProb->AddEntry(graph_PRprob[0][1],"0.0 < |y| < 1.2, 25 < p_{T} < 50 GeV","lp");
-	if(nState==6)
-		legend_promptProb->AddEntry(graph_PRprob[0][2],"1.2 < |y| < 1.5","lp");
-
+	if(nState==4){
+		legend_promptProb->AddEntry(graph_PRprob[0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 20 GeV","lp");
+		legend_promptProb->AddEntry(graph_PRprob[0][1],"0.0 < |y| < 1.2, 20 < p_{T} < 35 GeV","lp");
+	}
+	if(nState==5){
+		legend_promptProb->AddEntry(graph_PRprob[0][0],"0.0 < |y| < 1.5, 14 < p_{T} < 20 GeV","lp");
+		legend_promptProb->AddEntry(graph_PRprob[0][1],"0.0 < |y| < 1.5, 20 < p_{T} < 35 GeV","lp");
+	}
+	
 	TLegend* legend_evt=new TLegend(blX,blY,trX,trY);
 	legend_evt->SetFillColor(kWhite);
 //	legend_evt->SetTextFont(42);
 	legend_evt->SetTextSize(legendsize);
 	legend_evt->SetBorderSize(0.);
-	legend_evt->AddEntry(graph_evtPR[0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 25 GeV","lp");
-	legend_evt->AddEntry(graph_evtPR[0][1],"0.0 < |y| < 1.2, 25 < p_{T} < 50 GeV","lp");
-	if(nState==6)
-		legend_evt->AddEntry(graph_evtPR[0][2],"1.2 < |y| < 1.5","lp");
-
+	
+	if(nState==5){
+		legend_evt->AddEntry(graph_evtPR[0][0],"0.0 < |y| < 1.5, 14 < p_{T} < 20 GeV","lp");
+		legend_evt->AddEntry(graph_evtPR[0][1],"0.0 < |y| < 1.5, 20 < p_{T} < 35 GeV","lp");
+	}
+	if(nState==4){
+		legend_evt->AddEntry(graph_evtPR[0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 20 GeV","lp");
+		legend_evt->AddEntry(graph_evtPR[0][1],"0.0 < |y| < 1.2, 20 < p_{T} < 35 GeV","lp");
+	}
 	graph_CtauCut[0][0]->Draw("AP");
 	graph_CtauCut[0][1]->Draw("P");
-	if(nState==6)
-		graph_CtauCut[0][2]->Draw("P");
+//	if(nState==4)
+//		graph_CtauCut[0][2]->Draw("P");
 	legend_ctauCut->Draw();
 
 	//left=0.55;top=0.83;
@@ -4231,8 +3956,8 @@ void plotEval(double nSigma, int nState, int type){
 
 	graph_PRprob[0][0]->Draw("AP");
 	graph_PRprob[0][1]->Draw("P");
-	if(nState==6)
-		graph_PRprob[0][2]->Draw("P");
+//	if(nState==4)
+//		graph_PRprob[0][2]->Draw("P");
 	legend_promptProb->Draw();
 	left=leftVal;top=topVal;
 	if(nState==4) latex->DrawLatex(left,top, "J/#psi");
@@ -4243,8 +3968,8 @@ void plotEval(double nSigma, int nState, int type){
 	c1->SetLogy();
 	graph_evtPR[0][0]->Draw("AP");
 	graph_evtPR[0][1]->Draw("P");
-	if(nState==6)
-		graph_evtPR[0][2]->Draw("P");
+//	if(nState==4)
+//		graph_evtPR[0][2]->Draw("P");
 	legend_evt->Draw();
 	left=leftVal;top=topVal;
 	if(nState==4) latex->DrawLatex(left,top, "J/#psi");
@@ -4253,8 +3978,8 @@ void plotEval(double nSigma, int nState, int type){
 
 	graph_evtNP[0][0]->Draw("AP");
 	graph_evtNP[0][1]->Draw("P");
-	if(nState==6)
-		graph_evtNP[0][2]->Draw("P");
+//	if(nState==4)
+//		graph_evtNP[0][2]->Draw("P");
 	legend_evt->SetFillStyle(0);
 	legend_evt->Draw();
 	left=leftVal;top=topVal;
@@ -4264,8 +3989,8 @@ void plotEval(double nSigma, int nState, int type){
 
 	graph_evtBG[0][0]->Draw("AP");
 	graph_evtBG[0][1]->Draw("P");
-	if(nState==6)
-		graph_evtBG[0][2]->Draw("P");
+	if(nState==4)
+//		graph_evtBG[0][2]->Draw("P");
 	legend_evt->Draw();
 	left=leftVal;top=topVal;
 	if(nState==4) latex->DrawLatex(left,top, "J/#psi");
@@ -4277,16 +4002,19 @@ void plotEval(double nSigma, int nState, int type){
 //	legend_sigmaP->SetTextFont(42);
 	legend_sigmaP->SetTextSize(legendsize);
 	legend_sigmaP->SetBorderSize(0.);
-	legend_sigmaP->AddEntry(graph_sigmaP[0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 25 GeV","lp");
-	legend_sigmaP->AddEntry(graph_sigmaP[0][1],"0.0 < |y| < 1.2, 25 < p_{T} < 50 GeV","lp");
-	if(nState==6)
-		legend_sigmaP->AddEntry(graph_sigmaP[0][2],"1.2 < |y| < 1.5","lp");
-
+	if(nState==5){
+		legend_sigmaP->AddEntry(graph_sigmaP[0][0],"0.0 < |y| < 1.5, 14 < p_{T} < 20 GeV","lp");
+		legend_sigmaP->AddEntry(graph_sigmaP[0][1],"0.0 < |y| < 1.5, 20 < p_{T} < 35 GeV","lp");
+	}
+	if(nState==4){
+		legend_sigmaP->AddEntry(graph_sigmaP[0][0],"0.0 < |y| < 1.2, 14 < p_{T} < 20 GeV","lp");
+		legend_sigmaP->AddEntry(graph_sigmaP[0][1],"0.0 < |y| < 1.2, 20 < p_{T} < 35 GeV","lp");
+	}
 	c1->SetLogy(0);
 	graph_sigmaP[0][0]->Draw("AP");
 	graph_sigmaP[0][1]->Draw("P");
-	if(nState==6)
-		graph_sigmaP[0][2]->Draw("P");
+//	if(nState==4)
+//		graph_sigmaP[0][2]->Draw("P");
 	legend_sigmaP->Draw();
 	left=leftVal;top=topVal;
 	if(nState==4) latex->DrawLatex(left,top, "J/#psi");
@@ -4295,8 +4023,8 @@ void plotEval(double nSigma, int nState, int type){
 
 	graph_sigmaP_L[0][0]->Draw("AP");
 	graph_sigmaP_L[0][1]->Draw("P");
-	if(nState==6)
-		graph_sigmaP_L[0][2]->Draw("P");
+//	if(nState==4)
+//		graph_sigmaP_L[0][2]->Draw("P");
 	legend_sigmaP->Draw();
 	left=leftVal;top=topVal;
 	if(nState==4) latex->DrawLatex(left,top, "J/#psi");

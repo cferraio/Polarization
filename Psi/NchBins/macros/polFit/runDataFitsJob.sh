@@ -1,22 +1,17 @@
 #!/bin/sh
-export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch #comment out for non-condor
+#source /cvmfs/cms.cern.ch/cmsset_default.csh
+#cd /home/ferraioc/PolNew/CMSSW_5_3_20/src/Psi/NchBins/macros/polFit #comment out for non-condor
+#eval `scramv1 runtime -sh` #comment out for non-condor
+
+export VO_CMS_SW_DIR=/sharesoft/cmssw #comment out for non-condor
 . $VO_CMS_SW_DIR/cmsset_default.sh #comment out for non-condor
-cd /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchBins/macros/polFit #comment out for non-condor
+cd /home/ferraioc/PolNew/CMSSW_5_3_20/src/Psi/NchBins/macros/polFit #comment out for non-condor
 eval `scramv1 runtime -sh` #comment out for non-condor
 
 source /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/5.34.05/x86_64-slc5-gcc43-opt/root/bin/thisroot.sh                                     
 source /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/5.34.05/x86_64-slc5-gcc43-opt/root/bin/setxrd.sh /cvmfs/sft.cern.ch/lcg/external/xrootd/3.2.4/x86_64-slc5-gcc46-opt/
 
-#### following will be changed by "launchFit.sh" ####
-# HOMEDIR
-# NState 
-# RapBinMin
-# RapBinMax
-# PtBinMin
-# PtBinMax
-# NSkipGen
-######################################### 
-
+#### following will be changed by "runFitsCondor.sh" ####
 storagedir=$3
 homedir=$4
 settotalfits=$5
@@ -51,7 +46,7 @@ datadir_Start=${basedir}/macros/DataFiles
 #Batch submission system: 0/1
 useBatch=1
 
-fracL=50 #in percent #MC closure: 25 for data sigmas, 50 for MC sigmas
+fracL=75 #in percent #MC closure: 25 for data sigmas, 50 for MC sigmas
 nSigma=3.00 #needed in 2 decimal accuracy (x.yz)
 
 for nState in NState;do
@@ -75,7 +70,7 @@ nDileptonEff=1
 UseMCDileptoneff=false
 
 #nRhoFactor=330 #from Bruno
-nRhoFactor=329 #2011
+nRhoFactor=1 #2011
 
 useAmapApproach=false
 nAmap=1                    #frame/state/sigma/ID ( ID= 2 digits )

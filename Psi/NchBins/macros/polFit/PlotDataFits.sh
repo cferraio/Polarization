@@ -17,7 +17,7 @@ datadir_Start=${basedir}/macros/DataFiles
 #Take Care of Mean pT in ToyMC.h
 NSigma=3.00 #needed in 2 decimal accuracy (x.yz)
 
-for nState in 5;do
+for nState in 4 5;do
 
 cp ../../interface/rootIncludes.inc               rootIncludes.inc
 cp ../../interface/commonVar_Psi$[nState-3]S.h    commonVar.h
@@ -28,9 +28,9 @@ make
 
 #for JobIDname in Psi$[nState-3]S_${NSigma}Sigma_11Dec2012; do
 #for JobIDname in Psi$[nState-3]S_${NSigma}Sigma_11Dec2012_noRhoFactor; do
-for JobIDname in 2011Psi2S; do
-
-DataID=_ctauScen0_FracLSB-1_2011Psi2S
+for JobIDname in FourthResults_ForPreApproval_Smeared; do
+# SecondResults_2011_Nch
+DataID=_ctauScen5_FracLSB-1_FourthResults_ForPreApproval
 
 FidCuts=11
 if [ $nState -eq 4 ]
@@ -38,7 +38,7 @@ then
 ptBinMin=1
 ptBinMax=2
 cpmBinMin=1
-cpmBinMax=11
+cpmBinMax=12
 fi
 if [ $nState -eq 5 ]
 then
@@ -131,7 +131,7 @@ mv ToyNumericalResults.pdf ${basedir}/macros/polFit/FiguresData/${JobID}/${TreeI
 rm *.aux
 rm *.log
 
-
+echo `pwd`
 pdflatex DataResults_vs_RapPt.tex
 mv DataResults_vs_RapPt.pdf ${basedir}/macros/polFit/FiguresData/${JobID}/${TreeID}/DataResults_vs_RapPt_${additionalName}.pdf
 

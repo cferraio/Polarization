@@ -19,7 +19,7 @@ TH2D* ReSetBin(TH2D* hist, int nBinX, int nBinY, const std::stringstream& name, 
 double calcuFracL(RooWorkspace *ws, double mean, double sigma);
 
 //---------------------------------------------------------------------------------------------------------------
-void bkgHistos(const std::string infilename, int rapBin, int ptBin, int cpmBin, int nState, bool folding, bool MC, bool doCtauUncer, bool PolLSB, bool PolRSB, bool PolNP, int ctauScen, int FracLSB, bool forceBinning, bool normApproach, bool scaleFracBg, char *polDataPath){
+void bkgHistos(const std::string infilename, int rapBin, int ptBin, int cpmBin, int nState, bool folding, bool MC, bool doCtauUncer, bool PolLSB, bool PolRSB, bool PolNP, int ctauScen, int FracLSB, bool forceBinning, bool normApproach, bool scaleFracBg, char *polDataPath, bool fitmass2gaus){
 
 	const std::string
 		datafilename = "tmpFiles/selEvents_data.root",
@@ -115,7 +115,7 @@ void bkgHistos(const std::string infilename, int rapBin, int ptBin, int cpmBin, 
 	TH1D* cpm_highct_R   = new TH1D( "cpm_highcta_RSB", "cpm_highct_RSB", nBins, onia::cpmRange[cpmBin-1], onia::cpmRange[cpmBin]);
 	TH1D* cpm_NP   = new TH1D( "cpmNP", "cpmNP", nBins, onia::cpmRange[cpmBin-1], onia::cpmRange[cpmBin]);
 	TH1D* cpm_PSR   = new TH1D( "cpmPSR", "cpmPSR", nBins, onia::cpmRange[cpmBin-1], onia::cpmRange[cpmBin]);
-	
+
 	TH1D* pT_L   = new TH1D( "pTLSB", "pTLSB", nBins, onia::pTRange[rapBin-1][ptBin-1], onia::pTRange[rapBin-1][ptBin]);
 	TH1D* pT_R   = new TH1D( "pTRSB", "pTRSB", nBins, onia::pTRange[rapBin-1][ptBin-1], onia::pTRange[rapBin-1][ptBin]);
 	TH1D* pT_highct_L   = new TH1D( "pT_highct_LSB", "pT_highct_LSB", nBins, onia::pTRange[rapBin-1][ptBin-1], onia::pTRange[rapBin-1][ptBin]);
@@ -161,18 +161,62 @@ void bkgHistos(const std::string infilename, int rapBin, int ptBin, int cpmBin, 
 	RooArgList mvarlist = mresult->floatParsFinal();
 
 	// parameters
-	RooRealVar *CBmass=(RooRealVar*)mvarlist.find("CBmass_p0");
-	RooRealVar *CBsigma_p0 = ws->var("CBsigma_p0");
-	RooRealVar *CBsigma_p1 = ws->var("CBsigma_p1");
-	RooRealVar *CBsigma_p2 = ws->var("CBsigma_p2");
-	RooRealVar *JpsiRap = ws->var("JpsiRap");
-	double mass = CBmass->getVal();
-	double cbsigp0 = CBsigma_p0->getVal();
-	double cbsigp1 = CBsigma_p1->getVal();
-	double cbsigp2 = CBsigma_p2->getVal();
-	double jpsirap = JpsiRap->getVal();
-	double sigma = cbsigp0 + cbsigp1*jpsirap + cbsigp2*pow(jpsirap,2);
+	RooRealVar *CBmass;
+	RooRealVar *CBsigma_p0;
+	RooRealVar *CBsigma_p1;
+	RooRealVar *CBsigma_p2;
+	RooRealVar *JpsiRap;
+	double cbsigp0;
+	double cbsigp1;
+	double cbsigp2;
+	double jpsirap;
+	double sigma;
+	RooRealVar *CBsigma;
+	RooRealVar *CBsigma2;
+	RooRealVar *fracCB1;
+	double Sigma1;
+	double Sigma2;
+	double fCB1;
+	
+	if(!fitmass2gaus){
+	CBmass=(RooRealVar*)mvarlist.find("CBmass_p0");
+	CBsigma_p0 = ws->var("CBsigma_p0");
+	CBsigma_p1 = ws->var("CBsigma_p1");
+	CBsigma_p2 = ws->var("CBsigma_p2");
+	JpsiRap = ws->var("JpsiRap");
+	cbsigp0 = CBsigma_p0->getVal();
+	cbsigp1 = CBsigma_p1->getVal();
+	cbsigp2 = CBsigma_p2->getVal();
+	jpsirap = JpsiRap->getVal();
+	sigma = cbsigp0 + cbsigp1*jpsirap + cbsigp2*pow(jpsirap,2);
+	}
+	
+	if(fitmass2gaus){
 
+	CBmass=(RooRealVar*)mvarlist.find("CBmass");
+
+//	CBsigma=(RooRealVar*)mvarlist.find("CBsigma");
+
+//	CBsigma2=(RooRealVar*)mvarlist.find("CBsigma2");
+
+	fracCB1=(RooRealVar*)mvarlist.find("fracCB1");
+
+	CBsigma = ws->var("CBsigma");
+	CBsigma2 = ws->var("CBsigma2");
+	Sigma1 = CBsigma->getVal();
+
+	Sigma2 = CBsigma2->getVal();
+ 	cout<<"sigma1 is "<<Sigma1<<" and sigma2 is "<<Sigma2<<endl;
+
+	fCB1 = fracCB1->getVal();
+
+	sigma = sqrt( pow(Sigma1,2)*fCB1 + pow(Sigma2,2)*(1-fCB1) );
+
+	}
+	
+	double mass = CBmass->getVal();
+	
+cout<<"mass is: "<<mass<<" and sigma is: "<<sigma<<endl;
 	// variables
 	RooRealVar *m = ws->var("JpsiMass");
 	RooRealVar *bkgLambda = ws->var("bkgLambda");
@@ -198,8 +242,10 @@ void bkgHistos(const std::string infilename, int rapBin, int ptBin, int cpmBin, 
 	masssnapshotname << "m_snapshot_rap" << rapBin << "_pt" << ptBin << "_cpm" << cpmBin;
 	ws->loadSnapshot(masssnapshotname.str().c_str());
 
+	TF1* funcSig;
 	TF1* funcBG = (TF1*)bkgMass->asTF(*m, *bkgLambda, *m);
-	TF1* funcSig = (TF1*)signalMass->asTF(*m, RooArgList(*CBalpha, *CBn, *CBsigma_p0, *CBsigma_p1, *CBsigma_p2, *CBmass), *m);
+	if(!fitmass2gaus) funcSig = (TF1*)signalMass->asTF(*m, RooArgList(*CBalpha, *CBn, *CBsigma_p0, *CBsigma_p1, *CBsigma_p2, *CBmass), *m);
+	if(fitmass2gaus) funcSig = (TF1*)signalMass->asTF(*m, RooArgList(*CBalpha, *fracCB1, *CBn, *CBsigma, *CBsigma2, *CBmass), *m);
 
 	//-------------------------------------------------------------------------------------------------
 	// mass edges for left and right sideband

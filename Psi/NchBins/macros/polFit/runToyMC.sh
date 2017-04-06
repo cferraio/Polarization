@@ -6,47 +6,65 @@ source /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/5.34.05/x86_64-slc5-gcc43-opt/ro
 ########## INPUTS ##########
 
 nState=4
-cp ../../interface/ToyMC_Psi$[nState-3]S.h ToyMC.h
+#cp ../../interface/ToyMC_Psi$[nState-3]S.h ToyMC.h
 
-#JobID=ToyMC_Psi$[nState-3]S_13Dec2012
-JobID=tests
+
 
 #nGenerations=50
 nGenerations=1
 
+if [ $nState -eq 4 ]
+then
 rapBinMin=1
 rapBinMax=1
 ptBinMin=1
 ptBinMax=1
 cpmBinMin=1
 cpmBinMax=1
+fi
 
-polScenSig=1
+if [ $nState -eq 5 ]
+then
+rapBinMin=1
+rapBinMax=1
+ptBinMin=1
+ptBinMax=2
+cpmBinMin=1
+cpmBinMax=5
+fi
+
+polScenSig=3
 polScenBkg=3
 frameSig=1
 frameBkg=1
 
-nEff=1060 #MC-truth
+
+nEff=1 
 UseMCeff=false
 nDileptonEff=1
 UseMCDileptoneff=false
 nRhoFactor=1
 
+JobIDname=tests
+JobID=TnPParam${nEff}_Psi$[nState-3]_${JobIDname}
+
 useAmapApproach=false       #if false, the next two lines do not matter
 nAmap=32104                 #frame/state/sigma/ID ( ID= 2 digits )
-nDenominatorAmap=113 		    #the number here corresponds to the same notation as nEff
+nDenominatorAmap=1 		    #the number here corresponds to the same notation as nEff
  
 FidCuts=11
 
 nSample=10000
 nSkipGen=0
 
+zeroBG=1
+
 #GENERATION SETTINGS
 ConstEvents=200000
 UseConstEv=true #if false, the number of events is taken from ToyMC.h
 
-UseDifferingEff=false #if false, the next five lines do not matter
-nEffRec=1060 #1101
+UseDifferingEff=true #if false, the next five lines do not matter
+nEffRec=222
 UseMCReceff=false
 nDileptonEffRec=1
 UseMCDileptonReceff=false
@@ -65,7 +83,7 @@ NewAccCalc=false
 
 ########################################
 
-homedir=/afs/cern.ch/user/z/zhlinl/work/polarization/Psi/PsiPol2011/macros/polFit
+homedir=/home/ferraioc/PolNew/CMSSW_5_3_20/src/Psi/NchBins/macros/polFit
 cd ${homedir}
 cd ..
 cd ..
@@ -90,6 +108,10 @@ cp ${basedir}/macros/polFit/polPlot.C ${storagedir}/${JobID}/${ScenDir}/polPlot.
 cp ../../interface/rootIncludes.inc ${storagedir}/${JobID}/${ScenDir}/rootIncludes.inc
 cp ../../interface/commonVar_Psi$[nState-3]S.h ${storagedir}/${JobID}/${ScenDir}/commonVar.h
 cp ../../interface/ToyMC_Psi$[nState-3]S.h ${storagedir}/${JobID}/${ScenDir}/ToyMC.h
+if [ ${zeroBG} -eq 1 ]
+then
+cp ../../interface/ToyMC_Psi$[nState-3]S_fw2.h  ${storagedir}/${JobID}/${ScenDir}/ToyMC.h ##this has bg = 0.001
+fi
 cp ../../interface/effsAndCuts_Psi$[nState-3]S.h ${storagedir}/${JobID}/${ScenDir}/effsAndCuts.h
 
 cd ${storagedir}/${JobID}/${ScenDir}

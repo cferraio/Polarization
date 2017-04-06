@@ -21,7 +21,7 @@ useBatch=0
 #fracL=75 #in percent #MC closure: 25 for data sigmas, 50 for MC sigmas
 nSigma=3.00 #needed in 2 decimal accuracy (x.yz)
 
-for nState in 5;do
+for nState in 4;do
 
 StatVarTotBGfraction=0     #apply statistical fluctuations on f_background
 StatVarTotBGmodel=0        #apply statistical fluctuations on Bg model
@@ -29,7 +29,7 @@ StatVarRho=0               #apply statistical fluctuations on rho factor
 
 #####################
 #####################
-JobID=2012Psi2S
+JobID=tests
 #####################
 #####################
 
@@ -37,12 +37,12 @@ rapBinMin=1
 rapBinMax=1
 ptBinMin=1
 ptBinMax=1
-cpmBinMin=5
-cpmBinMax=5
+cpmBinMin=1
+cpmBinMax=1
 
 FidCuts=11
 
-nEff=100003 #1060				#1101 MCtruthFineEta, 1080 MCTnPparam      #1030=soft-1060=tight-1070=mixed-111=soft-112=tight
+nEff=1060 #1060				#1101 MCtruthFineEta, 1080 MCTnPparam      #1030=soft-1060=tight-1070=mixed-111=soft-112=tight
 UseMCeff=false
 
 nDileptonEff=1
@@ -59,12 +59,12 @@ nDenominatorAmap=1		     #the number here corresponds to the same notation as nE
 
 nSample=20000
 
-nFits=2
+nFits=1
 nSkipGen=0
 
 #####################
 #####################
-DataID=_ctauScen0_FracLSB-1_2012Psi2S
+DataID=_ctauScen0_FracLSB-1_ThirdResults_ForPreApproval
 #####################
 #####################
 

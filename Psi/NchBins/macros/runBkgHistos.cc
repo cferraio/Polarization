@@ -70,6 +70,7 @@ int main(int argc, char* argv[]){
 			 forceBinning = false,
 			 folding = false,
 			 normApproach = false,
+			 fitmass2gaus = false,
 			 scaleFracBg = false;
 	char *polDataPath = "Default";
 
@@ -94,6 +95,7 @@ int main(int argc, char* argv[]){
 		fromSplit("forceBinning", arg, forceBinning);
 		fromSplit("folding", arg, folding);
 		fromSplit("normApproach", arg, normApproach);
+		fromSplit("fitmass2gaus", arg, fitmass2gaus);
 		fromSplit("scaleFracBg", arg, scaleFracBg);
 		if(std::string(argv[i]).find("polDataPath") != std::string::npos) {char* polDataPathchar = argv[i]; char* polDataPathchar2 = strtok (polDataPathchar, "="); polDataPath = polDataPathchar2; cout<<"polDataPath = "<<polDataPath<<endl;}
 	}
@@ -114,7 +116,7 @@ int main(int argc, char* argv[]){
 			const std::string infilename = temp.str().c_str();
 
 			bkgHistos(infilename.c_str(), iRap, iPT, iCPM, nState, folding, MC, doCtauUncer, PolLSB, PolRSB, PolNP, 
-					ctauScen, FracLSB, forceBinning, normApproach, scaleFracBg, polDataPath);
+					ctauScen, FracLSB, forceBinning, normApproach, scaleFracBg, polDataPath, fitmass2gaus);
 			}
 		}
 	}

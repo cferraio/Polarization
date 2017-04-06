@@ -35,18 +35,37 @@ void lifetimeFit(const std::string &infilename, int rapBin, int ptBin, int cpmBi
   binNameSBL << "data_rap" << rapBin << "_pt" << ptBin << "_cpm" << cpmBin << "_SBL";
   binNameSBR << "data_rap" << rapBin << "_pt" << ptBin << "_cpm" << cpmBin << "_SBR";
 
-  RooAbsData* dataSR = ws->data(binNameSR.str().c_str());
-  RooAbsData* dataLSB = ws->data(binNameSBL.str().c_str());
-  RooAbsData* dataRSB = ws->data(binNameSBR.str().c_str());
+//  RooAbsData* dataSR = ws->data(binNameSR.str().c_str());
+//  RooAbsData* dataLSB = ws->data(binNameSBL.str().c_str());
+//  RooAbsData* dataRSB = ws->data(binNameSBR.str().c_str());
 
-
-  std:: cout << "----------------------------" << "\n"
+  RooAbsData* dataSR, *dataLSB, *dataRSB; 
+  std::stringstream cutSR, cutSBL, cutSBR;
+  int events=0;
+  
+  dataSR = ws->data(binNameSR.str().c_str());
+  dataLSB = ws->data(binNameSBL.str().c_str());
+  dataRSB = ws->data(binNameSBR.str().c_str());
+      
+    if(nState == 4){
+		  cout<<"**** Using less statisticals for lifetime fit"<<endl;
+		  
+		  events = data->numEntries()/(8);
+		  dataSR  = data->reduce(Cut(cutSR.str().c_str()),
+				  EventRange(0,events));
+//		  dataLSB = data->reduce(Cut(cutSBL.str().c_str()),
+//				  EventRange(0,events));
+//		  dataRSB = data->reduce(Cut(cutSBR.str().c_str()),
+//				  EventRange(0,events));
+	  }
+    
+    std:: cout << "----------------------------" << "\n"
              << "events in SR: " << dataSR->numEntries() << "\n"
              << "events in LSB: " << dataLSB->numEntries() << "\n"
              << "events in RSB: " << dataRSB->numEntries() << "\n"
              << "----------------------------" << std::endl;
-    
-    
+
+
     // caculating median of different regions by filling events into histogram and getting the mean
 	TH1* histSR =  dataSR->createHistogram("histSR", *JpsiMass,  Binning(120));
 	TH1* histSBL = dataLSB->createHistogram("histSBL", *JpsiMass, Binning(120));
@@ -208,20 +227,27 @@ void doFit(RooWorkspace *ws, int nState, double FracBkg, double fracBkgInSBL, do
 //			ws->var("fBkgDSD_SBR")->setMax(.215);
 		
 //		}
-		if(ptBin == 1 && cpmBin == 1){
+/*		if(ptBin == 1 && cpmBin == 1){
 			ws->var("fBkgSSDR_SBL")->setVal(.785);
 			ws->var("fBkgSSDR_SBR")->setVal(.785);
 			ws->var("fBkgDSD_SBL")->setMax(.215);
 			ws->var("fBkgDSD_SBR")->setMax(.215);
 		}
-		if(ptBin == 1 && cpmBin == 2){
+*/		if(ptBin == 1 && cpmBin == 2){
+			ws->var("fBkgSSDR_SBL")->setVal(.6);
+			ws->var("fBkgSSDR_SBR")->setVal(.6);
+			ws->var("fBkgDSD_SBL")->setMax(.2);
+			ws->var("fBkgDSD_SBR")->setMax(.2);
+		}
+		
+		if(ptBin == 1 && cpmBin == 4){
 			ws->var("fBkgSSDR_SBL")->setVal(.785);
 			ws->var("fBkgSSDR_SBR")->setVal(.785);
 			ws->var("fBkgDSD_SBL")->setMax(.215);
 			ws->var("fBkgDSD_SBR")->setMax(.215);
 		}
 		
-		if(ptBin == 1 && cpmBin == 4){
+		if(ptBin == 1 && cpmBin == 6){
 			ws->var("fBkgSSDR_SBL")->setVal(.785);
 			ws->var("fBkgSSDR_SBR")->setVal(.785);
 			ws->var("fBkgDSD_SBL")->setMax(.215);
@@ -252,10 +278,11 @@ void doFit(RooWorkspace *ws, int nState, double FracBkg, double fracBkgInSBL, do
 			//ws->var("fBkgDSD_SBL")->setMax(.23);
 			//ws->var("fBkgDSD_SBR")->setMax(.23);
 			////new model
-			ws->var("fBkgSSDR_SBL")->setVal(.785);
-			ws->var("fBkgSSDR_SBR")->setVal(.785);
-//			ws->var("fBkgSSDR_SBL")->setConstant(kTRUE);
-//			ws->var("fBkgSSDR_SBR")->setConstant(kTRUE);
+			cout<<"wtf why won't it work"<<endl;
+			ws->var("fBkgSSDR_SBL")->setVal(.6);
+			ws->var("fBkgSSDR_SBR")->setVal(.6);
+			ws->var("fBkgSSDR_SBL")->setConstant(kTRUE);
+			ws->var("fBkgSSDR_SBR")->setConstant(kTRUE);
 			ws->var("fBkgDSD_SBL")->setMax(.215);
 			ws->var("fBkgDSD_SBR")->setMax(.215);
 		}
@@ -269,10 +296,10 @@ void doFit(RooWorkspace *ws, int nState, double FracBkg, double fracBkgInSBL, do
 			//ws->var("fBkgDSD_SBL")->setMax(.23);
 			//ws->var("fBkgDSD_SBR")->setMax(.23);
 			////new model
-			ws->var("fBkgSSDR_SBL")->setVal(.785);
-			ws->var("fBkgSSDR_SBR")->setVal(.785);
-//			ws->var("fBkgSSDR_SBL")->setConstant(kTRUE);
-//			ws->var("fBkgSSDR_SBR")->setConstant(kTRUE);
+			ws->var("fBkgSSDR_SBL")->setVal(.6);
+			ws->var("fBkgSSDR_SBR")->setVal(.6);
+			ws->var("fBkgSSDR_SBL")->setConstant(kTRUE);
+			ws->var("fBkgSSDR_SBR")->setConstant(kTRUE);
 			ws->var("fBkgDSD_SBL")->setMax(.215);
 			ws->var("fBkgDSD_SBR")->setMax(.215);
 		}
@@ -280,8 +307,17 @@ void doFit(RooWorkspace *ws, int nState, double FracBkg, double fracBkgInSBL, do
 		if(ptBin == 1 && cpmBin == 1){
 			ws->var("fBkgSSDR_SBL")->setVal(.715); //0.4
 			ws->var("fBkgSSDR_SBR")->setVal(.715); //0.4
-//			ws->var("fBkgSSDR_SBL")->setConstant(kTRUE);
-//			ws->var("fBkgSSDR_SBR")->setConstant(kTRUE);
+			ws->var("fBkgSSDR_SBL")->setConstant(kTRUE);
+			ws->var("fBkgSSDR_SBR")->setConstant(kTRUE);
+			ws->var("fBkgDSD_SBL")->setVal(.225);
+			ws->var("fBkgDSD_SBR")->setVal(.225);
+		}
+		
+		if(ptBin == 1 && cpmBin == 2){
+			ws->var("fBkgSSDR_SBL")->setVal(.75); //0.4
+			ws->var("fBkgSSDR_SBR")->setVal(.75); //0.4
+			ws->var("fBkgSSDR_SBL")->setConstant(kTRUE);
+			ws->var("fBkgSSDR_SBR")->setConstant(kTRUE);
 			ws->var("fBkgDSD_SBL")->setVal(.225);
 			ws->var("fBkgDSD_SBR")->setVal(.225);
 		}
@@ -289,10 +325,10 @@ void doFit(RooWorkspace *ws, int nState, double FracBkg, double fracBkgInSBL, do
 		if(ptBin == 2 && cpmBin == 2){
 			ws->var("fBkgSSDR_SBL")->setVal(.785);
 			ws->var("fBkgSSDR_SBR")->setVal(.785);
-//			ws->var("fBkgSSDR_SBL")->setConstant(kTRUE);
+//			ws->var("fBkgSSDR_SBL")->setConstsnt(kTRUE);
 //			ws->var("fBkgSSDR_SBR")->setConstant(kTRUE);
-			ws->var("fBkgDSD_SBL")->setMax(.215);
-			ws->var("fBkgDSD_SBR")->setMax(.215);
+			ws->var("fBkgDSD_SBL")->setMax(.2);
+			ws->var("fBkgDSD_SBR")->setMax(.2);
 		}
 		
 		if(ptBin == 2 && cpmBin == 3){
@@ -322,7 +358,16 @@ void doFit(RooWorkspace *ws, int nState, double FracBkg, double fracBkgInSBL, do
 			ws->var("fBkgDSD_SBR")->setMax(.215);
 		}
 		
-		if(ptBin == 2 && cpmBin == 9 ){
+		if(ptBin == 2 && cpmBin == 7){
+			ws->var("fBkgSSDR_SBL")->setVal(.77);
+			ws->var("fBkgSSDR_SBR")->setVal(.77);
+//			ws->var("fBkgSSDR_SBL")->setConstant(kTRUE);
+//			ws->var("fBkgSSDR_SBR")->setConstant(kTRUE);
+			ws->var("fBkgDSD_SBL")->setMax(.215);
+			ws->var("fBkgDSD_SBR")->setMax(.215);
+		}
+		
+		if(ptBin == 2 && (cpmBin == 9 || cpmBin == 8) ){
 			ws->var("fBkgSSDR_SBL")->setVal(.77);
 			ws->var("fBkgSSDR_SBR")->setVal(.77);
 //			ws->var("fBkgSSDR_SBL")->setConstant(kTRUE);
@@ -349,6 +394,15 @@ void doFit(RooWorkspace *ws, int nState, double FracBkg, double fracBkgInSBL, do
 			ws->var("fBkgDSD_SBR")->setMax(.215);
 		}
 		
+		if(ptBin == 3 && (cpmBin == 11 || cpmBin == 10) ){
+			ws->var("fBkgSSDR_SBL")->setVal(.785);
+			ws->var("fBkgSSDR_SBR")->setVal(.785);
+			ws->var("fBkgSSDR_SBL")->setConstant(kTRUE);
+			ws->var("fBkgSSDR_SBR")->setConstant(kTRUE);
+			ws->var("fBkgDSD_SBL")->setMax(.215);
+			ws->var("fBkgDSD_SBR")->setMax(.215);
+		}
+		
 		if(ptBin == 2 && cpmBin == 4 ){
 			ws->var("fBkgSSDR_SBL")->setVal(.77);
 			ws->var("fBkgSSDR_SBR")->setVal(.77);
@@ -366,10 +420,23 @@ void doFit(RooWorkspace *ws, int nState, double FracBkg, double fracBkgInSBL, do
 			ws->var("fBkgDSD_SBL")->setMax(.215);
 			ws->var("fBkgDSD_SBR")->setMax(.215);
 		}
+		
+		
 
 
 		ws->var("bkgTauSSD_SBL")->setVal(.4);
 		ws->var("bkgTauSSD_SBR")->setVal(.4);
+		
+		if(ptBin == 3 && cpmBin == 9 ){
+			ws->var("fBkgSSDR_SBL")->setVal(.785);
+			ws->var("fBkgSSDR_SBR")->setVal(.785);
+			ws->var("fBkgSSDR_SBL")->setConstant(kTRUE);
+			ws->var("fBkgSSDR_SBR")->setConstant(kTRUE);
+			ws->var("fBkgDSD_SBL")->setMax(.215);
+			ws->var("fBkgDSD_SBR")->setVal(.215);
+			ws->var("bkgTauSSD_SBL")->setVal(.5);
+			ws->var("bkgTauSSD_SBR")->setVal(.5);
+		}
 		ws->var("bkgTauFD")->setVal(.1);
 		ws->var("bkgTauDSD")->setVal(.01);
 
@@ -445,16 +512,25 @@ void doFit(RooWorkspace *ws, int nState, double FracBkg, double fracBkgInSBL, do
 		ws->var("ctResolution2")->setVal(3.);
 		ws->var("ctResolution2")->setConstant(kTRUE);
 		ws->var("fracGauss2")->setVal(0.01);
+		
+		if(ptBin == 2 && cpmBin == 2 ){
+			ws->var("fBkgSSDR_SBL")->setVal(.62);
+			ws->var("fBkgSSDR_SBR")->setVal(.3);
+//			ws->var("fBkgSSDR_SBL")->setConstant(kTRUE);
+//			ws->var("fBkgSSDR_SBR")->setConstant(kTRUE);
+//			ws->var("fBkgDSD_SBL")->setMax(.215);
+//			ws->var("fBkgDSD_SBR")->setMax(.215);
+		}
 	}
-cout<<"here"<<endl;
+
 	RooAbsPdf *ModelLifeSR = (RooAbsPdf*)ws->pdf("lifetimeConstraint");
 	RooAbsPdf *ModelLifeSBL = (RooAbsPdf*)ws->pdf("backgroundlifetimeL");
 	RooAbsPdf *ModelLifeSBR = (RooAbsPdf*)ws->pdf("backgroundlifetimeR");
-cout<<"here1"<<endl;
+
 	RooArgSet *NLLs = new RooArgSet();
 	
 	RooAbsReal *MLNLLSR = NULL, *MLNLLSBL = NULL, *MLNLLSBR = NULL;
-cout<<"here2"<<endl;	
+
 	MLNLLSR = (RooAbsReal *)ModelLifeSR->createNLL(*dataSR,
 			ConditionalObservables(RooArgSet(*ws->var("JpsictErr"))),
 			Constrain(RooArgSet(*ws->var("fBkg"))),
@@ -466,7 +542,7 @@ cout<<"here2"<<endl;
 			Constrain(RooArgSet(*ws->var("fBkgSBL"))),
 			Extended(kFALSE),
 			NumCPU(6));
-cout<<"here3"<<endl;
+
 	MLNLLSBR = (RooAbsReal *)ModelLifeSBR->createNLL(*dataSBR,
 			ConditionalObservables(RooArgSet(*ws->var("JpsictErr"))),
 			Constrain(RooArgSet(*ws->var("fBkgSBR"))),
@@ -475,26 +551,26 @@ cout<<"here3"<<endl;
 	NLLs->add(*MLNLLSR);
 	NLLs->add(*MLNLLSBL);
 	NLLs->add(*MLNLLSBR);
-cout<<"here4"<<endl;
+
 	RooAddition *simNLL = new RooAddition("add","add",*NLLs);
 	RooMinuit *lMinuit = new RooMinuit(*simNLL);
 	lMinuit->setStrategy(1); 
 	if(nState==4 && ptBin > 7) lMinuit->setStrategy(2); 
-cout<<"here5"<<endl;
+
 	lMinuit->setPrintEvalErrors(-1);
 	lMinuit->setEvalErrorWall(false);
 	lMinuit->setVerbose(false);
 	lMinuit->setPrintLevel(-1);
-	cout<<"here6"<<endl;
+
 	stringstream rltName, snapshotName;
 	rltName<< "l_fitresult_rap"<<rapBin<<"_pt"<<ptBin<<"_cpm"<<cpmBin;
 	snapshotName<< "l_snapshot_rap"<<rapBin<<"_pt"<<ptBin<<"_cpm"<<cpmBin;
 	RooFitResult *fitresult;
-	cout<<"here7"<<endl;
+
 	lMinuit->simplex();
-	cout<<"here8"<<endl;
+
 	lMinuit->migrad();
-	cout<<"here9"<<endl;
+
 	fitresult = (RooFitResult*)lMinuit->save(rltName.str().c_str());
 	cout<<"fitresult->covQual(): "<<fitresult->covQual()<<endl;
 	lMinuit->migrad();

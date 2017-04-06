@@ -2,9 +2,9 @@ universe = vanilla
 Executable = runDataFitsJob.sh
 should_transfer_files = NO
 notification = never
-Output = /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchBins/macros/polFit/logs/simple_$(cluster)_$(process).stdout
-Error  = /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchBins/macros/polFit/logs/simple_$(cluster)_$(process).stderr
-Log    = /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchBins/macros/polFit/logs/simple_$(cluster)_$(process).condor
+Output = /home/ferraioc/PolNew/CMSSW_5_3_20/src/Psi/NchBins/macros/polFit/logs/simple_$(cluster)_$(process).stdout
+Error  = /home/ferraioc/PolNew/CMSSW_5_3_20/src/Psi/NchBins/macros/polFit/logs/simple_$(cluster)_$(process).stderr
+Log    = /home/ferraioc/PolNew/CMSSW_5_3_20/src/Psi/NchBins/macros/polFit/logs/simple_$(cluster)_$(process).condor
 
-Arguments = 50000 _ctauScen0_FracLSB-1_2011Psi2S_NchInt /data/users/ferraioc/Polarization/JPsi/NchBins/Data/ /home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchBins/macros/polFit 14 2 5 5 2011Psi2S  
+Arguments = 50000 _ctauScen5_FracLSB-1_FourthResults_ForPreApproval /data/users/ferraioc/Polarization/JPsi/NchBins/Data /home/ferraioc/PolNew/CMSSW_5_3_20/src/Psi/NchBins/macros/polFit 49 2 5 5 FourthResults_ForPreApproval  
 Queue 1

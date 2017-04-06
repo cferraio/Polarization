@@ -30,13 +30,13 @@ namespace onia{
   const int kNbPTMaxBins = 2;
   const int kNbPTBins[kNbRapForPTBins+1] = {kNbPTMaxBins, kNbPTMaxBins};//all y, y1 
   double pTRange[kNbRapForPTBins+1][kNbPTMaxBins+1] = {
-    {14., 18., 22.},//all rapidities
-    {14., 18., 22.}};//all rapidities
+    {14., 20., 35},//all rapidities
+    {14., 20., 35}};//all rapidities
 //    {14., 20., 35.},//all rapidities
 //    {14., 20., 35.}};//all rapidities
 
-  const int NchBins = 11;
-  double cpmRange[NchBins+1] = {0, 10, 16, 20, 24, 28, 32, 36, 40, 48, 60, 100};
+  const int NchBins = 12;
+  double cpmRange[NchBins+1] = {0, 10, 16, 20, 24, 28, 32, 36, 40, 44, 50, 60, 100};
 
   //number of reference frames
   const int kNbFrames = 6;

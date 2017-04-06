@@ -13,20 +13,20 @@ storagedir=`more storagedir` #please define the directory storagedir in the file
 
 ########## INPUTS ##########
 
-for nState in 4;do
+for nState in 4 5;do
 
 cp ../../interface/rootIncludes.inc               rootIncludes.inc
 cp ../../interface/commonVar_Psi$[nState-3]S.h    commonVar.h
 cp ../../interface/ToyMC_Psi$[nState-3]S.h        ToyMC.h
 
-SystID=FrameworkII_19May2016
+SystID=ThirdResult_ForPreApproval
 
-nSystematics=4
+nSystematics=3
 
-JobID1=Sig_frame3scen1_Bkg_frame1scen3
-JobID2=Sig_frame3scen2_Bkg_frame1scen3
-JobID3=Sig_frame3scen4_Bkg_frame1scen3
-JobID4=Sig_frame3scen5_Bkg_frame1scen3
+JobID1=FrameworkI
+JobID2=FrameworkII
+JobID3=FrameworkIII
+JobID4=
 JobID5=
 JobID6=
 JobID7=
@@ -53,12 +53,14 @@ then
 ptBinMin=1
 ptBinMax=2
 cpmBinMin=1
-cpmBinMax=10
+cpmBinMax=12
 fi 
 if [ $nState -eq 5 ]
 then
 ptBinMin=1
-ptBinMax=5
+ptBinMax=2
+cpmBinMin=1
+cpmBinMax=5
 fi
 
 ########################################

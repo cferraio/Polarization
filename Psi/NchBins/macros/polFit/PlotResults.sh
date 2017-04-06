@@ -1,4 +1,6 @@
 #!/bin/sh
+source /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/5.34.05/x86_64-slc5-gcc43-opt/root/bin/thisroot.sh                                     
+source /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/5.34.05/x86_64-slc5-gcc43-opt/root/bin/setxrd.sh /cvmfs/sft.cern.ch/lcg/external/xrootd/3.2.4/x86_64-slc5-gcc46-opt/
 
 homedir=$PWD
 cd ..
@@ -7,25 +9,26 @@ basedir=$PWD
 cd macros/polFit
 #storagedir=`more storagedir`/Data #please define the directory storagedir in the file macros/polFit/storagedir
 #storagedir=`more storagedir`/ToyMC #please define the directory storagedir in the file macros/polFit/storagedir
-storagedir=$basedir/Psi/Data
+storagedir=`more storagedir`/Data
 
 ########## INPUTS ##########
 NSigma=3.00 #needed in 2 decimal accuracy (x.yz)
 
-for nState in 5;do
+for nState in 4 5;do
 
-JobID=2011Psi2S
+JobID=ThirdResult_ForPreapproval
+#JobID=SecondResults_2011_Nch
 #JobID=Psi$[nState-3]S_${NSigma}Sigma_11Dec2012_noRhoFactor
 #JobID=Psi$[nState-3]S_${NSigma}Sigma_11Dec2012_compareRhoFactor
 additionalName=_Psi$[nState-3]S
 
 PlotMatt=0
-PlotCompare=0
+PlotCompare=1
 
 PlotAsymm=0
 PlotFinalData=1
 PlotSystematics=0
-PlotLegend=0
+PlotLegend=1
 PlotBG0plots=0
 DeltaTildeplots=0
 SBmSigPlots=0
@@ -38,17 +41,18 @@ ShiftInX=0
 PlotVsComp=0
 DrawLatexStuff=0
 DrawPreliminary=0
+PlotSysSquare=0
 
-DefaultID=${JobID}
-#DefaultID=Psi$[nState-3]S_${NSigma}Sigma_11Dec2012_noRhoFactor
-CompareID1=Psi$[nState-3]S_${NSigma}Sigma_11Dec2012_noRhoFactor
+#DefaultID=${JobID}
+DefaultID=ThirdResults_ForPreApproval_fracL-1_Smeared
+CompareID1=ThirdResults_ForPreApproval_fracL-1
 CompareID2=MCclosure_July27_Ups1S_MCtruthFineEta_0toP1Sigma
 CompareID3=MCclosure_July27_Ups1S_MCtruthFineEta_P1toP3Sigma
 CompareID4=MCclosure_Sept9_Ups3S_3DataSig_GEN_pT_Eff_RECOdata
-nComp=0
+nComp=1
 
-LegendEntryDefID=with_RhoFactor
-LegendEntryCompID1=no_RhoFactor
+LegendEntryDefID=SystStat
+LegendEntryCompID1=StatOnly
 LegendEntryCompID2=1S_0toP1Sigma
 LegendEntryCompID3=1S_P1toP3Sigma
 LegendEntryCompID4=3Sig_RECOdata_GENeff
@@ -58,16 +62,18 @@ nSystematics=0
 
 if [ $nState -eq 4 ]
 then
+cpmBinMin=1
+cpmBinMax=12
 ptBinMin=1
-ptBinMax=12
+ptBinMax=2
 fi
 
 if [ $nState -eq 5 ]
 then
 ptBinMin=1
 ptBinMax=2
-ptBinMin=1
-ptBinMax=5
+cpmBinMin=1
+cpmBinMax=5
 fi
 
 ### Background Polarization plots
@@ -84,20 +90,41 @@ fi
 #PlotBG0plots=1
 #rapBinComb=1
 
+SystID1Base=ThirdResult_ForPreApproval
+SystID1Specify=FrameworkI
+SystID1Title=FrameworkI
 
+SystID2Base=ThirdResult_ForPreApproval
+SystID2Specify=FrameworkII
+SystID2Title=FrameworkII
 
-##### EtaDepEff_ParamSyst
-#SystID1Base=EtaDepEff
-#SystID1Specify=MCclosure_July25_Ups3S_MCTnPparam_TO_MCclosure_July25_Ups3S_MCtruthFineEta
-#SystID1Title=3S_MC^{truth}_{fine_#eta}-MC^{TnP}_{param}
-#
-#SystID2Base=EtaDepEff
-#SystID2Specify=Toy
-#SystID2Title=Reco-MC^{truth}_{fine_#eta}_Extr-MC^{TnP}_{param}
-#
-#SystID3Base=TheGreatRun_Param
-#SystID3Specify=BestSyst
-#SystID3Title=ParamSyst
+SystID3Base=ThirdResult_ForPreApproval
+SystID3Specify=FrameworkIII
+SystID3Title=FrameworkIII
+
+SystID4Base=ThirdResult_ForPreApproval
+SystID4Specify=RhoFactor
+SystID4Title=RhoFactor
+
+SystID5Base=ThirdResult_ForPreApproval
+SystID5Specify=TnPModel
+SystID5Title=TnPModel
+
+SystID6Base=ThirdResult_ForPreApproval
+SystID6Specify=TnPParam
+SystID6Title=TnPParam
+
+SystID7Base=ThirdResult_ForPreApproval
+SystID7Specify=VtxEff
+SystID7Title=VtxEff
+
+#SystID8Base=BackgroundModelSQRT12_ThirdResults_ForPreapproval
+##SystID8Specify=ThirdResults_ForPreApproval_fracL75_TO_ThirdResults_ForPreApproval_fracL25
+#SystID8Title=BkgModel
+
+SystID8Base=LifetimeNchInt
+SystID8Specify=Interpolated
+SystID8Title=LifetimeCuts
 
 
 ##### MassSigmaDep
@@ -395,7 +422,7 @@ mkdir -p ${JobIDDir}
 
 
 cp PlotFinalResults PlotFinalResults_Psi$[nState-3]S
-./PlotFinalResults_Psi$[nState-3]S ${DefaultID}=DefaultID ${CompareID1}=CompareID1 ${CompareID2}=CompareID2 ${CompareID3}=CompareID3 ${CompareID4}=CompareID4 ${JobID}=JobID ${SystID1Base}=SystID1Base ${SystID1Specify}=SystID1Specify ${SystID1Title}=SystID1Title ${SystID2Base}=SystID2Base ${SystID2Specify}=SystID2Specify ${SystID2Title}=SystID2Title ${basedir}=basedir ${storagedir}=storagedir ${ptBinMin}ptBinMin ${ptBinMax}ptBinMax ${nSystematics}nSystematics ${nComp}nComp ${nState}nState ${SystID3Base}=SystID3Base ${SystID3Specify}=SystID3Specify ${SystID3Title}=SystID3Title ${SystID4Base}=SystID4Base ${SystID4Specify}=SystID4Specify ${SystID4Title}=SystID4Title ${SystID5Base}=SystID5Base ${SystID5Specify}=SystID5Specify ${SystID5Title}=SystID5Title ${SystID6Base}=SystID6Base ${SystID6Specify}=SystID6Specify ${SystID6Title}=SystID6Title ${SystID7Base}=SystID7Base ${SystID7Specify}=SystID7Specify ${SystID7Title}=SystID7Title ${SystID8Base}=SystID8Base ${SystID8Specify}=SystID8Specify ${SystID8Title}=SystID8Title PlotMatt=${PlotMatt} PlotAsymm=${PlotAsymm} PlotCompare=${PlotCompare} PlotFinalData=${PlotFinalData} PlotSystematics=${PlotSystematics} PlotLegend=${PlotLegend} PlotBG0plots=${PlotBG0plots} DeltaTildeplots=${DeltaTildeplots} SBmSigPlots=${SBmSigPlots} CompareSyst=${CompareSyst} SteerIndividuals=${SteerIndividuals} BGratioFits=${BGratioFits} BGratioChi2Fits=${BGratioChi2Fits} rapBinComb=${rapBinComb} SetCompStyle=${SetCompStyle} ${LegendEntryDefID}=LegendEntryDefID ${LegendEntryCompID1}=LegendEntryCompID1 ${LegendEntryCompID2}=LegendEntryCompID2 ${LegendEntryCompID3}=LegendEntryCompID3 ${LegendEntryCompID4}=LegendEntryCompID4 ExtendLegendInX=${ExtendLegendInX} ShiftInX=${ShiftInX} PlotVsComp=${PlotVsComp} DrawLatexStuff=${DrawLatexStuff} DrawPreliminary=${DrawPreliminary}
+./PlotFinalResults_Psi$[nState-3]S ${DefaultID}=DefaultID ${CompareID1}=CompareID1 ${CompareID2}=CompareID2 ${CompareID3}=CompareID3 ${CompareID4}=CompareID4 ${JobID}=JobID ${SystID1Base}=SystID1Base ${SystID1Specify}=SystID1Specify ${SystID1Title}=SystID1Title ${SystID2Base}=SystID2Base ${SystID2Specify}=SystID2Specify ${SystID2Title}=SystID2Title ${basedir}=basedir ${storagedir}=storagedir ${ptBinMin}ptBinMin ${ptBinMax}ptBinMax ${cpmBinMin}cpmBinMin ${cpmBinMax}cpmBinMax ${nSystematics}nSystematics ${nComp}nComp ${nState}nState ${SystID3Base}=SystID3Base ${SystID3Specify}=SystID3Specify ${SystID3Title}=SystID3Title ${SystID4Base}=SystID4Base ${SystID4Specify}=SystID4Specify ${SystID4Title}=SystID4Title ${SystID5Base}=SystID5Base ${SystID5Specify}=SystID5Specify ${SystID5Title}=SystID5Title ${SystID6Base}=SystID6Base ${SystID6Specify}=SystID6Specify ${SystID6Title}=SystID6Title ${SystID7Base}=SystID7Base ${SystID7Specify}=SystID7Specify ${SystID7Title}=SystID7Title ${SystID8Base}=SystID8Base ${SystID8Specify}=SystID8Specify ${SystID8Title}=SystID8Title PlotMatt=${PlotMatt} PlotAsymm=${PlotAsymm} PlotCompare=${PlotCompare} PlotFinalData=${PlotFinalData} PlotSystematics=${PlotSystematics} PlotLegend=${PlotLegend} PlotBG0plots=${PlotBG0plots} DeltaTildeplots=${DeltaTildeplots} SBmSigPlots=${SBmSigPlots} CompareSyst=${CompareSyst} SteerIndividuals=${SteerIndividuals} BGratioFits=${BGratioFits} BGratioChi2Fits=${BGratioChi2Fits} rapBinComb=${rapBinComb} SetCompStyle=${SetCompStyle} ${LegendEntryDefID}=LegendEntryDefID ${LegendEntryCompID1}=LegendEntryCompID1 ${LegendEntryCompID2}=LegendEntryCompID2 ${LegendEntryCompID3}=LegendEntryCompID3 ${LegendEntryCompID4}=LegendEntryCompID4 ExtendLegendInX=${ExtendLegendInX} ShiftInX=${ShiftInX} PlotVsComp=${PlotVsComp} DrawLatexStuff=${DrawLatexStuff} DrawPreliminary=${DrawPreliminary} PlotSysSquare=${PlotSysSquare}
 rm PlotFinalResults_Psi$[nState-3]S
 rm PlotFinalResults
 

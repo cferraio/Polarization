@@ -16,18 +16,33 @@ basedir=$PWD
 cd macros
 
 # input arguments
-for nState in 4;do    #1,2,3,Upsi(1S,2S,3S); 4,Jpsi 5,PsiPrime
+for nState in 4 5;do    #1,2,3,Upsi(1S,2S,3S); 4,Jpsi 5,PsiPrime
 for FidCuts in 11;do #defines the set of cuts to be used, see macros/polFit/effsAndCuts.h
 cd $Cdir
 
+if [ ${nState} -eq 4 ] 
+then
 rapMin=1     #takes bins, not actual values
 rapMax=1     #if you only want to process 1 y bin, rapMax = rapMin
 ptMin=1      #takes bins, not acutal values
 ptMax=2      #if you only want to process 1 pt bin, ptMax = ptMin
-cpmMin=1 
-cpmMax=10
+cpmMin=1
+cpmMax=12
 Plotting=2   #plotting macro: 1 = plot all, 2 = plot mass, 3 = plot lifetime sidebands, 4 = plot lifetime singal region, 
 	           # 5 = sidebands, separate pull and distribution, 6 = signal region, separate pull and distribution
+fi
+
+if [ ${nState} -eq 5 ] 
+then
+rapMin=1     #takes bins, not actual values
+rapMax=1     #if you only want to process 1 y bin, rapMax = rapMin
+ptMin=1      #takes bins, not acutal values
+ptMax=2      #if you only want to process 1 pt bin, ptMax = ptMin
+cpmMin=1
+cpmMax=5
+Plotting=2   #plotting macro: 1 = plot all, 2 = plot mass, 3 = plot lifetime sidebands, 4 = plot lifetime singal region, 
+	           # 5 = sidebands, separate pull and distribution, 6 = signal region, separate pull and distribution
+fi
 
 rejectCowboys=true
 RequestTrigger=true
@@ -37,25 +52,26 @@ correctCtau=false   #correct pseudo-proper lifetime to l_new = l * MpsiPDG / Mps
 drawRapPt2D=false  #draw Rap-Pt 2D map of Psi (change root settings above)
 drawPtCPM2D=false  #draw Pt-CPM 2D map of Psi (change root settings above)
 
-doCtauUncer=false
+doCtauUncer=true
 PolLSB=false       #measure polarization of the left sideband
 PolRSB=false       #measure polarization of the right sideband
 PolNP=false        #measure polarization of the non prompt events
 forceBinning=true  #set binning of Psi1S consistently to non prompt binning and Psi2S consistently to background binning
 folding=true       #folding is applied to all background histograms
 normApproach=false #normalization 
-ctauScen=0         #0:default(1s:2.5,2s:2.0), 1:(1s:3.5,2s:3.0), 2:(1s:1.5,2s:1.0), 3:100mm 1S and 2S, 
+ctauScen=5         #0:default(1s:2.5,2s:2.0), 1:(1s:3.5,2s:3.0), 2:(1s:1.5,2s:1.0), 3:100mm 1S and 2S, 
 FracLSB=-1         #-1:defalut, 0, 100
 scaleFracBg=false ##what is this for?
-fitMassPR=true
-fitMassNP=false 
+fitMassPR=false
+fitMassNP=false
+fitmass2gaus=true #does mass fit with either double gaussian (true) or 1 gaus with rapidity dependent sigma (false). rap dep sigma could be best for wider rap bins
 
 DataID=Psi$[nState-3]S_ctauScen${ctauScen}_FracLSB${FracLSB}
 polDataPath=${basedir}/Psi/Data/${DataID}
 
 
 #Define JobID
-JobIDName=1Sep_NewBinning #2012datarun #change job id name here, automatically updates below
+JobIDName=FourthResults_ForPreApproval #ThirdResults_ForPreApproval #2012datarun #change job id name here, automatically updates below
 JobID=ctauScen${ctauScen}_FracLSB${FracLSB}_${JobIDName} #updates automatically
 
 # input files
@@ -94,11 +110,11 @@ execute_runData=0			           #independent of rapMin, rapMax, ptMin, ptMax
 execute_runWorkspace=0			     #independent of rapMin, rapMax, ptMin, ptMax
 execute_runMassFit=0			       #can be executed for different pt and y bins
 execute_runLifetimeFit=0        #can be executed for different pt and y bins
-execute_runPlotMassLifetime=1    #can be executed for different pt and y bins
-execut_PlotFitPar=0              #independent of rapMin, rapMax, ptMin, ptMax
+execute_runPlotMassLifetime=0    #can be executed for different pt and y bins
+execut_PlotFitPar=1              #independent of rapMin, rapMax, ptMin, ptMax
 execute_runBkgHistos=0           #can be executed for different pt and y bins
-execute_PlotCosThetaPhiBG=0 		 #This step only has to be executed once for each set of cuts (indep. of FracLSB and nSigma)
-execute_PlotCosThetaPhiDistribution=0 #This step only has to be executed once for each set of cuts (indep. of FracLSB and nSigma)
+execute_PlotCosThetaPhiBG=1 		 #This step only has to be executed once for each set of cuts (indep. of FracLSB and nSigma)
+execute_PlotCosThetaPhiDistribution=1 #This step only has to be executed once for each set of cuts (indep. of FracLSB and nSigma)
 
 #################################
 
@@ -130,9 +146,17 @@ cp createWorkspace.C ${WorkDir}/createWorkspace.C
 
 cp runMassFit.cc ${WorkDir}/runMassFit.cc
 cp massFit.cc ${WorkDir}/massFit.cc
+if [ ${fitmass2gaus} = 'true' ]
+then
+cp massFit_2gaus.cc ${WorkDir}/massFit.cc
+fi
 
 cp runLifetimeFit.cc ${WorkDir}/runLifetimeFit.cc
 cp lifetimeFit.cc ${WorkDir}/lifetimeFit.cc
+if [ ${fitmass2gaus} = 'true' ]
+then
+cp lifetimeFit_2gaus.cc ${WorkDir}/lifetimeFit.cc
+fi
 cp ../interface/calculatePar.cc ${WorkDir}/calculatePar.cc
 cp ../interface/RooUtils.h ${WorkDir}/RooUtils.h
 
@@ -195,31 +219,31 @@ fi
 if [ ${execute_runPlotMassLifetime} -eq 1 ]
 then
 cp runPlotMassLifetime runPlotMassLifetime_$[nState-3]S_rap${rapMin}_pt${ptMin}_cpm${cpmMin}
-./runPlotMassLifetime_$[nState-3]S_rap${rapMin}_pt${ptMin}_cpm${cpmMin} rapMin=${rapMin} rapMax=${rapMax} ptMin=${ptMin} ptMax=${ptMax} cpmMin=${cpmMin} cpmMax=${cpmMax} nState=${nState} Plotting=${Plotting}
+./runPlotMassLifetime_$[nState-3]S_rap${rapMin}_pt${ptMin}_cpm${cpmMin} rapMin=${rapMin} rapMax=${rapMax} ptMin=${ptMin} ptMax=${ptMax} cpmMin=${cpmMin} cpmMax=${cpmMax} nState=${nState} Plotting=${Plotting} fitmass2gaus=${fitmass2gaus}
 rm runPlotMassLifetime_$[nState-3]S_rap${rapMin}_pt${ptMin}_cpm${cpmMin}
-#pdflatex MassLifetime_Psi$[nState-3]S.tex
-#mv MassLifetime_Psi$[nState-3]S.pdf PDF/MassLifetime_Psi$[nState-3]S.pdf
+pdflatex MassLifetime_Psi$[nState-3]S.tex
+mv MassLifetime_Psi$[nState-3]S.pdf PDF/MassLifetime_Psi$[nState-3]S.pdf
 fi
 
 if [ ${execut_PlotFitPar} -eq 1 ]
 then
-./PlotFitPar nState=${nState} doCtauUncer=${doCtauUncer}
-#pdflatex Lifetime_fitParameter.tex
+./PlotFitPar nState=${nState} doCtauUncer=${doCtauUncer} fitmass2gaus=${fitmass2gaus}
+pdflatex Lifetime_fitParameter.tex
 pdflatex Mass_fitParameter.tex
+pdflatex evaluateCtau.tex
 #pdflatex evaluateCtau.tex
-#pdflatex evaluateCtau.tex
+pdflatex NumEvents.tex
 #pdflatex NumEvents.tex
-#pdflatex NumEvents.tex
-#mv Lifetime_fitParameter.pdf PDF/Lifetime_fitParameter.pdf
+mv Lifetime_fitParameter.pdf PDF/Lifetime_fitParameter.pdf
 mv Mass_fitParameter.pdf PDF/Mass_fitParameter.pdf
-#mv evaluateCtau.pdf PDF/evaluateCtau.pdf
-#mv NumEvents.pdf PDF/NumEvents.pdf
+mv evaluateCtau.pdf PDF/evaluateCtau.pdf
+mv NumEvents.pdf PDF/NumEvents.pdf
 fi
 
 if [ ${execute_runBkgHistos} -eq 1 ]
 then
 cp runBkgHistos runBkgHistos_$[nState-3]S_rap${rapMin}_pt${ptMin}_cpm${cpmMin}
-./runBkgHistos_$[nState-3]S_rap${rapMin}_pt${ptMin}_cpm${cpmMin} rapMin=${rapMin} rapMax=${rapMax} ptMin=${ptMin} ptMax=${ptMax} cpmMin=${cpmMin} cpmMax=${cpmMax} nState=${nState} MC=${MC} doCtauUncer=${doCtauUncer} PolLSB=${PolLSB} PolRSB=${PolRSB} PolNP=${PolNP} ctauScen=${ctauScen} FracLSB=${FracLSB} forceBinning=${forceBinning} folding=${folding} normApproach=${normApproach} scaleFracBg=${scaleFracBg} ${polDataPath}=polDataPath
+./runBkgHistos_$[nState-3]S_rap${rapMin}_pt${ptMin}_cpm${cpmMin} rapMin=${rapMin} rapMax=${rapMax} ptMin=${ptMin} ptMax=${ptMax} cpmMin=${cpmMin} cpmMax=${cpmMax} nState=${nState} MC=${MC} doCtauUncer=${doCtauUncer} PolLSB=${PolLSB} PolRSB=${PolRSB} PolNP=${PolNP} ctauScen=${ctauScen} FracLSB=${FracLSB} forceBinning=${forceBinning} folding=${folding} normApproach=${normApproach} scaleFracBg=${scaleFracBg} ${polDataPath}=polDataPath fitmass2gaus=${fitmass2gaus}
 rm runBkgHistos_$[nState-3]S_rap${rapMin}_pt${ptMin}_cpm${cpmMin}
 fi
 
@@ -230,10 +254,14 @@ pdflatex cosThetaPhi_$[nState-3]S_BG.tex
 pdflatex cosThetaPhi_$[nState-3]S_BG_highct.tex
 pdflatex cosThetaPhi_$[nState-3]S_NPBG.tex
 pdflatex cosThetaPhi_$[nState-3]S_TBG.tex
+pdflatex NumEventsFracBG_Psi$[nState-3]S.tex
+pdflatex meanPt_Psi$[nState-3]S.tex
 mv cosThetaPhi_$[nState-3]S_BG.pdf PDF/cosThetaPhi_$[nState-3]S_BG.pdf
 mv cosThetaPhi_$[nState-3]S_BG_highct.pdf PDF/cosThetaPhi_$[nState-3]S_BG_highct.pdf
 mv cosThetaPhi_$[nState-3]S_NPBG.pdf PDF/cosThetaPhi_$[nState-3]S_NPBG.pdf
 mv cosThetaPhi_$[nState-3]S_TBG.pdf PDF/cosThetaPhi_$[nState-3]S_TBG.pdf
+mv NumEventsFracBG_Psi$[nState-3]S.pdf PDF/NumEventsFracBG_Psi$[nState-3]S.pdf
+mv meanPt_Psi$[nState-3]S.pdf PDF/meanPt_Psi$[nState-3]S.pdf
 fi
 
 if [ ${execute_PlotCosThetaPhiDistribution} -eq 1 ]

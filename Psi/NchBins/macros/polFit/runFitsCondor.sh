@@ -2,30 +2,31 @@
 
 export VO_CMS_SW_DIR=/sharesoft/cmssw #comment out for non-condor
 . $VO_CMS_SW_DIR/cmsset_default.sh #comment out for non-condor
-cd /home/ferraioc/PolNew/CMSSW_5_3_20/src/ChicPol/macros/polFit #comment out for non-condor
+cd /home/ferraioc/PolNew/CMSSW_5_3_20/src/Psi/NchBins/macros/polFit #comment out for non-condor
 eval `scramv1 runtime -sh` #comment out for non-condor
 
 source /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/5.34.05/x86_64-slc5-gcc43-opt/root/bin/thisroot.sh                                     
 source /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/5.34.05/x86_64-slc5-gcc43-opt/root/bin/setxrd.sh /cvmfs/sft.cern.ch/lcg/external/xrootd/3.2.4/x86_64-slc5-gcc46-opt/
 
 CONDOR_JOB="runfitscondor.jdl"
-n=0
 
-storagedir=/data/users/ferraioc/Polarization/JPsi/NchBins/Data/
-homedir=/home/ferraioc/PolNew/CMSSW_5_3_20/src/JPsi_Nch_Polarization/NchBins/macros/polFit
+
+storagedir=/data/users/ferraioc/Polarization/JPsi/NchBins/Data
+homedir=/home/ferraioc/PolNew/CMSSW_5_3_20/src/Psi/NchBins/macros/polFit
 
 
 
 ########################
 ########################
 ########################
-JobID=2011Psi2S
-DataID=_ctauScen0_FracLSB-1_2011Psi2S_NchInt
+JobID=FourthResults_ForPreApproval
+DataID=_ctauScen5_FracLSB-1_FourthResults_ForPreApproval
 
-nState=5
 nSample=50000
-nfits=15
+nfits=50
 FidCuts=11
+
+for nState in 4 5;do
 ########################
 ########################
 ########################
@@ -68,13 +69,14 @@ make
 
 cd ${homedir}
 
+n=0
 while [[ $n -le $nfits-1 ]]
 do
 if [ $nState -eq 4 ]
 then
 for pt in 1 2 
 do
-	for cpm in 1 2 3 4 5 6 7 8 9 10 11
+	for cpm in 1 2 3 4 5 6 7 8 9 10 11 12
 	do
 		cp runcondorFits.jdl $CONDOR_JOB
 		echo "$nSample $DataID $storagedir $homedir $n $pt $cpm $nState $JobID  " >> $CONDOR_JOB
@@ -100,4 +102,5 @@ done
 n=$(( n+1 ))
 fi
 
+done
 done
